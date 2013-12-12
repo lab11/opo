@@ -1,0 +1,25 @@
+#-*-Makefile-*-
+
+TARGET = opo
+
+# Special flags for Epic USB Mini Programmer
+MSP_BSL_FLAGS = --swap-reset-test --invert-reset --invert-test
+
+VOLUME_FILE = volumes-at45db.xml
+VOLUME_ALLOCATOR ?= tos-storage-at45db
+
+ifdef CC2420_CHANNEL
+PFLAGS += -DCC2420_DEF_CHANNEL=$(CC2420_CHANNEL)
+endif
+
+# add this because this is basically epic.
+PFLAGS += -DPLATFORM_EPIC
+
+# Include the msp extra targets
+$(call TOSMake_include_platform,opo)
+
+# Include the msp extra targets
+$(call TOSMake_include_make_platform,msp)
+
+opo: $(BUILD_DEPS)
+	@:

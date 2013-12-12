@@ -1,0 +1,8 @@
+<metrics>
+  <ram>50</ram>
+  <opo-ram>50</opo-ram>
+  <flash>18076</flash>
+  <opo-flash>18076</opo-flash>
+  <stack>3294</stack>
+  <opo-stack>3294</opo-stack>
+</metrics>
