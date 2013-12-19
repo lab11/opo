@@ -16,10 +16,10 @@ endif
 PFLAGS += -DPLATFORM_EPIC
 
 # Include the msp extra targets
-$(call TOSMake_include_platform,opo)
+$(call TOSMake_include_platform,opo2)
 
 # Include the msp extra targets
 $(call TOSMake_include_make_platform,msp)
 
-opo: $(BUILD_DEPS)
+$(TARGET): $(BUILD_DEPS)
 	@:
