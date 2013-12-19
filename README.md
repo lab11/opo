@@ -13,6 +13,7 @@ First, checkout my version of TinyOS:
     git checkout opo
 
 Next, install TinyOS:
+
     cd tinyos-main/tools
     ./Bootstrap
     ./configure
