@@ -7,6 +7,7 @@ implementation {
   command error_t Init.init() {
     // reset all of the ports to be input and using i/o functionality
     atomic {
+
         P1SEL = 0;
         P1DIR = 0x40;
         P1OUT = 0x00;
@@ -14,11 +15,11 @@ implementation {
 
         P2SEL = 0;
         P2DIR = 0x7b;
-        P2OUT = 0x30;
+        P2OUT = 0x32;
         P2IE = 0;
 
         P3SEL = 0;
-        P3DIR = 0xbb;
+        P3DIR = 0x7b;
         P3OUT = 0x0a;
 
         P4SEL = 0;
@@ -31,7 +32,7 @@ implementation {
 
         P6SEL = 0;
         P6DIR = 0x3e;
-        P6OUT = 0x16;
+        P6OUT = 0x1e;
 
 	// the commands above take care of the pin directions
 	// there is no longer a need for explicit set pin
