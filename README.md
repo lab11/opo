@@ -31,4 +31,9 @@ Installation
 
 5) You're ready!
 
+Currently, Opo uses a different build system than the default TinyOS.
+More information on this build system can be found at 'https://github.com/lab11/tinyos-main/blob/for-rpi/support/make/README'
+
+Usage
+---
 
