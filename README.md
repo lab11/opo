@@ -41,5 +41,5 @@ Usage
 To use the old, EPIC based platform, simply use 'make opo'. Everything should just work, although note that there
 are only two LEDS on this board.
 
-TO use the new, smaller msp430f1611 + CC2420 platform, use 'make opo2'. Basic applications like Blink will work,
+To use the new, smaller msp430f1611 + CC2420 platform, use 'make opo2'. Basic applications like Blink will work,
 but note that the flash chip is power gated and I2C0/SPI0 are multiplexed using an analog switch.
