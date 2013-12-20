@@ -7,15 +7,28 @@ Opo is a human interaction sensor, able to characterize face to face interaction
 Installation
 ---
 
-First, checkout my version of TinyOS:
+1) Checkout my version of TinyOS:
 
     git clone https://github.com/lab11/tinyos-main.git
     git checkout opo
 
-Next, install TinyOS:
+2) Install TinyOS:
 
     cd tinyos-main/tools
     ./Bootstrap
     ./configure
     make
     sudo make install
+
+3) Checkout the Opo repo
+
+    git clone https://github.com/lab11/opo.git
+
+4) Modify '.bashrc' file, using the correct paths for your checkout of the opo and tinyos repos
+
+    export TINYOS_ROOT_DIR=/tinyos-main
+    export TINYOS_ROOT_DIR_ADDITIONAL=/opo/tinyos:$TINYOS_ROOT_DIR_ADDITIONAL
+
+5) You're ready!
+
+
