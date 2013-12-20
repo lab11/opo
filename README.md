@@ -24,16 +24,22 @@ Installation
 
     git clone https://github.com/lab11/opo.git
 
-4) Modify '.bashrc' file, using the correct paths for your checkout of the opo and tinyos repos
+4) Modify '.bashrc' file, using the correct paths for your checkout of the opo and tinyos repos:
 
     export TINYOS_ROOT_DIR=/tinyos-main
     export TINYOS_ROOT_DIR_ADDITIONAL=/opo/tinyos:$TINYOS_ROOT_DIR_ADDITIONAL
 
-5) You're ready!
+5) You're ready! Be sure to reload '.bashrc' before trying to make any TinyOS apps
 
 Currently, Opo uses a different build system than the default TinyOS.
 More information on this build system can be found at 'https://github.com/lab11/tinyos-main/blob/for-rpi/support/make/README'
 
+
 Usage
 ---
 
+To use the old, EPIC based platform, simply use 'make opo'. Everything should just work, although note that there
+are only two LEDS on this board.
+
+TO use the new, smaller msp430f1611 + CC2420 platform, use 'make opo2'. Basic applications like Blink will work,
+but note that the flash chip is power gated and I2C0/SPI0 are multiplexed using an analog switch.
