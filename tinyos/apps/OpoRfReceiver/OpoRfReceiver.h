@@ -8,15 +8,12 @@
 #define AMP3_ADC      Port60
 #define SFDPIN        Port26
 
-typedef nx_struct opo_range_msg {
-    nx_uint32_t sequence;
-    nx_uint8_t  m_id[6];
+typedef nx_struct opo_rf_msg {
+    nx_uint32_t test;
 } opo_rf_msg_t;
 
 enum {
-    OPO = 17,
-    BASE = 20,
-    PREP = 5
+    OPO_RF_TEST = 26
 };
 
 #endif
