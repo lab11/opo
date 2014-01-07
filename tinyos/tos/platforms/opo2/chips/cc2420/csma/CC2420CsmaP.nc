@@ -50,6 +50,7 @@ module CC2420CsmaP @safe() {
   uses interface CC2420Packet;
   uses interface CC2420PacketBody;
   uses interface State as SplitControlState;
+  uses interface GeneralIO as I2C_SPI_SWITCH;
 
 }
 
@@ -64,32 +65,33 @@ implementation {
   };
 
   message_t* ONE_NOK m_msg;
-  
+
   error_t sendErr = SUCCESS;
-  
+
   /** TRUE if we are to use CCA when sending the current packet */
   norace bool ccaOn;
-  
+
   /****************** Prototypes ****************/
   task void startDone_task();
   task void stopDone_task();
   task void sendDone_task();
-  
+
   void shutdown();
 
   /***************** SplitControl Commands ****************/
   command error_t SplitControl.start() {
+    call I2C_SPI_SWITCH.clr();
     if(call SplitControlState.requestState(S_STARTING) == SUCCESS) {
       call CC2420Power.startVReg();
       return SUCCESS;
-    
+
     } else if(call SplitControlState.isState(S_STARTED)) {
       return EALREADY;
-      
+
     } else if(call SplitControlState.isState(S_STARTING)) {
       return SUCCESS;
     }
-    
+
     return EBUSY;
   }
 
@@ -98,19 +100,19 @@ implementation {
       call SplitControlState.forceState(S_STOPPING);
       shutdown();
       return SUCCESS;
-      
+
     } else if(call SplitControlState.isState(S_STOPPED)) {
       return EALREADY;
-    
+
     } else if(call SplitControlState.isState(S_TRANSMITTING)) {
       call SplitControlState.forceState(S_STOPPING);
       // At sendDone, the radio will shut down
       return SUCCESS;
-    
+
     } else if(call SplitControlState.isState(S_STOPPING)) {
       return SUCCESS;
     }
-    
+
     return EBUSY;
   }
 
@@ -120,7 +122,7 @@ implementation {
   }
 
   command error_t Send.send( message_t* p_msg, uint8_t len ) {
-    
+
     cc2420_header_t* header = call CC2420PacketBody.getHeader( p_msg );
     cc2420_metadata_t* metadata = call CC2420PacketBody.getMetadata( p_msg );
 
@@ -128,7 +130,7 @@ implementation {
       if (!call SplitControlState.isState(S_STARTED)) {
         return FAIL;
       }
-      
+
       call SplitControlState.forceState(S_TRANSMITTING);
       m_msg = p_msg;
     }
@@ -140,12 +142,12 @@ implementation {
                     (0x3 << IEEE154_FCF_SRC_ADDR_MODE) |
                     (0x3 << IEEE154_FCF_DEST_ADDR_MODE));
 #else
-    header->fcf &= ((1 << IEEE154_FCF_ACK_REQ) | 
+    header->fcf &= ((1 << IEEE154_FCF_ACK_REQ) |
                     (0x3 << IEEE154_FCF_SRC_ADDR_MODE) |
                     (0x3 << IEEE154_FCF_DEST_ADDR_MODE));
 #endif
     header->fcf |= ( ( IEEE154_TYPE_DATA << IEEE154_FCF_FRAME_TYPE ) |
-		     ( 1 << IEEE154_FCF_INTRAPAN ) ); 
+		     ( 1 << IEEE154_FCF_INTRAPAN ) );
 
     metadata->ack = FALSE;
     metadata->rssi = 0;
@@ -182,7 +184,7 @@ implementation {
   async command void RadioBackoff.setInitialBackoff(uint16_t backoffTime) {
     call SubBackoff.setInitialBackoff(backoffTime);
   }
-  
+
   /**
    * Must be called within a requestCongestionBackoff event
    * @param backoffTime the amount of time in some unspecified units to backoff
@@ -190,7 +192,7 @@ implementation {
   async command void RadioBackoff.setCongestionBackoff(uint16_t backoffTime) {
     call SubBackoff.setCongestionBackoff(backoffTime);
   }
-      
+
   /**
    * Enable CCA for the outbound packet.  Must be called within a requestCca
    * event
@@ -199,7 +201,7 @@ implementation {
   async command void RadioBackoff.setCca(bool useCca) {
     ccaOn = useCca;
   }
-  
+
 
   /**************** Events ****************/
   async event void CC2420Transmit.sendDone( message_t* p_msg, error_t err ) {
@@ -210,7 +212,7 @@ implementation {
   async event void CC2420Power.startVRegDone() {
     call Resource.request();
   }
-  
+
   event void Resource.granted() {
     call CC2420Power.startOscillator();
   }
@@ -218,39 +220,39 @@ implementation {
   async event void CC2420Power.startOscillatorDone() {
     post startDone_task();
   }
-  
+
   /***************** SubBackoff Events ****************/
   async event void SubBackoff.requestInitialBackoff(message_t *msg) {
-    call SubBackoff.setInitialBackoff ( call Random.rand16() 
+    call SubBackoff.setInitialBackoff ( call Random.rand16()
         % (0x1F * CC2420_BACKOFF_PERIOD) + CC2420_MIN_BACKOFF);
-        
+
     signal RadioBackoff.requestInitialBackoff(msg);
   }
 
   async event void SubBackoff.requestCongestionBackoff(message_t *msg) {
-    call SubBackoff.setCongestionBackoff( call Random.rand16() 
+    call SubBackoff.setCongestionBackoff( call Random.rand16()
         % (0x7 * CC2420_BACKOFF_PERIOD) + CC2420_MIN_BACKOFF);
 
     signal RadioBackoff.requestCongestionBackoff(msg);
   }
-  
+
   async event void SubBackoff.requestCca(message_t *msg) {
     // Lower layers than this do not configure the CCA settings
     signal RadioBackoff.requestCca(msg);
   }
-  
-  
+
+
   /***************** Tasks ****************/
   task void sendDone_task() {
     error_t packetErr;
     atomic packetErr = sendErr;
     if(call SplitControlState.isState(S_STOPPING)) {
       shutdown();
-      
+
     } else {
       call SplitControlState.forceState(S_STARTED);
     }
-    
+
     signal Send.sendDone( m_msg, packetErr );
   }
 
@@ -261,13 +263,13 @@ implementation {
     call SplitControlState.forceState(S_STARTED);
     signal SplitControl.startDone( SUCCESS );
   }
-  
+
   task void stopDone_task() {
     call SplitControlState.forceState(S_STOPPED);
     signal SplitControl.stopDone( SUCCESS );
   }
-  
-  
+
+
   /***************** Functions ****************/
   /**
    * Shut down all sub-components and turn off the radio
@@ -281,19 +283,19 @@ implementation {
   /***************** Defaults ***************/
   default event void SplitControl.startDone(error_t error) {
   }
-  
+
   default event void SplitControl.stopDone(error_t error) {
   }
-  
+
   default async event void RadioBackoff.requestInitialBackoff(message_t *msg) {
   }
 
   default async event void RadioBackoff.requestCongestionBackoff(message_t *msg) {
   }
-  
+
   default async event void RadioBackoff.requestCca(message_t *msg) {
   }
-  
-  
+
+
 }
 
