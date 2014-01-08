@@ -1,0 +1,7 @@
+DRC Rules Export File for PCB: C:\Users\samkuo\Dropbox\Ultrasonic Ranging\Altium\v3\layout\opo_v4.PcbDoc
+RuleKind=SolderMaskExpansion|RuleName=Tent Vias|Scope=Board|Minimum=-10.00
+RuleKind=MinimumAnnularRing|RuleName=MinimumAnnularRing~Sunstone Circuits|Scope=Board|Minimum=5.00
+RuleKind=ShortCircuit|RuleName=ShortCircuit~Sunstone Circuits|Scope=Board|Allowed=0
+RuleKind=SolderMaskExpansion|RuleName=SolderMaskExpansion~Sunstone Circuits|Scope=Board|Minimum=3.00
+RuleKind=Width|RuleName=Width~Sunstone Circuits|Scope=Board|Minimum=5.00
+RuleKind=Clearance|RuleName=Clearance~Sunstone Circuits|Scope=Board|Minimum=5.00
