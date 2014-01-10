@@ -1,52 +1,109 @@
-module HplSST25VF064C {
+#include "HplSST25VF064.h"
+
+"""
+Because this implementation uses the SpiByte interface,
+the TxBuffer and RxBuffer must both be greater than
+len(tx_msg) + len(rx_msg)
+"""
+
+
+module HplSST25VF064P {
 	provides {
 		interface HplSST25VF064;
 	}
 	uses {
-		interface Resource;
+		interface Resource as SpiResource;
 		interface SpiByte;
+		interface GeneralIO as FlashPowerGate;
+		interface GeneralIO as FlashCS;
+		interface GeneralIO as ResetHoldPin;
+		interface Alarm<T32khz, uint16_t>;
 	}
-
 }
-implementatoin {
+implementation {
 
-	command error_t read(uint8_t addr[3]) {
+	int i; // for loop variable
+
+	inline void runSpiByte(uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {
+		call FlashCS.clr();
+		for(i = 0: i < len; i++) {
+			rxBuffer[i] = SpiByte.write(txBuffer[i]);
+		}
+		call FlashCS.set();
+	}
+
+	inline void leftShiftRxBuffer(uint8_t *rxBuffer, uint16_t len, uint16_t shift) {
+		for(i=0; i < (len - shift); i++) {
+			rxBuffer[i] = rxBuffer[i + shift];
+		}
+	}
+
+	command void HplSST25VF064.turn_on() {
+		call SpiResource.request();
+		call FlashPowerGate.clr();
+		call ResetHoldPin.set();
+	}
+
+	command void HplSST25VF064.turn_off() {
+		call SpiResource.release();
+		call FlashPowerGate.set();
+		call FlashHoldPin.clr();
+		call FlashCS.clr();
+		signal HplSST25VF064.turnedOff();
+	}
+
+	event void SpiResource.granted() {
+		signal HplSST25VF064.turnedOn();
+	}
+
+	command void HplSST25VF064.read(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {
+		txBuffer[0] = READ;
+		txBuffer[1] = addr[0];
+		txBuffer[2] = addr[1];
+		txBuffer[3] = addr[2];
+
+		runSpiByte(txBuffer, rxBuffer, len);
+		leftShiftRxBuffer(rxBuffer, len, 4);
+	}
+
+	command void HplSST25VF064.high_speed_read(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {}
+	command void HplSST25VF064.fast_read_dual_output(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {}
+
+	command void HplSST25VF064.read_sid(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {
+		txBuffer[0] = READ_SID;
+		txBuffer[1] = addr[0];
+		txBuffer[2] = addr[1];
+		txBuffer[3] = addr[3];
+		runSpiByte(txBuffer, rxBuffer, len);
+		leftShiftRxBuffer(rxBuffer, len, 4);
+	}
+
+	command void HplSST25VF064.lock_sid() {
 
 	}
 
-	command error_t high_speed_read(uint8_t addr[3]) {}
-	command error_t fast_read_dual_output(uint8_t addr[3] {}
-
-	command error_t read_sid(uint8_t addr[3]) {
+	command void HplSST25VF064.program_sid(uint8_t addr[3], uint8_t *data, uint16_t len) {
 
 	}
 
-	command error_t lock_sid() {
+	command void HplSST25VF064.read_status_register();
 
-	}
+	command void HplSST25VF064.write_enable();
+	command void HplSST25VF064.write_disable();
 
-	command error_t program_sid(uint8_t addr[3], uint8_t *data) {
+	command void HplSST25VF064.page_program(uint8_t addr[3], uint8_t *data);
+	command void HplSST25VF064.dual_input_page_program(uint8_t addr[3], uint8_t *data);
 
-	}
+	command void HplSST25VF064.sector_erase(uint8_t addr[3]);
+	command void HplSST25VF064.32kb_block_erase(uint8_t addr[3]);
+	command void HplSST25VF064.64kb_block_erase(uint8_t addr[3]);
+	command void HplSST25VF064.chip_erase();
 
-	command error_t read_status_register();
+	command void HplSST25VF064.ewsr(); // Enable write status register
+	command void HplSST25VF064.wrsr(uint8_t *data) // write status regsiter
 
-	command error_t write_enable();
-	command error_t write_disable();
-
-	command error_t page_program(uint8_t addr[3], uint8_t *data);
-	command error_t dual_input_page_program(uint8_t addr[3], uint8_t *data);
-
-	command error_t sector_erase(uint8_t addr[3]);
-	command error_t 32kb_block_erase(uint8_t addr[3]);
-	command error_t 64kb_block_erase(uint8_t addr[3]);
-	command error_t chip_erase();
-
-	command error_t ewsr(); // Enable write status register
-	command error_t wrsr(uint8_t *data) // write status regsiter
-
-	command error_t ehld(); // enable hold pin. turns reset pin into hold pin
-	command error_t rdid(); // reads the manufacturer and device id
+	command void HplSST25VF064.ehld(); // enable hold pin. turns reset pin into hold pin
+	command void HplSST25VF064.rdid(); // reads the manufacturer and device id
 
 
 }
