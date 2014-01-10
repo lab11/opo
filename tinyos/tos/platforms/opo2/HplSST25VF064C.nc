@@ -15,7 +15,4 @@ implementatoin {
 	HplSST25VF064P.FlashCS -> GpIO.Port44;
 	HplSST25VF064P.ResetHoldPin -> GpIO.Port55;
 
-
-
-
 }
