@@ -8,6 +8,7 @@ module OpoBaseP {
     interface Receive as VisualReceive;
     interface Receive as RxReceive;
     interface Receive as ADCReceive;
+    interface Receive as FlashReceive;
     interface SplitControl as RfControl;
     interface AMPacket;
     interface Boot;
@@ -127,6 +128,20 @@ implementation {
 
     for(i = 0; i < 6; i++) {
       printf("24 %u %u %u \n", data->rf_time, data->readings[i], data->times[i]);
+    }
+
+    printf("----------------------\n");
+
+    return msg;
+  }
+
+  event message_t* FlashReceive.receive(message_t *msg, void *payload, uint8_t len) {
+    opo_flash_t *data = (opo_flash_t *) payload;
+    int i;
+
+    for(i = 0; i < 8; i++) {
+      printf("woo \n");
+      printf("%u \n", data->sid[i]);
     }
 
     printf("----------------------\n");

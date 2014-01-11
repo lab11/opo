@@ -54,6 +54,10 @@ typedef nx_struct opo_adc_msg {
     nx_uint16_t rf_time;
 } opo_adc_msg_t;
 
+typedef nx_struct opo_flash_msg {
+    nx_uint8_t sid[8];
+} opo_flash_t;
+
 enum {
     OPO_DATA = 20,
     OPO_BLINK = 21,
@@ -61,7 +65,8 @@ enum {
     OPO_RX_BASE = 23,
     OPO_ADC_BASE = 24,
     OPO_VISUAL_STORE_BASE = 25,
-    OPO_RF_TEST = 26
+    OPO_RF_TEST = 26,
+    OPO_FLASH_TEST = 27
 };
 
 #endif

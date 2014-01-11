@@ -13,12 +13,14 @@ implementation {
   components new AMReceiverC(OPO_VISUAL_BASE) as VisualReceive;
   components new AMReceiverC(OPO_RX_BASE) as RxReceive;
   components new AMReceiverC(OPO_ADC_BASE) as ADCReceive;
+  components new AMReceiverC(OPO_FLASH_TEST) as FlashReceive;
 
   OpoBaseP.OpoReceive -> OpoReceive;
   OpoBaseP.BlinkReceive -> BlinkReceive;
   OpoBaseP.VisualReceive -> VisualReceive;
   OpoBaseP.RxReceive -> RxReceive;
   OpoBaseP.ADCReceive -> ADCReceive;
+  OpoBaseP.FlashReceive -> FlashReceive;
   OpoBaseP.RfControl -> ActiveMessageC.SplitControl;
   OpoBaseP.AMPacket -> ActiveMessageC.AMPacket;
 }
