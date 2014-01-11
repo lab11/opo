@@ -3,8 +3,8 @@
 #define FAST_READ_DUAL_OUTPUT 0x3b
 #define HIGH_SPEED_READ       0x0b
 #define SECTOR_ERASE          0x20
-#define 32KB_BLOCK_ERASE      0x52
-#define 64KB_BLOCK_ERASE      0xD8
+#define SMALL_BLOCK_ERASE     0x52
+#define LARGE_BLOCK_ERASE     0xD8
 #define CHIP_ERASE            0x60
 #define CHIP_ERASE_2          0xc7
 #define PAGE_PROGRAM          0x02

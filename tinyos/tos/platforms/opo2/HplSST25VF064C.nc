@@ -3,16 +3,28 @@ configuration HplSST25VF064C {
 		interface HplSST25VF064;
 	}
 }
-implementatoin {
+implementation {
 	components HplSST25VF064P;
+
+	HplSST25VF064 = HplSST25VF064P;
+
+	components BusyWaitMicroC;
+	HplSST25VF064P.BusyWait -> BusyWaitMicroC;
 
 	components new Msp430Spi1C() as FlashSpi;
 	HplSST25VF064P.SpiResource -> FlashSpi.Resource;
 	HplSST25VF064P.SpiByte -> FlashSpi.SpiByte;
 
-	components new MspGeneralIOC() as GpIO;
-	HplSST25VF064P.FlashPowerGate -> GpIO.Port64;
-	HplSST25VF064P.FlashCS -> GpIO.Port44;
-	HplSST25VF064P.ResetHoldPin -> GpIO.Port55;
+	components HplMsp430GeneralIOC as GpIO;
+	components new Msp430GpioC() as FlashPowerGateM;
+  	components new Msp430GpioC() as FlashCSM;
+  	components new Msp430GpioC() as ResetHoldPinM;
+  	FlashPowerGateM -> GpIO.Port64;
+  	FlashCSM -> GpIO.Port44;
+  	ResetHoldPinM -> GpIO.Port55;
+
+	HplSST25VF064P.FlashPowerGate -> FlashPowerGateM;
+	HplSST25VF064P.FlashCS -> FlashCSM;
+	HplSST25VF064P.ResetHoldPin -> ResetHoldPinM;
 
 }
