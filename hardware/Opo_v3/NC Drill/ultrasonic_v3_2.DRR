@@ -1,0 +1,22 @@
+---------------------------------------------------------------------------
+NCDrill File Report For: ultrasonic_v3_2.PcbDoc   5/15/2013  3:07:54 PM
+---------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII RoundHoles File : ultrasonic_v3_2.TXT
+
+Tool         Hole Size           Hole Type     Hole Count Plated       Tool Travel
+---------------------------------------------------------------------------
+T1        6mil (0.1524mm)          Round          110              7.81 Inch (198.43 mm)
+T2        8mil (0.2032mm)          Round          20               2.75 Inch (69.89 mm)
+T3        12mil (0.3048mm)         Round          2                0.32 Inch (8.23 mm)
+T4        13mil (0.3302mm)         Round          17               1.31 Inch (33.34 mm)
+T5        16mil (0.4064mm)         Round          3                0.46 Inch (11.77 mm)
+T6        32mil (0.8128mm)         Round          2                0.08 Inch (2.08 mm)
+T7        35.4mil (0.89916mm)      Round          2                0.12 Inch (3.00 mm)
+T8        47.2mil (1.19888mm)      Round          2                0.25 Inch (6.35 mm)
+T9        74.8mil (1.89992mm)      Round          2                0.33 Inch (8.30 mm)
+---------------------------------------------------------------------------
+Totals                                            160              13.44 Inch (341.39 mm)
+
+Total Processing Time (hh:mm:ss) : 00:00:00

@@ -1,0 +1,12 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : PCB Document [ultrasonic_v3_2.PcbDoc]
+   Generated File[ultrasonic_v3_2.TXT]
+   Generated File[ultrasonic_v3_2.LDP]
+   Generated File[ultrasonic_v3_2.DRR]
+
+
+Files Generated   : 3
+Documents Printed : 0
+
+Finished Output Generation At 3:07:54 PM On 5/15/2013
