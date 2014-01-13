@@ -11,6 +11,9 @@ implementation {
 	components BusyWaitMicroC;
 	HplSST25VF064P.BusyWait -> BusyWaitMicroC;
 
+	components LedsC;
+	HplSST25VF064P.Leds -> LedsC.Leds;
+
 	components new Msp430Spi1C() as FlashSpi;
 	HplSST25VF064P.SpiResource -> FlashSpi.Resource;
 	HplSST25VF064P.SpiByte -> FlashSpi.SpiByte;

@@ -18,6 +18,7 @@ module HplSST25VF064P {
 		interface GeneralIO as FlashCS;
 		interface GeneralIO as ResetHoldPin;
 		interface BusyWait<TMicro, uint16_t>;
+		interface Leds;
 	}
 }
 implementation {
@@ -39,10 +40,10 @@ implementation {
 	}
 
 	command void HplSST25VF064.turnOn() {
-		call SpiResource.request();
 		call FlashPowerGate.clr();
 		call ResetHoldPin.set();
 		call BusyWait.wait(150);
+		call SpiResource.request();
 	}
 
 	command void HplSST25VF064.turnOff() {
@@ -75,8 +76,10 @@ implementation {
 		txBuffer[1] = addr[0];
 		txBuffer[2] = addr[1];
 		txBuffer[3] = addr[2];
+		call Leds.led0On();
 		runSpiByte(txBuffer, rxBuffer, len);
 		leftShiftRxBuffer(rxBuffer, len, 4);
+		call Leds.led1On();
 	}
 
 	command void HplSST25VF064.lock_sid() {
