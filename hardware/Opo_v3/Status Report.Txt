@@ -1,0 +1,39 @@
+Project Outputs Generation Report
+---------------------------------
+Start Output Generation At 1:52:41 PM On 2/16/2013
+
+Output: ODB++ Files
+Type  : ODB
+From  : Variant [[No Variations]] of PCB Document [ultrasonic_revB.PcbDoc]
+   Generated File[matrix]
+   Generated File[profile]
+   Generated File[stephdr]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[tools]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[features]
+   Generated File[components]
+   Generated File[features]
+   Generated File[components]
+   Generated File[data]
+   Generated File[netlist]
+   Generated File[ultrasonic_revB.REP]
+
+
+Files Generated   : 26
+Documents Printed : 0
+
+Finished Output Generation At 1:52:44 PM On 2/16/2013

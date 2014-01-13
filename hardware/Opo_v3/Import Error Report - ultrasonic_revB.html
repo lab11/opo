@@ -1,0 +1,182 @@
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html">
+<style type="text/css">
+		h1, h2, h3, h4, h5, h6 { 
+			font-family : sans-serif;
+			color : white;
+			background-color : #21489e;
+			padding: 0.3em;
+		}
+		body { 
+			font-family : verdana;
+		}
+		td, th {  
+			padding: 0.5em;
+			text-align : center;
+			width : 18%;	
+		}
+		th { 
+			background-color : #A6CAF0;
+		
+		}
+		th.column1, td.column1 { 
+			text-align: left;
+			width : auto; 
+		}
+		table { 
+			width : 100%; 
+		}
+		.front_matter, .front_matter_column1, .front_matter_column2, .front_matter_column3 {
+			padding-top : 0.1em;
+			padding-bottom : 0.1em;
+			border : 0px solid black;
+			width : auto;
+			vertical-align: top
+		}
+		.front_matter_column1 {
+			text-align : right;
+		}
+		.total_column1, .total_column {
+			font-weight : bold;	
+		}
+		.total_column1 {
+			text-align : right;
+		}
+		.front_matter_column2 {
+			text-align : center;
+		}
+		.front_matter_column3 {
+			text-align : left;
+		}
+		.warning, .error { 
+			color : red;
+			font-weight : bold;
+		}	
+		tr.onmouseout_odd { 
+			background-color : #EEEEE0 
+		}
+		tr.onmouseout_even { 
+			background-color : #F3F3E3   
+		}
+		tr.onmouseover_odd, tr.onmouseover_even { 
+			background-color : lightYellow 
+		} 
+		a:link, a:visited, .q a:link,.q a:active,.q {
+			color: #21489e; 
+		}
+		a:link.callback, a:visited.callback { 
+			color: #008000 
+		}
+		a:link.customize, a:visited.customize {
+			color: #C0C0C0;
+			position: absolute; 
+			right: 10px;
+		}	
+		p.contents_level1 {
+			font-weight : bold;
+			font-size : 110%;
+			margin : 0.5em;
+		}
+		p.contents_level2 {
+			position : relative;
+			left : 20px;
+			margin : 0.5em;
+		}
+	</style><script type="text/javascript">
+		function coordToMils(coord) {
+			var number = coord / 10000;
+			
+			if (number != number.toFixed(3))
+				number = number.toFixed(3);
+			
+			return number + 'mil'
+		}
+
+		function coordToMM(coord) {
+			var number = 0.0254 * coord / 10000;
+			
+			if (number != number.toFixed(4))
+				number = number.toFixed(4);
+			
+			return number + 'mm'
+		}
+	
+		function convertCoord(coordNode, units) {
+			for (var i = 0; i < coordNode.childNodes.length; i++) {
+				coordNode.removeChild(coordNode.childNodes[i]);		
+			}
+
+			var coord = coordNode.getAttribute('value');
+			if (coord != null) {
+				if (units == 'mm') {	
+					textNode = document.createTextNode(coordToMM(coord));
+					coordNode.appendChild(textNode);
+				} else if (units == 'mil') {
+					textNode = document.createTextNode(coordToMils(coord));		
+					coordNode.appendChild(textNode);	
+				}
+			}
+		}
+	
+		function convertUnits(unitNode, units) {
+			for (var i = 0; i < unitNode.childNodes.length; i++) {
+				unitNode.removeChild(unitNode.childNodes[i]);		
+			}
+		
+			textNode = document.createTextNode(units); 
+			unitNode.appendChild(textNode);
+		}
+	
+		function changeUnits(radio_input, units) {
+			if (radio_input.checked) {
+			
+				var elements = document.getElementsByName('coordinate');
+				if (elements) {
+					for (var i = 0; i < elements.length; i++) {
+						convertCoord(elements[i], units);
+					}
+				}
+	
+				var elements = document.getElementsByName('units');
+				if (elements) {
+					for (var i = 0; i < elements.length; i++) {
+						convertUnits(elements[i], units);
+					}
+				}
+			}
+		}	
+	</script><title>DXF/DWG File Import Error Report</title>
+</head>
+<body onload=""><img ALT="Altium" src="
+			file://C:\Users\Public\Documents\Altium\AD\Templates\AD-rgb_logo_223x64.gif
+		"><a href="dxpprocess://Client:SetupPreferences?Server=PCB|PageName=Reports" class="customize"><acronym title="dxpprocess://Client:SetupPreferences?Server=PCB|PageName=Reports">customize</acronym></a><h1>DXF/DWG File Import Error Report</h1>
+<table class="front_matter">
+<tr class="front_matter">
+<td class="front_matter_column1">Date</td>
+<td class="front_matter_column2">:</td>
+<td class="front_matter_column3">1/27/2013</td>
+</tr>
+<tr class="front_matter">
+<td class="front_matter_column1">Time</td>
+<td class="front_matter_column2">:</td>
+<td class="front_matter_column3">2:29:30 PM</td>
+</tr>
+<tr class="front_matter">
+<td class="front_matter_column1">Elapsed Time</td>
+<td class="front_matter_column2">:</td>
+<td class="front_matter_column3">00:00:20</td>
+</tr>
+<tr class="front_matter">
+<td class="front_matter_column1">PCB Filename</td>
+<td class="front_matter_column2">:</td>
+<td class="front_matter_column3"><a href="file:///C:\Users\samkuo\Dropbox\Ultrasonic Ranging\Altium\ultrasonic_revB.PcbDoc" class="file"><acronym title="C:\Users\samkuo\Dropbox\Ultrasonic Ranging\Altium\ultrasonic_revB.PcbDoc">C:\Users\samkuo\Dropbox\Ultrasonic Ranging\Altium\ultrasonic_revB.PcbDoc</acronym></a></td>
+</tr>
+<tr class="front_matter">
+<td class="front_matter_column1">DXF Filename</td>
+<td class="front_matter_column2">:</td>
+<td class="front_matter_column3"><a href="file:///C:\Users\samkuo\Dropbox\Altium_YeSheng\2.4GHz PCB Antenna\Inverted_F_Antenna.dxf" class="file"><acronym title="C:\Users\samkuo\Dropbox\Altium_YeSheng\2.4GHz PCB Antenna\Inverted_F_Antenna.dxf">C:\Users\samkuo\Dropbox\Altium_YeSheng\2.4GHz PCB Antenna\Inverted_F_Antenna.dxf</acronym></a></td>
+</tr>
+</table>
+<hr>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2464,7055)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2464,7154.263)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2433,7060)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2309,7064)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2393.63,7064)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2309,7072)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2393.63,7072)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2309,7080)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2393.63,7080)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2309,7088)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2393.63,7088)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2309,7096)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2393.63,7096)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7104)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7112)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7120)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7128)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7136)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7144)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7152)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7160)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7168)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7176)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7184)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2314.89,7184)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7192)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2314.89,7192)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7200)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2314.89,7200)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7208)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2314.89,7208)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7216)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2314.89,7216)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7224)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2354.26,7224)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7232)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2354.26,7232)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7240)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2354.26,7240)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7248)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2354.26,7248)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7256)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2354.26,7256)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7264)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7272)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7280)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7288)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7296)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7304)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7312)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7320)<br>LWPOLYLINE entity was discarded because of invalid vertex coordinates (2040,7328)<br></body>
+</html>

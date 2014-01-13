@@ -1,0 +1,71 @@
+Designator Footprint               Mid X         Mid Y         Ref X         Ref Y         Pad X         Pad Y TB      Rotation Comment        
+
+ANT1       Inverted_F_Antenna   1553.858mil    637.047mil       1545mil        640mil   1553.858mil    613.425mil  T        270.00 2.4GHz PCB Antenna
+R18        J1-0603                715mil        290mil        715mil        290mil        715mil    319.527mil  B        270.00 Res3           
+C24        1608[0603]            1160mil        300mil       1160mil        300mil       1160mil    272.441mil  B         90.00 Cap Semi       
+C23        1608[0603]             935mil        300mil        935mil        300mil        935mil    272.441mil  B         90.00 Cap Semi       
+D3         J1-0603               1130mil        795mil       1130mil        795mil       1130mil    824.528mil  B        270.00 Diode          
+C22        1608[0603]             155mil        735mil        155mil        735mil    182.559mil        735mil  T        180.00 Cap Semi       
+U3         TSOT23-5                90mil        925mil         90mil        925mil    127.402mil    974.213mil  T        270.00 ADP162         
+C6         1608[0603]             155mil        805mil        155mil        805mil    182.559mil        805mil  T        180.00 Cap Semi       
+C5         1608[0603]             200mil        945mil        200mil        945mil        200mil    917.441mil  T         90.00 Cap Semi       
+U11        LGA-16                 895mil        830mil        895mil        830mil     855.63mil    878.228mil  B        270.00 LIS3DHTR       
+C21        1608[0603]             855mil        970mil        855mil        970mil        855mil    997.559mil  B        270.00 Cap Semi       
+C20        1608[0603]             770mil        790mil        770mil        790mil    742.441mil        790mil  B        360.00 Cap Semi       
+C1         1608[0603]             435mil        150mil        435mil        150mil        435mil    122.441mil  T         90.00 Cap Semi       
+C2         1608[0603]             605mil        355mil        605mil        355mil    577.441mil        355mil  B        360.00 Cap Semi       
+C3         1608[0603]             490mil        305mil        490mil        305mil    462.441mil        305mil  B        360.00 Cap Semi       
+C4         1608[0603]             600mil        140mil        600mil        140mil    572.441mil        140mil  B        360.00 Cap Semi       
+C9         1608[0603]             605mil        420mil        605mil        420mil    632.559mil        420mil  B        180.00 Cap Semi       
+C10        1608[0603]             710mil        175mil        710mil        175mil        710mil    202.559mil  B        270.00 Cap Semi       
+C11        1608[0603]             815mil        145mil        815mil        145mil    787.441mil        145mil  B        360.00 Cap Semi       
+C12        1608[0603]             935mil        175mil        935mil        175mil        935mil    202.559mil  B        270.00 Cap Semi       
+C13        1608[0603]            1040mil        145mil       1040mil        145mil   1012.441mil        145mil  B        360.00 Cap Semi       
+C15        1608[0603]            1160mil        180mil       1160mil        180mil       1160mil    207.559mil  B        270.00 Cap Semi       
+C16        1608[0603]            1260mil        145mil       1260mil        145mil   1232.441mil        145mil  B        360.00 Cap Semi       
+C17        1608[0603]            1130mil        665mil       1130mil        665mil       1130mil    692.559mil  B        270.00 Cap Semi       
+C7         1608[0603]             815mil        410mil        815mil        410mil    842.559mil        410mil  B        180.00 Cap Semi       
+C8         1608[0603]            1040mil        410mil       1040mil        410mil   1067.559mil        410mil  B        180.00 Cap Semi       
+C14        1608[0603]            1265mil        410mil       1265mil        410mil   1292.559mil        410mil  B        180.00 Cap Semi       
+D1         J1-0603                725mil       1130mil        725mil       1130mil    695.472mil       1130mil  T        360.00 LED3           
+D2         J1-0603                535mil       1130mil        535mil       1130mil    505.473mil       1130mil  T        360.00 LED3           
+J3         TestPoint              330mil        295mil        330mil        295mil        330mil        295mil  T          0.00 5004           
+J6         TestPoint             1460mil         75mil       1460mil         75mil       1460mil         75mil  T          0.00 5004           
+P1         1x2_header             330mil        135mil        330mil        135mil        330mil        185mil  T        270.00 1 x 2 header   
+Q1         SOT23-3N               680mil        655mil        680mil        655mil    642.598mil    692.402mil  B        270.00 ZXM61P03       
+R3         J1-0603                770mil        945mil        770mil        945mil    740.472mil        945mil  B        360.00 470            
+R4         J1-0603                610mil        945mil        610mil        945mil    639.528mil        945mil  B        180.00 470            
+R5         J1-0603                815mil        320mil        815mil        320mil    785.472mil        320mil  B        360.00 1Meg           
+R6         J1-0603               1040mil        320mil       1040mil        320mil   1010.472mil        320mil  B        360.00 1Meg           
+R7         J1-0603                715mil        400mil        715mil        400mil        715mil    429.527mil  B        270.00 100K           
+R8         J1-0603                935mil        420mil        935mil        420mil        935mil    390.473mil  B         90.00 100K           
+R9         J1-0603               1265mil        320mil       1265mil        320mil   1235.473mil        320mil  B        360.00 1Meg           
+R10        J1-0603               1160mil        420mil       1160mil        420mil       1160mil    390.473mil  B         90.00 100K           
+R11        J1-0603               1225mil        820mil       1225mil        820mil   1254.527mil        820mil  B        180.00 2k             
+R13        J1-0603               1225mil        725mil       1225mil        725mil   1254.527mil        725mil  B        180.00 2k             
+R14        J1-0603               1055mil        665mil       1055mil        665mil       1055mil    635.472mil  B         90.00 1Meg           
+R1         J1-0603               1050mil       1135mil       1050mil       1135mil   1020.472mil       1135mil  T        360.00 10K            
+R2         J1-0603               1215mil       1135mil       1215mil       1135mil   1244.527mil       1135mil  T        180.00 10K            
+SW1        EVQP2                  160mil        180mil        160mil        180mil    125.748mil         80mil  T        270.00 EVQP2          
+U1         EPIC_LCC68             985mil        580mil        985mil        580mil        510mil        980mil  T        360.00 EPIC_COREA     
+U2         SOT23-3N               580mil        250mil        580mil        250mil    617.402mil    287.402mil  B        180.00 ISL60002       
+U5         SC70-6                 815mil        225mil        815mil        225mil    777.598mil    199.409mil  B         90.00 MIC861         
+U6         SC70-6                1040mil        225mil       1040mil        225mil   1002.598mil    199.409mil  B         90.00 MIC861         
+U7         SC70-6                1265mil        225mil       1265mil        225mil   1227.598mil    199.409mil  B         90.00 MIC861         
+U9         ULLGA6                 790mil        520mil        790mil        520mil    803.976mil    539.685mil  B        270.00 NLX2G14        
+U10        SC70-6                 915mil        520mil        915mil        520mil    952.402mil    545.591mil  B        270.00 SN74AUP1G08    
+UT1        Transducer_recepticle        285mil        605mil        285mil        605mil        285mil    441.614mil  T         90.00 400EP250       
+Y1         RV4162                1135mil        940mil       1135mil        940mil   1158.622mil     993.15mil  B        270.00 RV-4162-C7     
+SW2        Slide_Switch_SPDT        175mil   1112.205mil        175mil       1125mil    263.583mil   1056.102mil  T        180.00 EG1218         
+J1         Micro_USB          107.657mil        185mil         55mil        185mil    160.315mil    133.819mil  B         90.00 6 pin connector
+R19        J1-0603                540mil        875mil        540mil        875mil    569.528mil        875mil  B        180.00 Res3           
+R20        J1-0603                600mil        875mil        600mil        875mil    570.472mil        875mil  B        360.00 Res3           
+R21        J1-0603                405mil        135mil        405mil        135mil        405mil    164.528mil  B        270.00 Res3           
+C18        1608[0603]        1099.842mil    512.598mil   1099.842mil    512.598mil   1072.283mil    512.598mil  B        360.00 Cap Semi       
+C19        1608[0603]            1215mil        655mil       1215mil        655mil   1242.559mil        655mil  B        180.00 Cap Semi       
+R12        J1-0603               1370mil        560mil       1370mil        560mil       1370mil    589.528mil  B        270.00 1.24M          
+R15        J1-0603               1370mil        685mil       1370mil        685mil       1370mil    714.528mil  B        270.00 422K           
+R22        J1-0603               1370mil        445mil       1370mil        445mil       1370mil    415.473mil  B         90.00 37.4K          
+U8         SOT23-5               1240mil        550mil       1240mil        550mil   1289.213mil    587.402mil  B        180.00 AS1976         
+U4         TSSOP50P490X110-10N        430mil        605mil        430mil        605mil     390.63mil    685.709mil  B        270.00 TS3A24159      
+
