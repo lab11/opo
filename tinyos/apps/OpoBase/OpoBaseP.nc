@@ -138,6 +138,7 @@ implementation {
   event message_t* FlashReceive.receive(message_t *msg, void *payload, uint8_t len) {
     opo_flash_t *data = (opo_flash_t *) payload;
     int i;
+    printf('flashrx');
 
     for(i = 0; i < 8; i++) {
       printf("woo \n");
