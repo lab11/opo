@@ -1,0 +1,3 @@
+Added Component: Designator=ANT1(Chip Antenna)
+Added Pin To Net: NetName=NetANT1_1 Pin=ANT1-1
+Added Member To Class: ClassName=U_impulse Member=Component ANT1 Ground Antenna

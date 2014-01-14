@@ -1,0 +1,4 @@
+Removed Pin From Net: NetName=AMP3_OUT Pin=J2-1
+Removed Pin From Net: NetName=INTEGRATOR Pin=J3-1
+Removed Member From Class: ClassName=U_ultrasonic_rx Member=J2
+Removed Member From Class: ClassName=U_ultrasonic_rx Member=J3

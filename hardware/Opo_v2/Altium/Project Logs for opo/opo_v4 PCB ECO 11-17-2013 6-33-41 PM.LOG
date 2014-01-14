@@ -1,0 +1,22 @@
+Added Component: Designator=D3(0402 - DIODE)
+Added Component: Designator=D4(0402 - DIODE)
+Added Component: Designator=R24(0402)
+Added Component: Designator=R25(0402)
+Added Pin To Net: NetName=VCC3.3 Pin=D3-1
+Added Pin To Net: NetName=VCC3.3 Pin=D4-1
+Added Pin To Net: NetName=NetD3_2 Pin=D3-2
+Added Pin To Net: NetName=NetD3_2 Pin=R24-2
+Added Net: Name=NetD3_2
+Added Pin To Net: NetName=NetD4_2 Pin=D4-2
+Added Pin To Net: NetName=NetD4_2 Pin=R25-2
+Added Net: Name=NetD4_2
+Added Pin To Net: NetName=NetR24_1 Pin=R24-1
+Added Pin To Net: NetName=NetR24_1 Pin=U3-60
+Added Net: Name=NetR24_1
+Added Pin To Net: NetName=NetR25_1 Pin=R25-1
+Added Pin To Net: NetName=NetR25_1 Pin=U3-61
+Added Net: Name=NetR25_1
+Added Member To Class: ClassName=U_impulse Member=Component D3 LED, Orange
+Added Member To Class: ClassName=U_impulse Member=Component D4 LED, Orange
+Added Member To Class: ClassName=U_impulse Member=Component R24 Chip resistor
+Added Member To Class: ClassName=U_impulse Member=Component R25 Chip resistor

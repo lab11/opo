@@ -1,0 +1,6 @@
+Change Component DesignItemId : Designator=D3 Old DesignItemId=D_LED_ORANGE_0402 New DesignItemId=D_LED_GREEN_0402
+Change Component DesignItemId : Designator=D4 Old DesignItemId=D_LED_ORANGE_0402 New DesignItemId=D_LED_RED_0402
+Change Component Comment : Designator=D3 Old Comment=LED, Orange New Comment=LED, Green
+Change Component Comment : Designator=D4 Old Comment=LED, Orange New Comment=LED, Red
+Change Component Description : Designator=D3 Old Description=LED, Orange, 0402 New Description=LED, Green,  0402
+Change Component Description : Designator=D4 Old Description=LED, Orange, 0402 New Description=LED, Red, 0402
