@@ -24,6 +24,7 @@ module HplSST25VF064P {
 implementation {
 
 	int i; // for loop variable
+	uint8_t cmd_buffer[3];
 
 	inline void runSpiByte(uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {
 		call FlashCS.clr();
@@ -37,6 +38,13 @@ implementation {
 		for(i=0; i < (len - shift); i++) {
 			rxBuffer[i] = rxBuffer[i + shift];
 		}
+	}
+
+	inline void runSingleCommand(uint8_t cmd) {
+		cmd_buffer[0] = cmd;
+		call FlashCS.clr();
+		call SpiByte.write(cmd_buffer[0]);
+		call FlashCS.set();
 	}
 
 	command void HplSST25VF064.turnOn() {
@@ -76,10 +84,8 @@ implementation {
 		txBuffer[1] = addr[0];
 		txBuffer[2] = addr[1];
 		txBuffer[3] = addr[2];
-		call Leds.led0On();
 		runSpiByte(txBuffer, rxBuffer, len);
 		leftShiftRxBuffer(rxBuffer, len, 4);
-		call Leds.led1On();
 	}
 
 	command void HplSST25VF064.lock_sid() {
@@ -92,16 +98,28 @@ implementation {
 
 	command void HplSST25VF064.read_status_register() {}
 
-	command void HplSST25VF064.write_enable() {}
-	command void HplSST25VF064.write_disable() {}
+	command void HplSST25VF064.write_enable() {
+		runSingleCommand(WREN);
+	}
 
-	command void HplSST25VF064.page_program(uint8_t addr[3], uint8_t *data) {}
-	command void HplSST25VF064.dual_input_page_program(uint8_t addr[3], uint8_t *data) {}
+	command void HplSST25VF064.write_disable() {
+		runSingleCommand(WRDI);
+	}
+
+	command void HplSST25VF064.page_program(uint8_t addr[3], uint8_t *txBuffer, uint16_t len) {
+
+
+	}
+
+	command void HplSST25VF064.dual_input_page_program(uint8_t addr[3], uint8_t *txBuffer, uint16_t len) {}
 
 	command void HplSST25VF064.sector_erase(uint8_t addr[3]) {}
 	command void HplSST25VF064.small_block_erase(uint8_t addr[3]) {}
 	command void HplSST25VF064.large_block_erase(uint8_t addr[3]) {}
-	command void HplSST25VF064.chip_erase() {}
+
+	command void HplSST25VF064.chip_erase() {
+		runSingleCommand(CHIP_ERASE);
+	}
 
 	command void HplSST25VF064.ewsr() {} // Enable write status register
 	command void HplSST25VF064.wrsr(uint8_t *data) {} // write status regsiter
