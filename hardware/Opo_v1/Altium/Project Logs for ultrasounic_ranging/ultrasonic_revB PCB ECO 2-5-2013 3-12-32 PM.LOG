@@ -1,0 +1,28 @@
+Added Component: Designator=C18(1608[0603])
+Added Component: Designator=C19(1608[0603])
+Added Component: Designator=R12(J1-0603)
+Added Component: Designator=R15(J1-0603)
+Added Component: Designator=R22(J1-0603)
+Added Component: Designator=U8(SOT23-5)
+Added Pin To Net: NetName=GND Pin=C18-1
+Added Pin To Net: NetName=VREF Pin=C18-2
+Added Pin To Net: NetName=GND Pin=C19-1
+Added Pin To Net: NetName=VCC3.3 Pin=C19-2
+Added Pin To Net: NetName=COMP_OUT Pin=R12-1
+Added Pin To Net: NetName=NetC18_2 Pin=R12-2
+Added Pin To Net: NetName=GND Pin=R15-1
+Added Pin To Net: NetName=NetC18_2 Pin=R15-2
+Added Pin To Net: NetName=AMP3_OUT Pin=R22-1
+Added Pin To Net: NetName=NetC18_2 Pin=R22-2
+Added Pin To Net: NetName=COMP_OUT Pin=U8-1
+Added Pin To Net: NetName=GND Pin=U8-2
+Added Pin To Net: NetName=NetC18_2 Pin=U8-3
+Added Pin To Net: NetName=VREF Pin=U8-4
+Added Pin To Net: NetName=VCC3.3 Pin=U8-5
+Change Net Name : Old Net Name=NetC18_2 New Net Name=NetR12_2
+Added Member To Class: ClassName=U_ultrasonic_rx Member=Component C18 Cap Semi
+Added Member To Class: ClassName=U_ultrasonic_rx Member=Component C19 Cap Semi
+Added Member To Class: ClassName=U_ultrasonic_rx Member=Component R12 1.25M
+Added Member To Class: ClassName=U_ultrasonic_rx Member=Component R15 422K
+Added Member To Class: ClassName=U_ultrasonic_rx Member=Component R22 37.9K
+Added Member To Class: ClassName=U_ultrasonic_rx Member=Component U8 AS1976

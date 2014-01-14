@@ -1,0 +1,4 @@
+Added Component: Designator=ANT1(Inverted F Antenna)
+Added Pin To Net: NetName=GND Pin=ANT1-GND
+Added Pin To Net: NetName=NetANT1_SIG Pin=ANT1-SIG
+Added Member To Class: ClassName=U_epic Member=Component ANT1 2.4GHz PCB Antenna

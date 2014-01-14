@@ -1,0 +1,15 @@
+Removed Pin From Net: NetName=VCC3.3 Pin=Q1-2
+Added Component: Designator=R19(J1-0603)
+Added Component: Designator=R20(J1-0603)
+Added Component: Designator=R21(J1-0603)
+Added Pin To Net: NetName=VBAT Pin=R19-2
+Added Pin To Net: NetName=VCC3.3 Pin=R20-2
+Added Pin To Net: NetName=VCC3.3 Pin=R21-1
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=R21-2
+Added Pin To Net: NetName=NetQ1_2 Pin=Q1-2
+Added Pin To Net: NetName=NetQ1_2 Pin=R19-1
+Added Pin To Net: NetName=NetQ1_2 Pin=R20-1
+Added Net: Name=NetQ1_2
+Added Member To Class: ClassName=U_ultrasonic_tx Member=Component R19 Res3
+Added Member To Class: ClassName=U_ultrasonic_tx Member=Component R20 Res3
+Added Member To Class: ClassName=U_epic Member=Component R21 Res3

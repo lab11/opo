@@ -1,0 +1,33 @@
+Removed Pin From Net: NetName=VCC3.3 Pin=C1-1
+Removed Pin From Net: NetName=VCC3.3 Pin=D1-1
+Removed Pin From Net: NetName=VCC3.3 Pin=D2-1
+Removed Pin From Net: NetName=VCC3.3 Pin=R26-1
+Removed Pin From Net: NetName=VCC3.3 Pin=R27-1
+Removed Pin From Net: NetName=VCC3.3 Pin=U1-34
+Removed Pin From Net: NetName=VCC3.3 Pin=U1-37
+Removed Pin From Net: NetName=VCC3.3 Pin=U1-51
+Removed Pin From Net: NetName=VCC3.3 Pin=U1-53
+Removed Pin From Net: NetName=VCC3.3 Pin=U1-68
+Added Component: Designator=J4(Flat Flex top contact)
+Added Component: Designator=P3(1x2 header)
+Added Pin To Net: NetName=VBAT Pin=J4-1
+Added Pin To Net: NetName=UART1_TX Pin=J4-2
+Added Pin To Net: NetName=UART1_RX Pin=J4-3
+Added Pin To Net: NetName=TCK Pin=J4-4
+Added Pin To Net: NetName=R\S\T Pin=J4-5
+Added Pin To Net: NetName=GND Pin=J4-6
+Added Pin To Net: NetName=VCC3.3 Pin=P3-1
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=C1-1
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=D1-1
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=D2-1
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=P3-2
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=R26-1
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=R27-1
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-34
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-37
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-51
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-53
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-68
+Added Net: Name=VCC3.3_EPIC
+Added Member To Class: ClassName=epic Member=Component J4 flat flex connector
+Added Member To Class: ClassName=epic Member=Component P3 1 x 2 header

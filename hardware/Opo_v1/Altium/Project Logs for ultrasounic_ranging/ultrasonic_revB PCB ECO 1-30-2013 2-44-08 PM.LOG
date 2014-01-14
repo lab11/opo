@@ -1,0 +1,10 @@
+Removed Pin From Net: NetName=AMP3_OUT Pin=R7-1
+Removed Pin From Net: NetName=VCC3.3 Pin=R13-2
+Removed Pin From Net: NetName=VCC3.3 Pin=R23-2
+Removed Member From Class: ClassName=ultrasounic_rx Member=R7
+Removed Member From Class: ClassName=ultrasounic_rx Member=R13
+Removed Member From Class: ClassName=ultrasounic_rx Member=R23
+Added Pin To Net: NetName=VCC3.3 Pin=C15-2
+Added Pin To Net: NetName=VCC3.3 Pin=C20-2
+Added Pin To Net: NetName=VCC3.3 Pin=U7-5
+Added Pin To Net: NetName=VCC3.3 Pin=U9-5

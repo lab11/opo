@@ -1,0 +1,14 @@
+Removed Pin From Net: NetName=P1.5 Pin=U1-31
+Added Pin To Net: NetName=P1.5 Pin=U11-9
+Change Net Name : Old Net Name=P1.5 New Net Name=ACCE_INT2
+Added Pin To Net: NetName=ACCE_ADC1 Pin=U1-20
+Added Pin To Net: NetName=ACCE_ADC1 Pin=U11-16
+Added Net: Name=ACCE_ADC1
+Added Pin To Net: NetName=ACCE_ADC2 Pin=U1-21
+Added Pin To Net: NetName=ACCE_ADC2 Pin=U11-15
+Added Net: Name=ACCE_ADC2
+Added Pin To Net: NetName=ACCE_ADC3 Pin=U1-22
+Added Pin To Net: NetName=ACCE_ADC3 Pin=U11-13
+Added Net: Name=ACCE_ADC3
+Added Pin To Net: NetName=ACCE_INT1 Pin=U11-11
+Added Net: Name=ACCE_INT1

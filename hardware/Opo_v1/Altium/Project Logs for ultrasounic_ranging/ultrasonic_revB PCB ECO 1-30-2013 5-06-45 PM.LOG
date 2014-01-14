@@ -1,0 +1,38 @@
+Removed Pin From Net: NetName=GND Pin=C5-1
+Removed Pin From Net: NetName=VSUPPLY Pin=C5-2
+Removed Pin From Net: NetName=GND Pin=C6-1
+Removed Pin From Net: NetName=VCC3.3 Pin=C6-2
+Removed Pin From Net: NetName=VSUPPLY Pin=U3-1
+Removed Pin From Net: NetName=GND Pin=U3-2
+Removed Pin From Net: NetName=VSUPPLY Pin=U3-3
+Removed Pin From Net: NetName=VCC3.3 Pin=U3-5
+Removed Member From Class: ClassName=accelerometer Member=C17
+Removed Member From Class: ClassName=ultrasounic_rx Member=J3
+Removed Member From Class: ClassName=epic Member=R6
+Removed Member From Class: ClassName=epic Member=R7
+Removed Member From Class: ClassName=accelerometer Member=U8
+Removed Member From Class: ClassName=ultrasounic_tx Member=U8
+Added Component: Designator=C5(1608[0603])
+Added Component: Designator=C6(1608[0603])
+Added Component: Designator=U3(TSOT23-5)
+Added Pin To Net: NetName=GND Pin=C5-1
+Added Pin To Net: NetName=VSUPPLY Pin=C5-2
+Added Pin To Net: NetName=GND Pin=C6-1
+Added Pin To Net: NetName=VCC3.3 Pin=C6-2
+Added Pin To Net: NetName=VSUPPLY Pin=U3-1
+Added Pin To Net: NetName=GND Pin=U3-2
+Added Pin To Net: NetName=VSUPPLY Pin=U3-3
+Added Pin To Net: NetName=VCC3.3 Pin=U3-5
+Added Member To Class: ClassName=power Member=Component C5 Cap Semi
+Added Member To Class: ClassName=power Member=Component C6 Cap Semi
+Added Member To Class: ClassName=ultrasounic_rx Member=Component C7 Cap Semi
+Added Member To Class: ClassName=ultrasounic_rx Member=Component C8 Cap Semi
+Added Member To Class: ClassName=ultrasounic_rx Member=Component C14 Cap Semi
+Added Member To Class: ClassName=accelerometer Member=Component C20 Cap Semi
+Added Member To Class: ClassName=ultrasounic_rx Member=Component J6 5004
+Added Member To Class: ClassName=epic Member=Component R1 10K
+Added Member To Class: ClassName=epic Member=Component R2 10K
+Added Member To Class: ClassName=power Member=Component U3 ADP162
+Added Member To Class: ClassName=ultrasounic Member=Component U4 TS3A24159
+Added Member To Class: ClassName=ultrasounic_tx Member=Component U9 NLX2G14
+Added Member To Class: ClassName=accelerometer Member=Component U11 LIS3DHTR

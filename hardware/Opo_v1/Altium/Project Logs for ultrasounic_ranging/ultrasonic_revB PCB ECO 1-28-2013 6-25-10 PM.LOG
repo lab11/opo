@@ -1,0 +1,15 @@
+Removed Pin From Net: NetName=GND Pin=SW1-1
+Removed Pin From Net: NetName=GND Pin=SW1-1
+Removed Pin From Net: NetName=R\S\T Pin=SW1-2
+Removed Pin From Net: NetName=R\S\T Pin=SW1-2
+Change Component DesignItemId : Designator=SW1 Old DesignItemId=EVQP2 New DesignItemId=EG1218
+Change Component Comment : Designator=SW1 Old Comment=EVQP2 New Comment=EG1218
+Change Component Description : Designator=SW1 Old Description=Switch New Description=Switch 3 Pos
+Added Component: Designator=SW1(EVQP2)
+Added Pin To Net: NetName=GND Pin=SW1-1
+Added Pin To Net: NetName=GND Pin=SW1-1
+Added Pin To Net: NetName=R\S\T Pin=SW1-2
+Added Pin To Net: NetName=R\S\T Pin=SW1-2
+Added Pin To Net: NetName=VSUPPLY Pin=SW1-2
+Added Pin To Net: NetName=VSUPPLY Pin=SW1-2
+Added Member To Class: ClassName=power Member=Component SW1 EG1218

@@ -1,0 +1,3 @@
+Removed Pin From Net: NetName=VBAT Pin=SW2-3
+Change Component Footprint: Designator=SW2 Old Footprint=Slide Switch 2 position New Footprint=Slide Switch SPDT
+Added Pin To Net: NetName=VBAT Pin=SW2-1

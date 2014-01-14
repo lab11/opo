@@ -1,0 +1,10 @@
+Removed Pin From Net: NetName=NetJ7_1 Pin=J10-1
+Removed Pin From Net: NetName=NetJ9_1 Pin=J12-1
+Removed Pin From Net: NetName=OP1_NEGIN Pin=J13-1
+Removed Pin From Net: NetName=VREF Pin=J14-1
+Removed Pin From Net: NetName=NetD3_2 Pin=J24-1
+Removed Member From Class: ClassName=ultrasounic Member=J10
+Removed Member From Class: ClassName=ultrasounic Member=J12
+Removed Member From Class: ClassName=ultrasounic Member=J13
+Removed Member From Class: ClassName=ultrasounic Member=J14
+Added Pin To Net: NetName=AMP3_OUT Pin=J24-1

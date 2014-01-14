@@ -1,0 +1,7 @@
+Removed Pin From Net: NetName=AMP3_OUT Pin=R18-2
+Removed Pin From Net: NetName=AMP2_OUT Pin=R19-2
+Removed Member From Class: ClassName=ultrasounic_rx Member=R18
+Removed Member From Class: ClassName=ultrasounic_rx Member=R19
+Added Pin To Net: NetName=AMP3_OUT Pin=R12-1
+Added Pin To Net: NetName=AMP3_OUT Pin=R15-2
+Added Pin To Net: NetName=AMP3_OUT Pin=U8-4

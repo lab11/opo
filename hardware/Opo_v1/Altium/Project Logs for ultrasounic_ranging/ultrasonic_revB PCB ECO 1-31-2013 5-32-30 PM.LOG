@@ -1,0 +1,10 @@
+Removed Pin From Net: NetName=ACCE_C\S\ Pin=U1-40
+Removed Pin From Net: NetName=ACCE_C\S\ Pin=U1-53
+Removed Pin From Net: NetName=ACCE_C\S\ Pin=U11-8
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-53
+Added Pin To Net: NetName=ACCE_C\S\ Pin=U1-57
+Added Pin To Net: NetName=VCC3.3 Pin=U11-7
+Added Pin To Net: NetName=VCC3.3 Pin=U11-8
+Change Net Name : Old Net Name=ACCE_C\S\ New Net Name=SO
+Change Net Name : Old Net Name=ACCE_SCLK New Net Name=SCL
+Change Net Name : Old Net Name=ACCE_SI New Net Name=SDA

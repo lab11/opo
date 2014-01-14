@@ -1,0 +1,32 @@
+Field=Comment~String~Comment~100|Field=Description~String~Description~100|Field=Designator~String~Designator~100|Field=Footprint~String~Footprint~100|Field=LibRef~String~LibRef~100|Field=Quantity~Integer~Quantity~100|ReportField=Currency~<none>|ReportField=ProductionQuantity~1|ReportField=ProjectFileName~ultrasonic_ranging.PrjPcb|ReportField=ProjectFullPath~C:\Users\William Huang\Dropbox\Ultrasonic Ranging\Altium\v1\ultrasonic_ranging.PrjPcb|ReportField=Title~Bill of Materials For Project [ultrasonic_ranging.PrjPcb] (No PCB Document Selected)|ReportField=TotalQuantity~68|ReportField=ReportTime~2:21:48 AM|ReportField=ReportDate~4/24/2013|ReportField=ReportDateTime~4/24/2013 2:21:48 AM|ReportField=OutputName~Bill of Materials|ReportField=OutputType~BOM_PartType|ReportField=GeneratorName~BOM|ReportField=GeneratorDescription~Bill of Materials|ReportField=VariantName~None|ReportField=Address1~|ReportField=Address2~|ReportField=Address3~|ReportField=Address4~|ReportField=ApprovedBy~|ReportField=Author~Kuo, Huang|ReportField=CheckedBy~|ReportField=CompanyName~|ReportField=CurrentDate~4/24/2013|ReportField=CurrentTime~2:21:10 AM|ReportField=Date~|ReportField=DocumentFullPathAndName~C:\Users\William Huang\Dropbox\Ultrasonic Ranging\Altium\v1\ultrasonic_top.SchDoc|ReportField=DocumentName~ultrasonic_top.SchDoc|ReportField=DocumentNumber~|ReportField=DrawnBy~|ReportField=Engineer~|ReportField=ImagePath~|ReportField=ModifiedDate~2/5/2013|ReportField=Organization~|ReportField=ProjectName~ultrasonic_ranging.PrjPcb|ReportField=Revision~2.0|ReportField=Rule~|ReportField=SheetNumber~1|ReportField=SheetTotal~7|ReportField=Time~|ReportField=Title~Ultrasonic|ReportField=DataSourceFileName~ultrasonic_ranging.PrjPcb|ReportField=DataSourceFullPath~C:\Users\William Huang\Dropbox\Ultrasonic Ranging\Altium\v1\ultrasonic_ranging.PrjPcb
+2.4GHz PCB Antenna||ANT1|Inverted F Antenna|2.4GHz PCB Antenna|1
+Cap Semi|Capacitor (Semiconductor SIM Model)|C1, C2, C3, C4, C5, C6, C7, C8, C9, C10, C11, C12, C13, C14, C15, C16, C17, C18, C19, C20, C21, C22, C23, C24|1608[0603]|Cap Semi|24
+LED3|Typical BLUE SiC LED|D1, D2|J1-0603|LED3|2
+Diode|Default Diode|D3|J1-0603|Diode|1
+6 pin connector||J1|Micro USB|6 pin connector|1
+5004|TEST POINT PC MINI .040"D YELLOW|J3, J6|TestPoint|TestPoint|2
+1 x 2 header|100 mils standard header|P1|1x2 header|1 x 2 header|1
+ZXM61P03|30V P-CHANNEL ENHANCEMENT MODE MOSFET|Q1|SOT23-3N|ZXM61P03|1
+10K|Resistor|R1, R2|J1-0603|Res3|2
+470|Resistor|R3, R4|J1-0603|Res3|2
+1Meg|Resistor|R5, R6, R9|J1-0603|Res3|3
+100K|Resistor|R7, R8, R10|J1-0603|Res3|3
+2k|Resistor|R11|J1-0603|Res3|1
+1.24M|Resistor|R12|J1-0603|Res3|1
+27K|Resistor|R13, R22|J1-0603|Res3|2
+270K|Resistor|R14|J1-0603|Res3|1
+422K|Resistor|R15|J1-0603|Res3|1
+Res3|Resistor|R18, R19, R20, R21|J1-0603|Res3|4
+EVQP2|Switch|SW1|EVQP2|EVQP2|1
+EG1218|Switch 3 Pos|SW2|Slide Switch SPDT|EG1218|1
+EPIC_COREA|EPIC Core|U1|EPIC_LCC68|EPIC_COREA|1
+ISL60002|Precision Low Power FGA? Voltage References|U2|SOT23-3N|ISL60002|1
+ADP162|Ultralow Quiescent Current,  150 mA, CMOS Linear Regulators|U3|TSOT23-5|ADP162|1
+TS3A24159|DUAL-CHANNEL 2:1 MULTIPLEXER/DEMULTIPLEXER|U4|TSSOP50P490X110-10N|TS3A24159|1
+MIC861|Teeny, Ultra Low Power Op Amp|U5, U6, U7|SC70-6|MIC861|3
+AS1976|Ultra-Low Current, 1.8V Comparators|U8|SOT23-5|AS1976|1
+NLX2G14|Dual Schmitt-Trigger  Inverter|U9|ULLGA6|NLX2G14|1
+SN74AUP1G08|LOW-POWER SINGLE 2-INPUT POSITIVE-AND GATE|U10|SC70-6|SN74AUP1G08|1
+LIS3DHTR|MEMS digital output motion sensor|U11|LGA-16|LIS3DHTR|1
+400EP250|Air Ultrasounic Ceramic Transducers|UT1|Transducer recepticle|Tranducer|1
+RV-4162-C7|Real Time Clock Module with I2C Bus|Y1|RV4162|RV-4162-C7|1

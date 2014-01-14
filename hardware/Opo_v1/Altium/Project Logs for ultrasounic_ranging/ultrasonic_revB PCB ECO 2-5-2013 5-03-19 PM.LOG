@@ -1,0 +1,12 @@
+Added Component: Designator=U4(TSSOP50P490X110-10N)
+Added Pin To Net: NetName=VCC3.3 Pin=U4-1
+Added Pin To Net: NetName=TX_1 Pin=U4-2
+Added Pin To Net: NetName=NetJ5_1 Pin=U4-3
+Added Pin To Net: NetName=TX/RX_SELECT Pin=U4-4
+Added Pin To Net: NetName=GND Pin=U4-5
+Added Pin To Net: NetName=GND Pin=U4-6
+Added Pin To Net: NetName=OP1_NEGIN Pin=U4-7
+Added Pin To Net: NetName=TX/RX_SELECT Pin=U4-8
+Added Pin To Net: NetName=NetJ4_1 Pin=U4-9
+Added Pin To Net: NetName=TX_2 Pin=U4-10
+Added Member To Class: ClassName=U_ultrasonic Member=Component U4 TS3A24159

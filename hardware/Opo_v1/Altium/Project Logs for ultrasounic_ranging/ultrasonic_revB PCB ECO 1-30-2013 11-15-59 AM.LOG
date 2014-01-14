@@ -1,0 +1,3 @@
+Added Component: Designator=ANT1(Chip Antenna)
+Added Pin To Net: NetName=NetANT1_IN Pin=ANT1-IN
+Added Member To Class: ClassName=epic Member=Component ANT1 FR05-S1-N-0-102

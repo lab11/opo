@@ -1,0 +1,4 @@
+Added Component: Designator=SW2(EG1218)
+Added Pin To Net: NetName=VSUPPLY Pin=SW2-2
+Added Pin To Net: NetName=VBAT Pin=SW2-3
+Added Member To Class: ClassName=power Member=Component SW2 EG1218

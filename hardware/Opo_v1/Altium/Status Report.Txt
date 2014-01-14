@@ -1,0 +1,16 @@
+Project Outputs Generation Report
+---------------------------------
+Start Output Generation At 11:06:47 AM On 2/6/2013
+
+Output: NC Drill Files
+Type  : NC Drill
+From  : PCB Document [ultrasonic_revB.PcbDoc]
+   Generated File[ultrasonic_revB.TXT]
+   Generated File[ultrasonic_revB.LDP]
+   Generated File[ultrasonic_revB.DRR]
+
+
+Files Generated   : 3
+Documents Printed : 0
+
+Finished Output Generation At 11:06:48 AM On 2/6/2013

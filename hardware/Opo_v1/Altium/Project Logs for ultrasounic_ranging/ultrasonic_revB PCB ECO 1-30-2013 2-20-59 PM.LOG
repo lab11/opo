@@ -1,0 +1,4 @@
+Removed Pin From Net: NetName=TX_2 Pin=J8-1
+Removed Pin From Net: NetName=TX_1 Pin=J11-1
+Removed Member From Class: ClassName=ultrasounic Member=J8
+Removed Member From Class: ClassName=ultrasounic Member=J11

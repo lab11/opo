@@ -1,0 +1,18 @@
+Removed Pin From Net: NetName=AMP3_OUT Pin=R12-1
+Removed Pin From Net: NetName=AMP3_OUT Pin=R15-2
+Removed Pin From Net: NetName=AMP3_OUT Pin=U8-4
+Change Component Comment : Designator=R14 Old Comment=0 New Comment=1Meg
+Change Component Comment : Designator=R11 Old Comment=0 New Comment=2k
+Change Component Comment : Designator=R13 Old Comment=0 New Comment=2k
+Added Component: Designator=R18(J1-0603)
+Added Component: Designator=R19(J1-0603)
+Added Pin To Net: NetName=AMP3_OUT Pin=R18-2
+Added Pin To Net: NetName=AMP2_OUT Pin=R19-2
+Added Pin To Net: NetName=NetR12_1 Pin=R12-1
+Added Pin To Net: NetName=NetR12_1 Pin=R15-2
+Added Pin To Net: NetName=NetR12_1 Pin=R18-1
+Added Pin To Net: NetName=NetR12_1 Pin=R19-1
+Added Pin To Net: NetName=NetR12_1 Pin=U8-4
+Added Net: Name=NetR12_1
+Added Member To Class: ClassName=ultrasounic_rx Member=Component R18 0
+Added Member To Class: ClassName=ultrasounic_rx Member=Component R19 0

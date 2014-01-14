@@ -1,0 +1,34 @@
+Field=Designator~String~Designator~110|Field=Description~String~Description~113|Field=Footprint~String~Footprint~81|Field=LibRef~String~LibRef~81|Field=Quantity~Integer~Quantity~50|Field=Supplier Part Number 1~String~Supplier Part Number 1~103|Field=Supplier Part Number 2~String~Supplier Part Number 2~100|Field=Value~String~Value~112|ReportField=Currency~<none>|ReportField=ProductionQuantity~1|ReportField=ProjectFileName~ultrasounic_ranging.PrjPcb|ReportField=ProjectFullPath~C:\Users\samkuo\Dropbox\Ultrasonic Ranging\Altium\ultrasounic_ranging.PrjPcb|ReportField=Title~Bill of Materials For Project [ultrasounic_ranging.PrjPcb] (No PCB Document Selected)|ReportField=TotalQuantity~65|ReportField=ReportTime~5:44:21 PM|ReportField=ReportDate~2/2/2013|ReportField=ReportDateTime~2/2/2013 5:44:21 PM|ReportField=OutputName~Bill of Materials|ReportField=OutputType~BOM_PartType|ReportField=GeneratorName~BOM|ReportField=GeneratorDescription~Bill of Materials|ReportField=VariantName~None|ReportField=Address1~|ReportField=Address2~|ReportField=Address3~|ReportField=Address4~|ReportField=ApprovedBy~|ReportField=Author~|ReportField=CheckedBy~|ReportField=CompanyName~|ReportField=CurrentDate~2/2/2013|ReportField=CurrentTime~5:43:04 PM|ReportField=Date~|ReportField=DocumentFullPathAndName~C:\Users\samkuo\Dropbox\Ultrasonic Ranging\Altium\accelerometer.SchDoc|ReportField=DocumentName~accelerometer.SchDoc|ReportField=DocumentNumber~|ReportField=DrawnBy~|ReportField=Engineer~|ReportField=ImagePath~|ReportField=ModifiedDate~1/31/2013|ReportField=Organization~|ReportField=ProjectName~ultrasounic_ranging.PrjPcb|ReportField=Revision~|ReportField=Rule~|ReportField=SheetNumber~|ReportField=SheetTotal~|ReportField=Time~|ReportField=Title~|ReportField=DataSourceFileName~ultrasounic_ranging.PrjPcb|ReportField=DataSourceFullPath~C:\Users\samkuo\Dropbox\Ultrasonic Ranging\Altium\ultrasounic_ranging.PrjPcb
+ANT1||Inverted F Antenna|2.4GHz PCB Antenna|1|||
+D1, D2|Typical BLUE SiC LED|J1-0603|LED3|2|||
+D3|Default Diode|J1-0603|Diode|1|||
+J1||Micro USB|6 pin connector|1|732-2018-2-ND|609-4616-2-ND|
+J3, J6|TEST POINT PC MINI .040"D YELLOW|TestPoint|TestPoint|2|5004K-ND||
+J4, J5|PIN RECEPTACLES|0360 SER|ED90088|2|ED90088-ND||
+P1|100 mils standard header|1x2 header|1 x 2 header|1|3M9447-ND||
+Q1|30V P-CHANNEL ENHANCEMENT MODE MOSFET|SOT23-3N|ZXM61P03|1|ZXM61P03FCT-ND||
+R12, R15|Resistor|J1-0603|Res3|2|||0
+SW1|Switch|EVQP2|EVQP2|1|P12298SCT-ND||
+SW2|Switch 3 Pos|Slide Switch 2 position|EG1218|1|EG1903-ND|450-1598-ND|
+U1|EPIC Core|EPIC_LCC68|EPIC_COREA|1|||
+U10|LOW-POWER SINGLE 2-INPUT POSITIVE-AND GATE|SC70-6|SN74AUP1G08|1|296-19074-1-ND||
+U11|MEMS digital output motion sensor|LGA-16|LIS3DHTR|1|497-10613-6-ND||
+U2|Precision Low Power FGA? Voltage References|SOT23-3N|ISL60002|1|ISL60002DIH310Z-TKCT-ND||
+U3|Ultralow Quiescent Current,  150 mA, CMOS Linear Regulators|TSOT23-5|ADP162|1|ADP162AUJZ-3.3-R7CT-ND||
+U4|DUAL-CHANNEL 2:1 MULTIPLEXER/DEMULTIPLEXER|TSSOP50P490X110-10N|TS3A24159|1|296-21913-1-ND||
+U5, U6, U7|Teeny, Ultra Low Power Op Amp|SC70-6|MIC861|3|576-2932-1-ND||
+U8|Ultra-Low Current, 1.8V Comparators|SOT23-5|AS1976|1|AS1976-TCT-ND||
+U9|Dual Schmitt-Trigger  Inverter|ULLGA6|NLX2G14|1|NLX2G14AMX1TCGOSCT-ND||
+UT1|Air Ultrasounic Ceramic Transducers|Transducer|Tranducer|1|98K9162||
+Y1|Real Time Clock Module with I2C Bus|RV4162|RV-4162-C7|1|R1033504||
+C1, C3, C10, C11, C12, C13, C15, C16, C18, C19, C20|Capacitor (Semiconductor SIM Model)|1608[0603]|Cap Semi|11|||0.1uF
+R5, R6, R9, R14, R16, R17|Resistor|J1-0603|Res3|6|||1Meg
+C5, C6, C9|Capacitor (Semiconductor SIM Model)|1608[0603]|Cap Semi|3|||1uF
+R11, R13|Resistor|J1-0603|Res3|2|||2k
+C7, C8, C14|Capacitor (Semiconductor SIM Model)|1608[0603]|Cap Semi|3|||4pF
+C4|Capacitor (Semiconductor SIM Model)|1608[0603]|Cap Semi|1|||4.7uF
+R1, R2|Resistor|J1-0603|Res3|2|||10K
+C17|Capacitor (Semiconductor SIM Model)|1608[0603]|Cap Semi|1|||10nF
+C2, C21, C22|Capacitor (Semiconductor SIM Model)|1608[0603]|Cap Semi|3|||10uF
+R7, R8, R10|Resistor|J1-0603|Res3|3|||100K
+R3, R4|Resistor|J1-0603|Res3|2|||470

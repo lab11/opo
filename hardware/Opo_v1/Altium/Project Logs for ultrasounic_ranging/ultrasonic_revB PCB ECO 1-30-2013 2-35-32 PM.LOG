@@ -1,0 +1,21 @@
+Removed Pin From Net: NetName=GND Pin=C21-1
+Removed Pin From Net: NetName=NetC21_2 Pin=C21-2
+Removed Pin From Net: NetName=NetC21_2 Pin=J23-1
+Removed Pin From Net: NetName=NetC21_2 Pin=R17-1
+Removed Pin From Net: NetName=AMP3_OUT Pin=R18-2
+Removed Pin From Net: NetName=NetC21_2 Pin=R20-1
+Removed Pin From Net: NetName=NetC21_2 Pin=R24-2
+Removed Pin From Net: NetName=COMP_OUT Pin=R25-1
+Removed Pin From Net: NetName=NetC21_2 Pin=U9-4
+Removed Member From Class: ClassName=ultrasounic_rx Member=C21
+Removed Member From Class: ClassName=ultrasounic_rx Member=D3
+Removed Member From Class: ClassName=ultrasounic_rx Member=J23
+Removed Member From Class: ClassName=ultrasounic_rx Member=R18
+Removed Member From Class: ClassName=ultrasounic_rx Member=R20
+Removed Member From Class: ClassName=ultrasounic_rx Member=R25
+Added Pin To Net: NetName=NetC21_2 Pin=R7-2
+Added Pin To Net: NetName=AMP3_OUT Pin=R17-1
+Added Pin To Net: NetName=AMP3_OUT Pin=R24-2
+Added Pin To Net: NetName=NetC21_2 Pin=U1-19
+Added Pin To Net: NetName=AMP3_OUT Pin=U9-4
+Change Net Name : Old Net Name=NetC21_2 New Net Name=ADC0

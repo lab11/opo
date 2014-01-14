@@ -1,0 +1,38 @@
+Added Component: Designator=ANT1(PIFA-2.4GHz)
+Added Component: Designator=U1(EPIC_LCC68)
+Added Pin To Net: NetName=GND Pin=U1-1
+Added Pin To Net: NetName=TX/RX_SELECT Pin=U1-2
+Added Pin To Net: NetName=NetU1_4 Pin=U1-4
+Added Pin To Net: NetName=T\X\_\G\A\T\E\ Pin=U1-5
+Added Pin To Net: NetName=TCK Pin=U1-15
+Added Pin To Net: NetName=R\S\T Pin=U1-16
+Added Pin To Net: NetName=NetC1_2 Pin=U1-17
+Added Pin To Net: NetName=GND Pin=U1-18
+Added Pin To Net: NetName=P1.2 Pin=U1-30
+Added Pin To Net: NetName=P1.5 Pin=U1-31
+Added Pin To Net: NetName=PWM Pin=U1-32
+Added Pin To Net: NetName=P1.7 Pin=U1-33
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-34
+Added Pin To Net: NetName=GND Pin=U1-35
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-37
+Added Pin To Net: NetName=R\T\C\_\I\N\T\ Pin=U1-38
+Added Pin To Net: NetName=SFD Pin=U1-40
+Added Pin To Net: NetName=NetANT1_cold Pin=U1-42
+Added Pin To Net: NetName=NetANT1_hot Pin=U1-43
+Added Pin To Net: NetName=NetANT1_cold Pin=U1-44
+Added Pin To Net: NetName=SFD Pin=U1-50
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-51
+Added Pin To Net: NetName=GND Pin=U1-52
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-53
+Added Pin To Net: NetName=SDA Pin=U1-56
+Added Pin To Net: NetName=SCL Pin=U1-58
+Added Pin To Net: NetName=UART1_TX Pin=U1-61
+Added Pin To Net: NetName=UART1_RX Pin=U1-62
+Added Pin To Net: NetName=NetR1_1 Pin=U1-65
+Added Pin To Net: NetName=NetC18_1 Pin=U1-66
+Added Pin To Net: NetName=NetR2_1 Pin=U1-67
+Added Pin To Net: NetName=VCC3.3_EPIC Pin=U1-68
+Change Net Name : Old Net Name=NetANT1_cold New Net Name=NetANT1_GND
+Change Net Name : Old Net Name=NetANT1_hot New Net Name=NetANT1_SIG
+Added Member To Class: ClassName=epic Member=Component ANT1 2.4GHz PCB Antenna
+Added Member To Class: ClassName=epic Member=Component U1 EPIC_COREA

@@ -1,0 +1,12 @@
+Removed Member From Class: ClassName=ultrasounic Member=C4
+Removed Member From Class: ClassName=ultrasounic Member=C5
+Removed Member From Class: ClassName=ultrasounic Member=C6
+Removed Member From Class: ClassName=ultrasounic Member=U4
+Added Component: Designator=ANT1(Inverted F Antenna)
+Added Pin To Net: NetName=NetANT1_GND Pin=ANT1-GND
+Added Pin To Net: NetName=NetANT1_SIG Pin=ANT1-SIG
+Added Member To Class: ClassName=epic Member=Component ANT1 2.4GHz PCB Antenna
+Added Member To Class: ClassName=power Member=Component C4 Cap Semi
+Added Member To Class: ClassName=power Member=Component C5 Cap Semi
+Added Member To Class: ClassName=power Member=Component C6 Cap Semi
+Added Member To Class: ClassName=power Member=Component U4 ISL60002

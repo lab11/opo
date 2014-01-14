@@ -1,0 +1,4 @@
+Removed Pin From Net: NetName=SFD Pin=U1-40
+Removed Pin From Net: NetName=ACCE_C\S\ Pin=U1-41
+Added Pin To Net: NetName=ACCE_C\S\ Pin=U1-40
+Added Pin To Net: NetName=SFD Pin=U1-41

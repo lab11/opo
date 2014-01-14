@@ -1,0 +1,13 @@
+Change Component Comment : Designator=R16 Old Comment=Res3 New Comment=1Meg
+Change Component Comment : Designator=R17 Old Comment=Res3 New Comment=1Meg
+Added Component: Designator=J1(Micro USB)
+Added Pin To Net: NetName=VBAT Pin=J1-1
+Added Pin To Net: NetName=UART1_TX Pin=J1-2
+Added Pin To Net: NetName=UART1_RX Pin=J1-3
+Added Pin To Net: NetName=TCK Pin=J1-4
+Added Pin To Net: NetName=R\S\T Pin=J1-5
+Added Pin To Net: NetName=GND Pin=J1-6
+Added Pin To Net: NetName=GND Pin=J1-6
+Added Pin To Net: NetName=GND Pin=J1-6
+Added Pin To Net: NetName=GND Pin=J1-6
+Added Member To Class: ClassName=epic Member=Component J1 6 pin connector

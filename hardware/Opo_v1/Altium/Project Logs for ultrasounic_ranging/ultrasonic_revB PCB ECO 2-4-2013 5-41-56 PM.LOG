@@ -1,0 +1,4 @@
+Added Component: Designator=R18(J1-0603)
+Added Pin To Net: NetName=NetC9_1 Pin=R18-1
+Added Pin To Net: NetName=VREF Pin=R18-2
+Added Member To Class: ClassName=U_ultrasonic_rx Member=Component R18 Res3

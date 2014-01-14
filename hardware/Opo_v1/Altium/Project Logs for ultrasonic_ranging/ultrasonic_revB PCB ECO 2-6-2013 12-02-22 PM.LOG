@@ -1,0 +1,15 @@
+Removed Pin From Net: NetName=NetJ4_1 Pin=J4-1
+Removed Pin From Net: NetName=NetJ5_1 Pin=J5-1
+Removed Pin From Net: NetName=NetJ5_1 Pin=U4-3
+Removed Pin From Net: NetName=NetJ4_1 Pin=U4-9
+Removed Pin From Net: NetName=NetJ4_1 Pin=UT1-1
+Removed Pin From Net: NetName=NetJ5_1 Pin=UT1-2
+Removed Member From Class: ClassName=U_ultrasonic Member=J4
+Removed Member From Class: ClassName=U_ultrasonic Member=J5
+Change Component Footprint: Designator=UT1 Old Footprint=Transducer New Footprint=Transducer recepticle
+Added Pin To Net: NetName=NetJ4_1 Pin=U4-3
+Added Pin To Net: NetName=NetJ5_1 Pin=U4-9
+Added Pin To Net: NetName=NetJ5_1 Pin=UT1-1
+Added Pin To Net: NetName=NetJ4_1 Pin=UT1-2
+Change Net Name : Old Net Name=NetJ4_1 New Net Name=NetU4_3
+Change Net Name : Old Net Name=NetJ5_1 New Net Name=NetU4_9
