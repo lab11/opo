@@ -32,7 +32,7 @@ implementation {
     	addr[1] = 0;
     	addr[2] = 0;
 
-    	call FlashHpl.read_sid(addr, &txBuffer[0], &rxBuffer[0], len);
+    	call FlashHpl.read_sid(addr, &rxBuffer[0], len);
     	for(i=0; i < len; i++) {
     		p->sid[i] = rxBuffer[i];
     	}
