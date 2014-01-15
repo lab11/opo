@@ -80,6 +80,7 @@ implementation {
 
   /***************** SplitControl Commands ****************/
   command error_t SplitControl.start() {
+    call I2C_SPI_SWITCH.makeOutput();
     call I2C_SPI_SWITCH.clr();
     if(call SplitControlState.requestState(S_STARTING) == SUCCESS) {
       call CC2420Power.startVReg();

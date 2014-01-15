@@ -18,8 +18,8 @@ interface HplSST25VF064 {
 	command void write_enable();
 	command void write_disable();
 
-	command void page_program(uint8_t addr[3], uint8_t *data);
-	command void dual_input_page_program(uint8_t addr[3], uint8_t *data);
+	command void page_program(uint8_t addr[3], uint8_t *txBuffer, uint16_t len);
+	command void dual_input_page_program(uint8_t addr[3], uint8_t *txBuffer, uint16_t len);
 
 	command void sector_erase(uint8_t addr[3]);
 	command void small_block_erase(uint8_t addr[3]);

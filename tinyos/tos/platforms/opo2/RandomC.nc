@@ -40,20 +40,16 @@
 configuration RandomC {
   provides {
   	interface Init;
-  	interface ParameterInit<uint32_t> as SeedInit;
+  	interface ParameterInit<uint16_t> as SeedInit;
   	interface Random;
   }
 }
 
 implementation {
-  components RandomMtC, MainC, LedsC;
-  RandomMtC.Leds -> LedsC.Leds;
-  MainC.SoftwareInit -> RandomMtC;
+  components RandomMlcgC, MainC;
+  MainC.SoftwareInit -> RandomMlcgC;
 
-  Init = RandomMtC;
-  SeedInit = RandomMtC;
-  Random = RandomMtC;
-
-  components Ds2411C;
-  RandomMtC.IdReader -> Ds2411C.ReadId48;
+  Init = RandomMlcgC;
+  SeedInit = RandomMlcgC;
+  Random = RandomMlcgC;
 }
