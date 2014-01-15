@@ -25,9 +25,12 @@ implementation {
 
 	int i; // for loop variable
 
-	inline void runSpiByte(uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {
+	inline void runSpiByte(uint8_t *txBuffer, uint16_t tx_len uint8_t *rxBuffer, uint16_t rx_len) {
 		call FlashCS.clr();
-		for(i = 0; i < len; i++) {
+		for(i = 0; i < tx_len; i++) {
+			call SpiByte.write(txBuffer[i])
+		}
+		for(i = 0; i < rx_len; i++) {
 			rxBuffer[i] = call SpiByte.write(txBuffer[i]);
 		}
 		call FlashCS.set();
