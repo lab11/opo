@@ -5,11 +5,11 @@ interface HplSST25VF064 {
 	event void turnedOn();
 	event void turnedOff();
 
-	command void read(uint8_t addr[3], uint8_t *txBuffers, uint8_t *rxBuffer, uint16_t len);
+	command void read(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len);
 	command void high_speed_read(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len);
 	command void fast_read_dual_output(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len);
 
-	command void read_sid(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len);
+	command void read_sid(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len);
 	command void lock_sid();
 	command void program_sid(uint8_t addr[3], uint8_t *data, uint16_t len);
 

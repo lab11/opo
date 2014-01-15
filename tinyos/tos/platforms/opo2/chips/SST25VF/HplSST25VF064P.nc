@@ -26,13 +26,13 @@ implementation {
 	int i; // for loop variable
 	uint8_t cmd_buffer[3];
 
-	inline void runSpiByte(uint8_t *txBuffer, uint16_t tx_len uint8_t *rxBuffer, uint16_t rx_len) {
+	inline void runSpiByte(uint8_t *txBuffer, uint16_t tx_len, uint8_t *rxBuffer, uint16_t rx_len) {
 		call FlashCS.clr();
 		for(i = 0; i < tx_len; i++) {
-			call SpiByte.write(txBuffer[i])
+			call SpiByte.write(txBuffer[i]);
 		}
 		for(i = 0; i < rx_len; i++) {
-			rxBuffer[i] = call SpiByte.write(txBuffer[i]);
+			rxBuffer[i] = call SpiByte.write(0);
 		}
 		call FlashCS.set();
 	}
@@ -44,9 +44,8 @@ implementation {
 	}
 
 	inline void runSingleCommand(uint8_t cmd) {
-		cmd_buffer[0] = cmd;
 		call FlashCS.clr();
-		call SpiByte.write(cmd_buffer[0]);
+		call SpiByte.write(cmd);
 		call FlashCS.set();
 	}
 
@@ -69,26 +68,26 @@ implementation {
 		signal HplSST25VF064.turnedOn();
 	}
 
-	command void HplSST25VF064.read(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {
+	command void HplSST25VF064.read(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len) {
+		uint8_t txBuffer[4];
 		txBuffer[0] = READ;
 		txBuffer[1] = addr[0];
 		txBuffer[2] = addr[1];
 		txBuffer[3] = addr[2];
 
-		runSpiByte(txBuffer, rxBuffer, len);
-		leftShiftRxBuffer(rxBuffer, len, 4);
+		runSpiByte(&txBuffer[0], 4, rxBuffer, rx_len);
 	}
 
 	command void HplSST25VF064.high_speed_read(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {}
 	command void HplSST25VF064.fast_read_dual_output(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {}
 
-	command void HplSST25VF064.read_sid(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {
+	command void HplSST25VF064.read_sid(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len) {
+		uint8_t txBuffer[4];
 		txBuffer[0] = READ_SID;
 		txBuffer[1] = addr[0];
 		txBuffer[2] = addr[1];
 		txBuffer[3] = addr[2];
-		runSpiByte(txBuffer, rxBuffer, len);
-		leftShiftRxBuffer(rxBuffer, len, 4);
+		runSpiByte(&txBuffer[0], 4, rxBuffer, rx_len);
 	}
 
 	command void HplSST25VF064.lock_sid() {
