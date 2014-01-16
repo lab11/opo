@@ -2,7 +2,7 @@
 
 /*
 Because this implementation uses the SpiByte interface,
-the TxBuffer and RxBuffer must both be greater than
+the cmdBuffer and RxBuffer must both be greater than
 len(tx_msg) + len(rx_msg)
 */
 
@@ -24,12 +24,11 @@ module HplSST25VF064P {
 implementation {
 
 	int i; // for loop variable
-	uint8_t cmd_buffer[3];
 
-	inline void runSpiByte(uint8_t *txBuffer, uint16_t tx_len, uint8_t *rxBuffer, uint16_t rx_len) {
+	inline void runSpiByteRx(uint8_t *cmdBuffer, uint8_t *rxBuffer, uint16_t rx_len) {
 		call FlashCS.clr();
-		for(i = 0; i < tx_len; i++) {
-			call SpiByte.write(txBuffer[i]);
+		for(i = 0; i < 4; i++) {
+			call SpiByte.write(cmdBuffer[i]);
 		}
 		for(i = 0; i < rx_len; i++) {
 			rxBuffer[i] = call SpiByte.write(0);
@@ -37,10 +36,15 @@ implementation {
 		call FlashCS.set();
 	}
 
-	inline void leftShiftRxBuffer(uint8_t *rxBuffer, uint16_t len, uint16_t shift) {
-		for(i=0; i < (len - shift); i++) {
-			rxBuffer[i] = rxBuffer[i + shift];
+	inline void runSpiByteTx(uint8_t *cmdBuffer, uint8_t *txBuffer, uint16_t tx_len) {
+		call FlashCS.clr();
+		for(i = 0; i < 4; i++) {
+			call SpiByte.write(cmdBuffer[i]);
 		}
+		for(i = 0; i < tx_len; i++) {
+			call SpiByte.write(txBuffer[i]);
+		}
+		call FlashCS.set();
 	}
 
 	inline void runSingleCommand(uint8_t cmd) {
@@ -69,25 +73,25 @@ implementation {
 	}
 
 	command void HplSST25VF064.read(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len) {
-		uint8_t txBuffer[4];
-		txBuffer[0] = READ;
-		txBuffer[1] = addr[0];
-		txBuffer[2] = addr[1];
-		txBuffer[3] = addr[2];
+		uint8_t cmdBuffer[4];
+		cmdBuffer[0] = READ;
+		cmdBuffer[1] = addr[0];
+		cmdBuffer[2] = addr[1];
+		cmdBuffer[3] = addr[2];
 
-		runSpiByte(&txBuffer[0], 4, rxBuffer, rx_len);
+		runSpiByteRx(&cmdBuffer[0], rxBuffer, rx_len);
 	}
 
-	command void HplSST25VF064.high_speed_read(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {}
-	command void HplSST25VF064.fast_read_dual_output(uint8_t addr[3], uint8_t *txBuffer, uint8_t *rxBuffer, uint16_t len) {}
+	command void HplSST25VF064.high_speed_read(uint8_t addr[3], uint8_t *cmdBuffer, uint8_t *rxBuffer, uint16_t len) {}
+	command void HplSST25VF064.fast_read_dual_output(uint8_t addr[3], uint8_t *cmdBuffer, uint8_t *rxBuffer, uint16_t len) {}
 
 	command void HplSST25VF064.read_sid(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len) {
-		uint8_t txBuffer[4];
-		txBuffer[0] = READ_SID;
-		txBuffer[1] = addr[0];
-		txBuffer[2] = addr[1];
-		txBuffer[3] = addr[2];
-		runSpiByte(&txBuffer[0], 4, rxBuffer, rx_len);
+		uint8_t cmdBuffer[4];
+		cmdBuffer[0] = READ_SID;
+		cmdBuffer[1] = addr[0];
+		cmdBuffer[2] = addr[1];
+		cmdBuffer[3] = addr[2];
+		runSpiByteRx(&cmdBuffer[0], rxBuffer, rx_len);
 	}
 
 	command void HplSST25VF064.lock_sid() {
@@ -108,12 +112,20 @@ implementation {
 		runSingleCommand(WRDI);
 	}
 
-	command void HplSST25VF064.page_program(uint8_t addr[3], uint8_t *txBuffer, uint16_t len) {
+	/*
+		The write_enable command must be called prior to page program.
+	*/
+	command void HplSST25VF064.page_program(uint8_t addr[3], uint8_t *txBuffer, uint16_t tx_len) {
+		uint8_t cmdBuffer[4];
+		cmdBuffer[0] = PAGE_PROGRAM;
+		cmdBuffer[1] = addr[0];
+		cmdBuffer[2] = addr[1];
+		cmdBuffer[3] = addr[2];
 
-
+		runSpiByteTx(cmdBuffer, txBuffer, tx_len);
 	}
 
-	command void HplSST25VF064.dual_input_page_program(uint8_t addr[3], uint8_t *txBuffer, uint16_t len) {}
+	command void HplSST25VF064.dual_input_page_program(uint8_t addr[3], uint8_t *cmdBuffer, uint16_t len) {}
 
 	command void HplSST25VF064.sector_erase(uint8_t addr[3]) {}
 	command void HplSST25VF064.small_block_erase(uint8_t addr[3]) {}
