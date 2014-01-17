@@ -13,12 +13,13 @@ implementation {
     int i = 0;
     message_t packet;
     opo_flash_t *p;
-    uint8_t txBuffer[64] = {0};
-    uint8_t rxBuffer[64] = {0};
+    uint8_t txBuffer[25] = {0};
+    uint8_t sidBuffer[25] = {0};
+    uint8_t readBuffer[25] = {0};
 
     event void Boot.booted() {
-        for(i=0; i < 64; i++) {
-            rxBuffer[i] = 0;
+        for(i=0; i < 25; i++) {
+            sidBuffer[i] = 0;
             txBuffer[i] = 0;
         }
         p = (opo_flash_t*) call AMSend.getPayload(&packet, sizeof(opo_flash_t));
@@ -27,15 +28,36 @@ implementation {
 
     event void FlashHpl.turnedOn() {
     	uint16_t len = 8;
-    	uint8_t addr[3];
-    	addr[0] = 0;
-    	addr[1] = 0;
-    	addr[2] = 0;
+    	uint8_t addr[3] = {0,0,0};
+        uint8_t truth_counter = 0;
 
-    	call FlashHpl.read_sid(addr, &rxBuffer[0], len);
+    	call FlashHpl.read_sid(addr, &sidBuffer[0], len);
+
     	for(i=0; i < len; i++) {
-    		p->sid[i] = rxBuffer[i];
+    		p->sid[i] = sidBuffer[i];
+            txBuffer[i] = sidBuffer[i];
+
+            if(sidBuffer[i] != 0) {
+                call Leds.led0On();
+            }
     	}
+
+        call FlashHpl.write_enable();
+
+        call FlashHpl.chip_erase();
+        call FlashHpl.page_program(addr, &txBuffer[0], len);
+        call FlashHpl.read(addr, &readBuffer[0], len);
+
+        for(i=0; i < len; i++) {
+            if(sidBuffer[i] == readBuffer[i]) {
+                truth_counter += 1;
+            }
+        }
+
+        if(truth_counter >= 3) {
+            call Leds.led1On();
+        }
+
     	call SplitControl.start();
     }
 
@@ -45,7 +67,6 @@ implementation {
 
 
     event void AMSend.sendDone(message_t *msg, error_t err) {
-        call Leds.led1Toggle();
         call FlashTimer.startOneShot(1500);
     }
 

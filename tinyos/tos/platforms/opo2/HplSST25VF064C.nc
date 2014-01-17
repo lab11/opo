@@ -22,12 +22,14 @@ implementation {
 	components new Msp430GpioC() as FlashPowerGateM;
   	components new Msp430GpioC() as FlashCSM;
   	components new Msp430GpioC() as ResetHoldPinM;
+  	components new Msp430GpioC() as WriteProtectPinM;
   	FlashPowerGateM -> GpIO.Port64;
   	FlashCSM -> GpIO.Port44;
   	ResetHoldPinM -> GpIO.Port55;
+  	WriteProtectPinM -> GpIO.Port54;
 
 	HplSST25VF064P.FlashPowerGate -> FlashPowerGateM;
 	HplSST25VF064P.FlashCS -> FlashCSM;
 	HplSST25VF064P.ResetHoldPin -> ResetHoldPinM;
-
+	HplSST25VF064P.WriteProtectPin -> WriteProtectPinM;
 }

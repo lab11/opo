@@ -17,6 +17,7 @@ module HplSST25VF064P {
 		interface GeneralIO as FlashPowerGate;
 		interface GeneralIO as FlashCS;
 		interface GeneralIO as ResetHoldPin;
+		interface GeneralIO as WriteProtectPin;
 		interface BusyWait<TMicro, uint16_t>;
 		interface Leds;
 	}
@@ -56,6 +57,8 @@ implementation {
 	command void HplSST25VF064.turnOn() {
 		call FlashPowerGate.clr();
 		call ResetHoldPin.set();
+		call WriteProtectPin.makeOutput();
+		call WriteProtectPin.set();
 		call BusyWait.wait(150);
 		call SpiResource.request();
 	}
@@ -102,7 +105,9 @@ implementation {
 
 	}
 
-	command void HplSST25VF064.read_status_register() {}
+	command void HplSST25VF064.read_status_register() {
+
+	}
 
 	command void HplSST25VF064.write_enable() {
 		runSingleCommand(WREN);
