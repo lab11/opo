@@ -21,7 +21,7 @@
 #define READ_SID              0x88
 #define PROGRAM_SID           0xa5
 #define LOCKOUT_SID           0x85
-#define TPP					  3
-#define TSCE				  50
-#define TBE                   25
+#define T_PAGE_PROGRAM        10
+#define T_CHIP_ERASE		  50
+#define T_BLOCK_ERASE         25
 
