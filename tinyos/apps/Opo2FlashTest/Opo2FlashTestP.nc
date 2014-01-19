@@ -13,55 +13,63 @@ implementation {
     int i = 0;
     message_t packet;
     opo_flash_t *p;
-    uint8_t txBuffer[25] = {0};
-    uint8_t sidBuffer[25] = {0};
+    uint8_t m_txBuffer[25] = {0};
+    uint8_t sidBuffer[25]  = {0};
     uint8_t readBuffer[25] = {0};
+    uint8_t addr[3] = {0,0,0};
+    uint16_t len = 8;
 
     event void Boot.booted() {
         for(i=0; i < 25; i++) {
-            sidBuffer[i] = 0;
-            txBuffer[i] = 0;
+            sidBuffer[i]  = 0;
+            m_txBuffer[i] = 0;
+            readBuffer[i] = 0;
         }
         p = (opo_flash_t*) call AMSend.getPayload(&packet, sizeof(opo_flash_t));
         call FlashHpl.turnOn();
     }
 
     event void FlashHpl.turnedOn() {
-    	uint16_t len = 8;
-    	uint8_t addr[3] = {0,0,0};
-        uint8_t truth_counter = 0;
-
     	call FlashHpl.read_sid(addr, &sidBuffer[0], len);
+    }
 
-    	for(i=0; i < len; i++) {
-    		p->sid[i] = sidBuffer[i];
-            txBuffer[i] = sidBuffer[i];
+    event void FlashHpl.turnedOff() {
+
+    }
+
+    event void FlashHpl.read_sid_done(uint8_t *rxBuffer, uint16_t rx_len) {
+        for(i=0; i < len; i++) {
+            p->sid[i] = sidBuffer[i];
+            m_txBuffer[i] = sidBuffer[i];
 
             if(sidBuffer[i] != 0) {
                 call Leds.led0On();
             }
-    	}
-
+        }
         call FlashHpl.write_enable();
-
         call FlashHpl.chip_erase();
-        call FlashHpl.page_program(addr, &txBuffer[0], len);
-        call FlashHpl.read(addr, &readBuffer[0], len);
-
-        for(i=0; i < len; i++) {
-            if(sidBuffer[i] == readBuffer[i]) {
-                truth_counter += 1;
-            }
-        }
-
-        if(truth_counter >= 3) {
-            call Leds.led1On();
-        }
-
-    	call SplitControl.start();
     }
 
-    event void FlashHpl.turnedOff() {
+    event void FlashHpl.chip_erase_done() {
+        call FlashHpl.page_program(addr, &sidBuffer[0], len);
+    }
+
+    event void FlashHpl.page_program_done(uint8_t *txBuffer, uint16_t page_len) {
+        call FlashHpl.read(addr, &readBuffer[0], len);
+    }
+
+    event void FlashHpl.read_done(uint8_t *rxBuffer, uint16_t rx_len) {
+        uint8_t truth_counter = 0;
+
+        for(i=0; i < rx_len-1; i++) {
+            if(rxBuffer[i] == sidBuffer[i+1]) {
+                truth_counter++;
+                //call Leds.led1On();
+            }
+        }
+        if(truth_counter > 1) {
+            call Leds.led1On();
+        }
 
     }
 
