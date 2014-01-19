@@ -32,4 +32,7 @@ implementation {
 	HplSST25VF064P.FlashCS -> FlashCSM;
 	HplSST25VF064P.ResetHoldPin -> ResetHoldPinM;
 	HplSST25VF064P.WriteProtectPin -> WriteProtectPinM;
+
+	components new TimerMilliC() as WaitTimer;
+	HplSST25VF064P.WaitTimer -> WaitTimer;
 }
