@@ -140,10 +140,19 @@ implementation {
     int i;
     printf("flashrx\n");
 
+    printf("sid: ");
     for(i = 0; i < 8; i++) {
-      printf("woo \n");
-      printf("%u \n", data->sid[i]);
+      printf("%u", data->sid[i]);
     }
+    printf("\n");
+
+    printf("readBuffer: ");
+    for(i=0; i < 8; i++) {
+      printf("%u", data->readBuffer[i]);
+    }
+    printf("\n");
+
+    printf("status: %u\n", data->statusRegister);
 
     printf("----------------------\n");
 

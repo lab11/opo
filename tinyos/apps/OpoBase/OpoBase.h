@@ -56,6 +56,8 @@ typedef nx_struct opo_adc_msg {
 
 typedef nx_struct opo_flash_msg {
     nx_uint8_t sid[8];
+    nx_uint8_t readBuffer[8];
+    nx_uint8_t statusRegister;
 } opo_flash_t;
 
 enum {
