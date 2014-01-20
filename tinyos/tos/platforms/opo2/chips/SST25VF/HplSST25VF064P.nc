@@ -69,10 +69,10 @@ implementation {
 
 	command void HplSST25VF064.turnOn() {
 		call FlashPowerGate.clr();
+		call BusyWait.wait(150);
 		call ResetHoldPin.set();
 		call WriteProtectPin.makeOutput();
 		call WriteProtectPin.set();
-		call BusyWait.wait(150);
 		call SpiResource.request();
 	}
 
@@ -121,8 +121,14 @@ implementation {
 
 	}
 
-	command void HplSST25VF064.read_status_register() {
+	command uint8_t HplSST25VF064.read_status_register() {
+		uint8_t status_buffer = 0;
+		call FlashCS.clr();
+		call SpiByte.write(RDSR);
+		status_buffer = call SpiByte.write(0);
+		call FlashCS.set();
 
+		return status_buffer;
 	}
 
 	command void HplSST25VF064.write_enable() {
@@ -145,6 +151,7 @@ implementation {
 		cmdBuffer[2] = addr[1];
 		cmdBuffer[3] = addr[2];
 
+		call HplSST25VF064.write_enable();
 		runSpiByteTx(&cmdBuffer[0], txBuffer, tx_len);
 
 		status = PAGE_PROGRAM_DONE;
@@ -161,13 +168,24 @@ implementation {
 	command void HplSST25VF064.large_block_erase(uint8_t addr[3]) {}
 
 	command void HplSST25VF064.chip_erase() {
+		call HplSST25VF064.write_enable();
+
 		runSingleCommand(CHIP_ERASE);
 		status = CHIP_ERASE_DONE;
 		call WaitTimer.startOneShot(T_CHIP_ERASE);
 	}
 
-	command void HplSST25VF064.ewsr() {} // Enable write status register
-	command void HplSST25VF064.wrsr(uint8_t *data) {} // write status regsiter
+	command void HplSST25VF064.ewsr() {
+		runSingleCommand(EWSR);
+	}
+
+	command void HplSST25VF064.wrsr(uint8_t status_data) {
+		call HplSST25VF064.ewsr();
+		call FlashCS.clr();
+		call SpiByte.write(WRSR);
+		call SpiByte.write(status_data);
+		call FlashCS.set();
+	}
 
 	command void HplSST25VF064.ehld() {} // enable hold pin. turns reset pin into hold pin
 	command void HplSST25VF064.rdid() {} // reads the manufacturer and device id

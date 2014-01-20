@@ -17,7 +17,7 @@ interface HplSST25VF064 {
 	command void lock_sid();
 	command void program_sid(uint8_t addr[3], uint8_t *data, uint16_t len);
 
-	command void read_status_register();
+	command uint8_t read_status_register();
 
 	command void write_enable();
 	command void write_disable();
@@ -35,7 +35,7 @@ interface HplSST25VF064 {
 	event   void chip_erase_done();
 
 	command void ewsr(); // Enable write status register
-	command void wrsr(uint8_t *data); // write status regsiter
+	command void wrsr(uint8_t data); // write status regsiter
 
 	command void ehld(); // enable hold pin. turns reset pin into hold pin
 	command void rdid(); // reads the manufacturer and device id
