@@ -11,6 +11,7 @@ module OpoTxP {
         interface HplMsp430GeneralIO as AMP3_ADC;
         interface HplMsp430GeneralIO as SFDIntGpio;
         interface Timer<TMilli> as TxTimer;
+        interface Timer<TMilli> as LedsTimer;
     }
 }
 
@@ -46,12 +47,15 @@ implementation {
         p -> sequence = range_sequence;
         range_sequence++;
 
-        call Leds.led0On();
+        call Leds.led0Toggle();
         call Opo.transmit(&packet, sizeof(opo_rf_msg_t));
     }
 
-    event void Opo.transmit_done() {
+    event void LedsTimer.fired() {
         call Leds.led0Off();
+    }
+
+    event void Opo.transmit_done() {
         call TxTimer.startOneShot(10000);
     }
 

@@ -32,5 +32,7 @@ implementation {
     OpoTxP.SFDIntGpio -> GpIO.SFDPIN;
 
     components new TimerMilliC() as TxTimer;
+    components new TimerMilliC() as LedsTimer;
     OpoTxP.TxTimer -> TxTimer;
+    OpoTxP.LedsTimer -> LedsTimer;
 }
