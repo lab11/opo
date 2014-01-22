@@ -29,15 +29,14 @@ implementation {
 	}
 
 	async event void ULCapture.captured(uint16_t time) {
-		call RxPin.toggle();
-		if(! call RxTimer.isRunning()) {
-			call Leds.led0On();
-			call RxTimer.startOneShot(3000);
-		}
+		call ULCapture.setEdge(MSP430TIMER_CM_NONE);
+		call Leds.led0On();
+		call RxTimer.startOneShot(2000);
 	}
 
 	event void RxTimer.fired() {
 		call Leds.led0Off();
+		call ULCapture.setEdge(MSP430TIMER_CM_RISING);
 	}
 
 }
