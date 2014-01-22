@@ -28,9 +28,7 @@ implementation {
   components HplMsp430GeneralIOC as GpIO;
   OpoP.UCapGpIO -> GpIO.U_CAP_PIN;
   OpoP.SFDCapGpIO -> GpIO.SFD_PIN;
-  OpoP.SFDLatch -> GpIO.SFD_LATCH;
   OpoP.TxRxSel -> GpIO.TXRX_SEL;
-  OpoP.TxGate -> GpIO.TX_GATE;
 
   components Msp430TimerC;
   OpoP.SFDCapture -> Msp430TimerC.SFD_CAPTURE;

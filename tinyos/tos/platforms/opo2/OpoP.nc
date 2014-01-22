@@ -15,11 +15,9 @@ module OpoP {
     interface Timer<TMilli> as RxTimer;
     interface Msp430Timer as TimerB;
     /* Pin setup */
-    interface HplMsp430GeneralIO as SFDLatch;
     interface HplMsp430GeneralIO as UCapGpIO;
     interface HplMsp430GeneralIO as SFDCapGpIO;
     interface HplMsp430GeneralIO as TxRxSel;
-    interface HplMsp430GeneralIO as TxGate;
     interface HplMsp430GeneralIO as Amp3_ADC;
     /*RF Stuff */
     interface AMSend;
@@ -94,7 +92,6 @@ implementation {
       disableRx();
 
       call TxRxSel.set();
-      call TxGate.clr();
 
       opo_tx_state = TX_WAKE;
       setupUltrasonicPWM();
@@ -114,7 +111,6 @@ implementation {
       printf("OPO_W\n");
       printfflush();
       #endif
-      call SFDLatch.set();
       startTransducer();
       opo_tx_state = TX_WAKE_STOP;
       call TxTimer.startOneShot(U_PULSE_TIME);
@@ -124,7 +120,6 @@ implementation {
       printf("OPO_WS\n");
       printfflush();
       #endif
-      call SFDLatch.clr();
       stopTransducer();
       opo_tx_state = TX_RANGE;
       call TxTimer.startOneShot(45);
@@ -143,7 +138,6 @@ implementation {
       printf("OPO_RS\n");
       printfflush();
       #endif
-      call SFDLatch.clr();
       stopTransducer();
       opo_tx_state = TX_IDLE;
       atomic opo_state = IDLE;
@@ -227,7 +221,6 @@ implementation {
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_RISING);
     }
     else if(opo_state == TX) {
-      call SFDLatch.set();
       call TxTimer.startOneShot(U_PULSE_TIME);
     }
 
@@ -306,8 +299,6 @@ implementation {
     Stuff to setup pins and MCU modules.
   ============================================================================*/
   command error_t Opo.setup_pins() {
-    call TxGate.makeOutput();
-    call TxGate.set();
     call TxRxSel.makeOutput();
 
     // Sets up SFD Time Capture, although not enabled on any edge
@@ -317,9 +308,6 @@ implementation {
     call SFDCapControl.enableEvents();
     call SFDCapControl.clearPendingInterrupt();
     call SFDCapture.setEdge(MSP430TIMER_CM_NONE);
-
-    // set up SFD Latch
-    call SFDLatch.makeOutput();
 
     // Sets up Ultrasonic Time Capture, although not enabled on any edge
     call UCapGpIO.selectModuleFunc();
@@ -401,7 +389,6 @@ implementation {
   */
   inline void setupRx() {
       call TxRxSel.clr();
-      call TxGate.set();
       call SFDCapture.setEdge(MSP430TIMER_CM_NONE);
 
       atomic {
