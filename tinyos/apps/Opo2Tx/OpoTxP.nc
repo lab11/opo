@@ -40,7 +40,7 @@ implementation {
 
 
     event void Opo.transmit_done() {
-        call OpoTxTimer.startOneShot(10000);
+        call OpoTxTimer.startOneShot(5000);
     }
 
 
