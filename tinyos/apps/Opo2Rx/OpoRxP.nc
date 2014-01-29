@@ -5,8 +5,6 @@ module OpoRxP {
         interface Boot;
         interface Leds;
         interface Random;
-        interface ReadId48 as IdReader;
-        interface SplitControl as At45dbPower;
         interface SplitControl as RfControl;
         interface CC2420Config;
         interface Packet;
@@ -22,7 +20,7 @@ implementation {
     message_t packet;
     message_t base_packet;
     uint8_t   fcount = 0; // receive failed count
-    uint8_t   m_id[6];
+    uint8_t   m_id[8];
     uint8_t   i; // used for for loops
     uint16_t m_t_rf;
     uint16_t m_t_ultrasonic_wake;
@@ -32,8 +30,6 @@ implementation {
     uint32_t guard;
 
     event void Boot.booted() {
-        call IdReader.read(&m_id[0]);
-        call At45dbPower.stop();
         call Opo.setup_pins();
         call Opo.enable_receive();
     }
@@ -51,11 +47,13 @@ implementation {
         m_t_ultrasonic_falling = t_ultrasonic_falling;
 
         call Leds.led0Toggle();
+
         guard = call Random.rand32() % 50;
         call BaseTimer.startOneShot(100 + guard);
     }
 
     event void Opo.receive_failed() {
+        call Leds.led1Toggle();
         fcount += 1;
         call RxTimer.startOneShot(50);
     }
@@ -69,7 +67,7 @@ implementation {
         p = (opo_rx_base_msg_t*) call BaseSend.getPayload(&base_packet,
                                                           sizeof(opo_rx_base_msg_t));
 
-        for(i = 0; i < 6; i++) {
+        for(i = 0; i < 8; i++) {
             p->rx_id[i] = m_id[i];
         }
         p->t_rf = m_t_rf;
@@ -106,8 +104,5 @@ implementation {
     event void Opo.enable_receive_failed() {}
 
     event void CC2420Config.syncDone(error_t error) {}
-
-    event void At45dbPower.startDone(error_t err) {}
-    event void At45dbPower.stopDone(error_t err) {}
 
 }

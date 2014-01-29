@@ -10,11 +10,11 @@
 
 typedef nx_struct opo_range_msg {
     nx_uint32_t sequence;
-    nx_uint8_t  m_id[6];
+    nx_uint8_t  m_id[8];
 } opo_rf_msg_t;
 
 typedef nx_struct opo_rx_base_msg {
-    nx_uint8_t  rx_id[6];
+    nx_uint8_t  rx_id[8];
     nx_uint16_t t_rf;
     nx_uint16_t t_ultrasonic_wake;
     nx_uint16_t t_ultrasonic_wake_falling;

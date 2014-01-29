@@ -7,8 +7,7 @@ implementation {
     OpoRxP.Boot -> MainC.Boot;
     OpoRxP.Leds -> LedsC.Leds;
 
-    components Ds2411C, RandomC;
-    OpoRxP.IdReader -> Ds2411C;
+    components RandomC;
     OpoRxP.Random -> RandomC;
 
     components OpoC;
@@ -28,9 +27,6 @@ implementation {
 
     components CC2420ControlC;
     OpoRxP.CC2420Config -> CC2420ControlC.CC2420Config;
-
-    components At45dbPowerC;
-    OpoRxP.At45dbPower -> At45dbPowerC;
 
     components new TimerMilliC() as RxTimer;
     components new TimerMilliC() as BaseTimer;
