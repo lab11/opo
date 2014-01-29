@@ -104,11 +104,17 @@ implementation {
   event message_t* RxReceive.receive(message_t *msg, void *payload, uint8_t len) {
     opo_rx_base_msg_t *data = (opo_rx_base_msg_t *) payload;
     int i;
+    float rf_time = (float)data->t_rf;
+    float ul_time = (float)data->t_ultrasonic;
+    float range = (ul_time - rf_time)/32000.0 * 340.29 - .12;
+
 
     printf("0x");
     for(i=0; i<8; i++) {
       printf("%x", data->rx_id[i]);
     }
+    printf("\n");
+    printf("Range: %f m\n", range);
     printf(" %u", data->t_rf);
     printf(" %u", data->t_ultrasonic_wake);
     printf(" %u", data->t_ultrasonic - data->t_rf);
@@ -118,6 +124,7 @@ implementation {
     printf(" %u", data->t_ultrasonic_wake_falling - data->t_ultrasonic_wake);
     printf(" %u", data->t_ultrasonic_falling - data->t_ultrasonic);
     printf("\n");
+    printf("--------------------\n");
 
     printfflush();
     return msg;
