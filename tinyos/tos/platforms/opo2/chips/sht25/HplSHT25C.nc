@@ -7,145 +7,119 @@ module HplSHT25P {
   uses {
     interface I2CPacket<TI2CBasicAddr>;
     interface Resource as I2CResource;
+    interface Timer<TMilli> as WaitTimer;
   }
 }
 
 implementation {
-  uint8_t i2c_write_buffer[17];
-  uint8_t *i2c_write_buffer_ptr = i2c_write_buffer;
-  bool startRead = FALSE;
-  uint8_t readStartAddr;
+  uint8_t cmd;
+  uint8_t readBuffer[4];
+  uint16_t temperature;
+  uint16_t rh;
 
-  i2c_state_t i2c_state;
+  sht25_state_t sht25_state;
 
-  void calculate_time();
-
-  task void I2C_RV4162_TASK() {
+  task void I2C_SHT25_TASK() {
 
       if (!call I2CResource.isOwner()) {
         call I2CResource.request();
         return;
       }
 
-      if(startRead == TRUE) {
-        startRead = FALSE;
-        call I2CPacket.write( (I2C_START | I2C_STOP),
-                              RV4162_ADDR,
-                              1,
-                              &readStartAddr);
-      }
-      else {
-        switch (i2c_state) {
-          case RV_READ_FULL_TIME:
-            i2c_state = RV_FULL_TIME_READ;
-            call I2CPacket.read( (I2C_START | I2C_STOP),
-                                  RV4162_ADDR,
-                                  8,
-                                  ftPtr);
-            break;
+      switch (sht25_state) {
+        case SHT25_MEASURE_TEMPERATURE:
+          sht25_state = SHT25_READ_TEMPERATURE;
+          cmd = T_MEASURE;
+          call I2CPacket.write( (I2C_START | I2C_STOP),
+                                SHT25_ADDR,
+                                1,
+                                &cmd);
+          break;
 
-          case RV_FULL_TIME_READ:
-            i2c_state = RV_IDLE;
-            call I2CResource.release();
-            signal HplSHT25.readFullTimeDone(SUCCESS, ftPtr);
-            break;
+        case SHT25_READ_TEMPERATURE:
+          sht25_state = SHT25_READ_TEMPERATURE_DONE;
+          call I2CPacket.read( (I2C_START | I2C_STOP),
+                                SHT25_ADDR,
+                                2,
+                                &readBuffer);
+          break;
 
-          case RV_WRITE_ST_BIT:
-            i2c_state = RV_WRITE_ST_BIT_2;
-            i2c_write_buffer[0] = 0x01;
-            i2c_write_buffer[1] = 0x80;
-            call I2CPacket.write( (I2C_START | I2C_STOP),
-                                  RV4162_ADDR,
-                                  2,
-                                  i2c_write_buffer_ptr);
-            break;
+        case SHT25_READ_TEMPERATURE_DONE:
+          sht25_state = SHT25_IDLE;
+          call I2CResource.release();
+          temperature = readBuffer[0];
+          temperature = temperature << 8;
+          temperature += readBuffer[1];
+          signal HplSHT25.readTemperatureDone(temperature);
+          break;
 
-          case RV_WRITE_ST_BIT_2:
-            i2c_state = RV_ST_BIT_WRITTEN;
-            i2c_write_buffer[0] = 0x01;
-            i2c_write_buffer[1] = 0x00;
-            call I2CPacket.write( (I2C_START | I2C_STOP),
-                                  RV4162_ADDR,
-                                  2,
-                                  i2c_write_buffer_ptr);
-            break;
+        case SHT25_MEASURE_HUMIDITY:
+          sht25_state = SHT25_READ_HUMIDITY;
+          cmd = RH_MEAURE;
+          call I2CPacket.write( (I2C_START | I2C_STOP),
+                                SHT25_ADDR,
+                                1,
+                                &cmd);
+          break;
 
-          case RV_ST_BIT_WRITTEN:
-            i2c_state = RV_IDLE;
-            call I2CResource.release();
-            signal HplSHT25.writeSTBitDone(SUCCESS);
+        case SHT25_READ_HUMIDITY:
+          sht25_state = SHT25_READ_HUMIDITY_DONE;
+          call I2CPacket.read( (I2C_START | I2C_STOP),
+                                SHT25_ADDR,
+                                2,
+                                &readBuffer);
+          break;
 
-            break;
+        case SHT25_READ_HUMIDITY_DONE:
+          sht25_state = SHT25_IDLE;
+          call I2CResource.release();
+          rh = readBuffer[0];
+          rh = rh << 8;
+          rh += readBuffer[1];
 
-          case RV_SET_TIME:
-            i2c_state = RV_TIME_SET;
-            call I2CPacket.write( (I2C_START | I2C_STOP),
-                                  RV4162_ADDR,
-                                  9,
-                                  i2c_write_buffer);
-            break;
+          signal HplSHT25.readRHDone(rh);
+          break;
 
-          case RV_TIME_SET:
-            i2c_state = RV_IDLE;
-            call I2CResource.release();
-            signal HplSHT25.setTimeDone(SUCCESS);
-            break;
-
-          case RV_RESET_TIME:
-            i2c_state = RV_TIME_RESET;
-            i2c_write_buffer[0] = 0x00;
-            i2c_write_buffer[1] = 0x00;
-            i2c_write_buffer[2] = 0x00;
-            i2c_write_buffer[3] = 0x00;
-            i2c_write_buffer[4] = 0x00;
-            i2c_write_buffer[5] = 0x01;
-            i2c_write_buffer[6] = 0x01;
-            i2c_write_buffer[7] = 0x81;
-            i2c_write_buffer[8] = 0x00;
-            call I2CPacket.write( (I2C_START | I2C_STOP),
-                                   RV4162_ADDR,
-                                   9,
-                                   i2c_write_buffer);
-            break;
-
-          case RV_TIME_RESET:
-            i2c_state = RV_IDLE;
-            call I2CResource.release();
-            signal HplSHT25.resetTimeDone(SUCCESS);
-            break;
-        }
       }
   }
 
+  task void SHT25_WAIT_TASK() {
+
+  }
+
   event void I2CResource.granted() {
-    post I2C_RV4162_TASK();
+    post I2C_SHT25_TASK();
+  }
+
+  event void WaitTimer.fired() {
+
   }
 
   async event void I2CPacket.readDone(error_t error,
                                       uint16_t addr,
                                       uint8_t length,
                                       uint8_t* data) {
-    post I2C_RV4162_TASK();
+    post I2C_SHT25_TASK();
   }
 
   async event void I2CPacket.writeDone(error_t error,
                                        uint16_t addr,
                                        uint8_t length,
                                        uint8_t* data) {
-    post I2C_RV4162_TASK();
+    post I2C_SHT25_TASK();
   }
 
   command error_t HplSHT25.readTemperature() {
-    i2c_state = RV_READ_FULL_TIME;
+    sht25_state = RV_READ_FULL_TIME;
     startRead = TRUE;
     readStartAddr = 0x00;
-    post I2C_RV4162_TASK();
+    post I2C_SHT25_TASK();
     return SUCCESS;
   }
 
   command error_t HplSHT25.readRH() {
-    i2c_state = RV_WRITE_ST_BIT;
-    post I2C_RV4162_TASK();
+    sht25_state = RV_WRITE_ST_BIT;
+    post I2C_SHT25_TASK();
     return SUCCESS;
   }
 
