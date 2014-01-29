@@ -46,8 +46,8 @@ implementation
 
   enum { ALARM_ID = unique("Msp430Timer32khzMapC") };
 
-  Msp430Timer = Map.Msp430Timer[ALARM_ID + 1];
-  Msp430TimerControl = Map.Msp430TimerControl[ALARM_ID + 1];
-  Msp430Compare = Map.Msp430Compare[ALARM_ID + 1];
+  Msp430Timer = Map.Msp430Timer[ALARM_ID + 3];
+  Msp430TimerControl = Map.Msp430TimerControl[ALARM_ID + 3];
+  Msp430Compare = Map.Msp430Compare[ALARM_ID + 3];
 }
 

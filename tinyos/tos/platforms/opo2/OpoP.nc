@@ -107,37 +107,20 @@ implementation {
 
   event void TxTimer.fired() {
     if(opo_tx_state == TX_WAKE) {
-      #ifdef OPO_DEBUG
-      printf("OPO_W\n");
-      printfflush();
-      #endif
       startTransducer();
       opo_tx_state = TX_WAKE_STOP;
       call TxTimer.startOneShot(U_PULSE_TIME);
     }
     else if(opo_tx_state == TX_WAKE_STOP) {
-      #ifdef OPO_DEBUG
-      printf("OPO_WS\n");
-      printfflush();
-      #endif
       stopTransducer();
       opo_tx_state = TX_RANGE;
       call TxTimer.startOneShot(45);
     }
     else if(opo_tx_state == TX_RANGE) {
-      #ifdef OPO_DEBUG
-      printf("OPO_R\n");
-      printfflush();
-      #endif
       opo_tx_state = TX_RANGE_STOP;
-      startTransducer();
       call RfControl.start();
     }
     else if(opo_tx_state == TX_RANGE_STOP) {
-      #ifdef OPO_DEBUG
-      printf("OPO_RS\n");
-      printfflush();
-      #endif
       stopTransducer();
       opo_tx_state = TX_IDLE;
       atomic opo_state = IDLE;
@@ -146,10 +129,6 @@ implementation {
   }
 
   event void AMSend.sendDone(message_t* bufPtr, error_t error) {
-    #ifdef OPO_DEBUG
-    printf("OPO_RF_SD\n");
-    printfflush();
-    #endif
     call RfControl.stop();
   }
 
@@ -186,6 +165,7 @@ implementation {
     call UCapControl.clearPendingInterrupt();
     atomic opo_state = RX;
 
+
     if(opo_rx_state == RX_WAKE) {
       opo_rx_state = RX_RANGE;
       call RxTimer.startOneShot(48);
@@ -221,6 +201,7 @@ implementation {
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_RISING);
     }
     else if(opo_state == TX) {
+      startTransducer();
       call TxTimer.startOneShot(U_PULSE_TIME);
     }
 
@@ -240,10 +221,6 @@ implementation {
 
   event void RxTimer.fired() {
     if(opo_rx_state == RX_SETUP) {
-      #ifdef OPO_DEBUG
-      printf("OpoRxTimerDone\n");
-      printfflush();
-      #endif
       opo_rx_state = RX_WAKE;
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_RISING);
       atomic opo_state = IDLE;
@@ -253,10 +230,6 @@ implementation {
     }
     else if(opo_rx_state == RX_DONE) {
       disableRx();
-      #ifdef OPO_DEBUG
-      printf("OpoRxTimerDone\n");
-      printfflush();
-      #endif
       call RfControl.stop();
       if(t_ultrasonic > t_rf && rx_msg != NULL) {
         signal Opo.receive(t_rf,
@@ -280,10 +253,6 @@ implementation {
   event void RfControl.startDone(error_t err) {
     call SFDCapture.setEdge(MSP430TIMER_CM_RISING);
     if(opo_state == TX) {
-      #ifdef OPO_DEBUG
-      printf("OPO_RFS_TX\n");
-      printfflush();
-      #endif
       call AMSend.send(AM_BROADCAST_ADDR,
                        tx_packet,
                        tx_psize);
