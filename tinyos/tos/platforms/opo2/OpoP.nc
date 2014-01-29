@@ -300,22 +300,23 @@ implementation {
   ============================================================================*/
   command error_t Opo.setup_pins() {
     call TxRxSel.makeOutput();
+    call TxRxSel.set();
 
     // Sets up SFD Time Capture, although not enabled on any edge
     call SFDCapGpIO.selectModuleFunc();
     call SFDCapGpIO.makeInput();
     call SFDCapControl.setControlAsCapture(1);
+    call SFDCapture.setEdge(MSP430TIMER_CM_NONE);
     call SFDCapControl.enableEvents();
     call SFDCapControl.clearPendingInterrupt();
-    call SFDCapture.setEdge(MSP430TIMER_CM_NONE);
 
     // Sets up Ultrasonic Time Capture, although not enabled on any edge
     call UCapGpIO.selectModuleFunc();
     call UCapGpIO.makeInput();
     call UCapControl.setControlAsCapture(1);
+    call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
     call UCapControl.enableEvents();
     call UCapControl.clearPendingInterrupt();
-    call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
 
     return SUCCESS;
   }

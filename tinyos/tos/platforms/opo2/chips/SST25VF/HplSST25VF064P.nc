@@ -189,6 +189,4 @@ implementation {
 
 	command void HplSST25VF064.ehld() {} // enable hold pin. turns reset pin into hold pin
 	command void HplSST25VF064.rdid() {} // reads the manufacturer and device id
-
-
 }
