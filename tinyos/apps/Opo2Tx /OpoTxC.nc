@@ -20,12 +20,9 @@ implementation {
     OpoC.AMReceive -> OpoRfReceive;
     OpoC.RfControl -> ActiveMessageC.SplitControl;
 
-    components HplMsp430GeneralIOC as GpIO;
-    OpoTxP.AMP3_ADC -> GpIO.AMP3_ADC;
-    OpoTxP.SFDIntGpio -> GpIO.SFDPIN;
+    components HplSST25VF064C;
+    OpoTxP.Flash -> HplSST25VF064C.HplSST25VF064;
 
-    components new TimerMilliC() as TxTimer;
-    components new TimerMilliC() as LedsTimer;
-    OpoTxP.TxTimer -> TxTimer;
-    OpoTxP.LedsTimer -> LedsTimer;
+    components new TimerMilliC() as OpoTxTimer;
+    OpoTxP.OpoTxTimer -> OpoTxTimer;
 }
