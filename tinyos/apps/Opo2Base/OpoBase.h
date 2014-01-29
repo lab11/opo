@@ -40,7 +40,7 @@ typedef nx_struct opo_visual_base_msg {
 } ovis_base_msg_t;
 
 typedef nx_struct opo_rx_base_msg {
-    nx_uint8_t  rx_id[6];
+    nx_uint8_t  rx_id[8];
     nx_uint16_t t_rf;
     nx_uint16_t t_ultrasonic_wake;
     nx_uint16_t t_ultrasonic_wake_falling;

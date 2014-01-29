@@ -106,11 +106,12 @@ implementation {
     int i;
 
     printf("0x");
-    for(i=0; i<6; i++) {
+    for(i=0; i<8; i++) {
       printf("%x", data->rx_id[i]);
     }
     printf(" %u", data->t_rf);
     printf(" %u", data->t_ultrasonic_wake);
+    printf(" %u", data->t_ultrasonic - data->t_rf);
     printf(" %u", data->t_ultrasonic_wake_falling);
     printf(" %u", data->t_ultrasonic);
     printf(" %u", data->t_ultrasonic_falling);
