@@ -1,0 +1,20 @@
+#!/bin/bash
+# USAGE: start|stop
+#
+case "$1" in
+start)
+echo "Starting Opo Visual Base Station"
+sudo /home/wwhuang/OpoBaseC | python /home/wwhuang/web_export.py
+;;
+stop)
+echo "Stopping Opo Visual Base Station"
+sudo pkill -9 OpoBaseC
+sudo pkill -9 python
+;;
+
+*)
+echo “Opo Base Station For Visualization Demo”
+echo $”Usage: $0 {start|stop}”
+exit 1
+esac
+exit 0
