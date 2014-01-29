@@ -25,15 +25,15 @@ implementation {
     }
 
     event void OpoTxTimer.fired() {
-        call Leds.led0On();
-        call Leds.led1On();
-        /*
+        call Leds.led0Toggle();
+        call Leds.led1Toggle();
+
         p = (opo_rf_msg_t*) call PrepSend.getPayload(&packet,
                                                      sizeof(opo_rf_msg_t));
         p -> sequence = range_sequence;
         range_sequence++;
 
-        call Opo.transmit(&packet, sizeof(opo_rf_msg_t)); */
+        call Opo.transmit(&packet, sizeof(opo_rf_msg_t));
     }
 
     event void PrepSend.sendDone(message_t* bufPtr, error_t error) {}
