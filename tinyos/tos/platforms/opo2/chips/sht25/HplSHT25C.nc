@@ -84,7 +84,40 @@ implementation {
   }
 
   task void SHT25_WAIT_TASK() {
+     switch (sht25_state) {
 
+        case SHT25_READ_TEMPERATURE:
+          call WaitTimer.startOneShot(T_MEASURE_TIME);
+          break;
+
+        case SHT25_MEASURE_HUMIDITY:
+          sht25_state = SHT25_READ_HUMIDITY;
+          cmd = RH_MEAURE;
+          call I2CPacket.write( (I2C_START | I2C_STOP),
+                                SHT25_ADDR,
+                                1,
+                                &cmd);
+          break;
+
+        case SHT25_READ_HUMIDITY:
+          sht25_state = SHT25_READ_HUMIDITY_DONE;
+          call I2CPacket.read( (I2C_START | I2C_STOP),
+                                SHT25_ADDR,
+                                2,
+                                &readBuffer);
+          break;
+
+        case SHT25_READ_HUMIDITY_DONE:
+          sht25_state = SHT25_IDLE;
+          call I2CResource.release();
+          rh = readBuffer[0];
+          rh = rh << 8;
+          rh += readBuffer[1];
+
+          signal HplSHT25.readRHDone(rh);
+          break;
+
+      }
   }
 
   event void I2CResource.granted() {
