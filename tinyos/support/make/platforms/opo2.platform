@@ -6,6 +6,7 @@ PFLAGS += -I%T/platforms/opo2/chips/rv4162
 PFLAGS += -I%T/platforms/opo2/chips/lis3dhtr
 PFLAGS += -I%T/platforms/opo2/chips/cc2420
 PFLAGS += -I%T/platforms/opo2/chips/SST25VF
+PFLAGS += -I%T/platforms/opo2/chips/msp430/timer
 PFLAGS += -I%T/platforms/epic
 PFLAGS += -I%T/platforms/epic/chips/at45db
 PFLAGS += -I%T/platforms/epic/chips/ds2411
