@@ -1,5 +1,23 @@
+#ifndef SHT25_H
+
+#define SHT25_H
 #define SHT25_ADDR       0x40
-#define T_MEASURE        0xf3
-#define RH_MEAURE        0xf5
-#define T_MEASURE_TIME   88
+#define T_MEASURE        0xe3
+#define RH_MEAURE        0xe5
+#define SOFT_RESET       0xfe
+#define T_MEASURE_TIME   100
 #define RH_MEASURE_TIME  30
+
+typedef enum {
+	SHT25_MEASURE_TEMPERATURE,
+	SHT25_READ_TEMPERATURE,
+	SHT25_READ_TEMPERATURE_DONE,
+	SHT25_MEASURE_HUMIDITY,
+	SHT25_READ_HUMIDITY,
+	SHT25_READ_HUMIDITY_DONE,
+	SHT25_SOFT_RESET,
+	SHT25_SOFT_RESET_DONE,
+	SHT25_IDLE
+}sht25_state_t;
+
+#endif

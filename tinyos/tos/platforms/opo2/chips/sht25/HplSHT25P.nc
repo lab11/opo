@@ -1,4 +1,4 @@
-#include "SHT25.h"
+#include "sht25.h"
 
 module HplSHT25P {
   provides {
@@ -8,12 +8,13 @@ module HplSHT25P {
     interface I2CPacket<TI2CBasicAddr>;
     interface Resource as I2CResource;
     interface Timer<TMilli> as WaitTimer;
+    interface Leds;
   }
 }
 
 implementation {
   uint8_t cmd;
-  uint8_t readBuffer[4];
+  uint8_t readBuffer[15];
   uint16_t temperature;
   uint16_t rh;
 
@@ -30,7 +31,7 @@ implementation {
         case SHT25_MEASURE_TEMPERATURE:
           sht25_state = SHT25_READ_TEMPERATURE;
           cmd = T_MEASURE;
-          call I2CPacket.write( (I2C_START | I2C_STOP),
+          call I2CPacket.write( (I2C_START | I2C_ACK_END),
                                 SHT25_ADDR,
                                 1,
                                 &cmd);
@@ -38,17 +39,17 @@ implementation {
 
         case SHT25_READ_TEMPERATURE:
           sht25_state = SHT25_READ_TEMPERATURE_DONE;
-          call I2CPacket.read( (I2C_START | I2C_STOP),
+          call I2CPacket.read( (I2C_START | I2C_ACK_END),
                                 SHT25_ADDR,
-                                2,
-                                &readBuffer);
+                                3,
+                                &readBuffer[0]);
           break;
 
         case SHT25_READ_TEMPERATURE_DONE:
           sht25_state = SHT25_IDLE;
           call I2CResource.release();
           temperature = readBuffer[0];
-          temperature = temperature << 8;
+          //temperature = temperature << 8;
           temperature += readBuffer[1];
           signal HplSHT25.readTemperatureDone(temperature);
           break;
@@ -56,7 +57,7 @@ implementation {
         case SHT25_MEASURE_HUMIDITY:
           sht25_state = SHT25_READ_HUMIDITY;
           cmd = RH_MEAURE;
-          call I2CPacket.write( (I2C_START | I2C_STOP),
+          call I2CPacket.write( (I2C_START | I2C_ACK_END),
                                 SHT25_ADDR,
                                 1,
                                 &cmd);
@@ -67,7 +68,7 @@ implementation {
           call I2CPacket.read( (I2C_START | I2C_STOP),
                                 SHT25_ADDR,
                                 2,
-                                &readBuffer);
+                                &readBuffer[0]);
           break;
 
         case SHT25_READ_HUMIDITY_DONE:
@@ -80,6 +81,19 @@ implementation {
           signal HplSHT25.readRHDone(rh);
           break;
 
+        case SHT25_SOFT_RESET:
+          sht25_state = SHT25_SOFT_RESET_DONE;
+          cmd = SOFT_RESET;
+          call I2CPacket.write( (I2C_START | I2C_ACK_END),
+                                SHT25_ADDR,
+                                1,
+                                &cmd);
+          break;
+
+        case SHT25_SOFT_RESET_DONE:
+          call I2CResource.release();
+          signal HplSHT25.softResetDone();
+          break;
       }
   }
 
@@ -90,33 +104,13 @@ implementation {
           call WaitTimer.startOneShot(T_MEASURE_TIME);
           break;
 
-        case SHT25_MEASURE_HUMIDITY:
-          sht25_state = SHT25_READ_HUMIDITY;
-          cmd = RH_MEAURE;
-          call I2CPacket.write( (I2C_START | I2C_STOP),
-                                SHT25_ADDR,
-                                1,
-                                &cmd);
-          break;
-
         case SHT25_READ_HUMIDITY:
-          sht25_state = SHT25_READ_HUMIDITY_DONE;
-          call I2CPacket.read( (I2C_START | I2C_STOP),
-                                SHT25_ADDR,
-                                2,
-                                &readBuffer);
+          call WaitTimer.startOneShot(RH_MEASURE_TIME);
           break;
 
-        case SHT25_READ_HUMIDITY_DONE:
-          sht25_state = SHT25_IDLE;
-          call I2CResource.release();
-          rh = readBuffer[0];
-          rh = rh << 8;
-          rh += readBuffer[1];
-
-          signal HplSHT25.readRHDone(rh);
+        case SHT25_SOFT_RESET_DONE:
+          post I2C_SHT25_TASK();
           break;
-
       }
   }
 
@@ -125,7 +119,7 @@ implementation {
   }
 
   event void WaitTimer.fired() {
-
+    post I2C_SHT25_TASK();
   }
 
   async event void I2CPacket.readDone(error_t error,
@@ -139,21 +133,38 @@ implementation {
                                        uint16_t addr,
                                        uint8_t length,
                                        uint8_t* data) {
+    if(sht25_state == SHT25_READ_TEMPERATURE) {
+      sht25_state = SHT25_READ_TEMPERATURE_DONE;
+      call I2CPacket.read( (I2C_START | I2C_ACK_END),
+                            SHT25_ADDR,
+                            3,
+                            &readBuffer[0]);
+    }
+    else if(sht25_state == SHT25_READ_HUMIDITY) {
+      sht25_state = SHT25_READ_HUMIDITY_DONE;
+      call I2CPacket.read( (I2C_START | I2C_ACK_END),
+                            SHT25_ADDR,
+                            3,
+                            &readBuffer[0]);
+    }
+    else if (sht25_state == SHT25_SOFT_RESET_DONE) {
+      signal HplSHT25.softResetDone();
+    }
+  }
+
+  command void HplSHT25.readTemperature() {
+    sht25_state = SHT25_MEASURE_TEMPERATURE;
     post I2C_SHT25_TASK();
   }
 
-  command error_t HplSHT25.readTemperature() {
-    sht25_state = RV_READ_FULL_TIME;
-    startRead = TRUE;
-    readStartAddr = 0x00;
+  command void HplSHT25.readRH() {
+    sht25_state = SHT25_MEASURE_HUMIDITY;
     post I2C_SHT25_TASK();
-    return SUCCESS;
   }
 
-  command error_t HplSHT25.readRH() {
-    sht25_state = RV_WRITE_ST_BIT;
+  command void HplSHT25.softReset() {
+    sht25_state = SHT25_SOFT_RESET;
     post I2C_SHT25_TASK();
-    return SUCCESS;
   }
 
 }
