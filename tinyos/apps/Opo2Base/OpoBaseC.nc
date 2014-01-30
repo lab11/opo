@@ -14,6 +14,7 @@ implementation {
   components new AMReceiverC(OPO_RX_BASE) as RxReceive;
   components new AMReceiverC(OPO_ADC_BASE) as ADCReceive;
   components new AMReceiverC(OPO_FLASH_TEST) as FlashReceive;
+  components new AMReceiverC(OPO_SHT25_TEST) as SHT25Receive;
 
   OpoBaseP.OpoReceive -> OpoReceive;
   OpoBaseP.BlinkReceive -> BlinkReceive;
@@ -21,6 +22,7 @@ implementation {
   OpoBaseP.RxReceive -> RxReceive;
   OpoBaseP.ADCReceive -> ADCReceive;
   OpoBaseP.FlashReceive -> FlashReceive;
+  OpoBaseP.SHT25Receive -> SHT25Receive;
   OpoBaseP.RfControl -> ActiveMessageC.SplitControl;
   OpoBaseP.AMPacket -> ActiveMessageC.AMPacket;
 }
