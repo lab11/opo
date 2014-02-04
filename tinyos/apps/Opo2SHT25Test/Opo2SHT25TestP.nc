@@ -17,13 +17,13 @@ implementation {
     opo_sht25_test_msg_t *p;
     uint16_t mTemp = 0;
     uint16_t mRH = 0;
+    bool sense = FALSE;
 
     event void Boot.booted() {
         p = (opo_sht25_test_msg_t*) call AMSend.getPayload(&packet, sizeof(opo_sht25_test_msg_t));
         call I2CSwitch.makeOutput();
-        call I2CSwitch.set();
-        call HplSHT25.softReset();
-
+        call I2CSwitch.clr();
+        call SplitControl.start();
     }
 
     event void HplSHT25.readTemperatureDone(uint16_t temp) {
@@ -33,29 +33,37 @@ implementation {
 
     event void HplSHT25.readRHDone(uint16_t rh) {
         mRH = rh;
-        call Leds.led0On();
         call I2CSwitch.clr();
-        call SplitControl.start();
+        p->temp = mTemp;
+        p->rh = mRH;
+        call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(opo_sht25_test_msg_t));
+
     }
 
     event void HplSHT25.softResetDone() {
+        sense = TRUE;
+        call Leds.led0Toggle();
         call SenseTimer.startOneShot(2000);
     }
 
     event void AMSend.sendDone(message_t *msg, error_t err) {
-
-        call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(opo_sht25_test_msg_t));
+        sense = FALSE;
+        call SenseTimer.startOneShot(1000);
     }
 
     event void SplitControl.startDone(error_t err) {
-        p->temp = mTemp;
-        p->rh = mRH;
         call Leds.led1On();
-        call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(opo_sht25_test_msg_t));
+        call SenseTimer.startOneShot(500);
     }
 
     event void SenseTimer.fired() {
-        call HplSHT25.readTemperature();
+        call I2CSwitch.set();
+        if (sense == FALSE) {
+            call HplSHT25.softReset();
+        }
+        else {
+            call HplSHT25.readTemperature();
+        }
     }
 
     event void SplitControl.stopDone(error_t err) {}
