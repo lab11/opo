@@ -51,7 +51,7 @@ implementation {
                            uint16_t t_ultrasonic,
                            uint16_t t_ultrasonic_falling,
                            message_t* msg) {}
-    event void Opo.receive_failed() {}
+    event void Opo.receive_failed(uint8_t rx_status) {}
     event void Opo.transmit_failed() {}
     event void Opo.enable_receive_failed() {}
 
