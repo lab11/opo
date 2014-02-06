@@ -105,8 +105,8 @@ implementation {
   event message_t* RxReceive.receive(message_t *msg, void *payload, uint8_t len) {
     opo_rx_base_msg_t *data = (opo_rx_base_msg_t *) payload;
     int i;
-    float rf_time = (float)data->t_rf;
-    float ul_time = (float)data->t_ultrasonic;
+    float rf_time = (float)data->rx_t_rf;
+    float ul_time = (float)data->rx_t_ultrasonic;
     float range = (ul_time - rf_time)/32000.0 * 340.29 - .12;
 
 
@@ -115,15 +115,18 @@ implementation {
       printf("%x", data->rx_id[i]);
     }
     printf("\n");
+    printf("0x");
+    for(i=0; i<8; i++) {
+      printf("%x", data->tx_id[i]);
+    }
+    printf("\n");
     printf("Range: %f m\n", range);
-    printf(" %u", data->t_rf);
-    printf(" %u", data->t_ultrasonic_wake);
-    printf(" %u", data->t_ultrasonic - data->t_rf);
-    printf(" %u", data->t_ultrasonic_wake_falling);
-    printf(" %u", data->t_ultrasonic);
-    printf(" %u", data->t_ultrasonic_falling);
-    printf(" %u", data->t_ultrasonic_wake_falling - data->t_ultrasonic_wake);
-    printf(" %u", data->t_ultrasonic_falling - data->t_ultrasonic);
+    printf(" %u", data->rx_rssi);
+    printf(" %u", data->rx_t_rf);
+    printf(" %u", data->rx_t_ultrasonic);
+    printf(" %u", data->tx_seq);
+    printf(" %u", data->rx_seq);
+    printf(" %u", data->rx_fail_count);
     printf("\n");
     printf("--------------------\n");
 
