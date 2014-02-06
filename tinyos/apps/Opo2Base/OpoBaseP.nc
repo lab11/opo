@@ -121,7 +121,7 @@ implementation {
     }
     printf("\n");
     printf("Range: %f m\n", range);
-    printf(" %u", data->rx_rssi);
+    printf("%i", data->rx_rssi);
     printf(" %u", data->rx_t_rf);
     printf(" %u", data->rx_t_ultrasonic);
     printf(" %u", data->tx_seq);
