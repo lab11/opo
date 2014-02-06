@@ -18,7 +18,7 @@ interface Opo {
 		               uint16_t t_ultrasonic,
 		               uint16_t t_ultrasonic_falling,
 		               message_t* msg);
-	event void receive_failed();
+	event void receive_failed(uint8_t rx_status);
 
     command error_t setup_pins();
 }

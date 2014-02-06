@@ -51,6 +51,7 @@ implementation {
   uint16_t t_ultrasonic_wake_falling = 0;
   uint16_t t_ultrasonic = 0; // Ultrasonic Rise Time
   uint16_t t_ultrasonic_falling = 0; // Ultrasonic falling edge time
+  uint8_t  rx_status = 0;
 
   /* Helper function prototypes */
   void startTransducer(); // starts PWM to drive Ultrasonic Transducers
@@ -140,6 +141,7 @@ implementation {
 
   command error_t Opo.enable_receive() {
     bool opo_rx = FALSE;
+    rx_status = 0;
     atomic {
       if(opo_state == IDLE) {
         opo_rx = TRUE;
@@ -173,6 +175,7 @@ implementation {
 
     if(opo_u_state == ULTRASONIC_WAKE) {
       t_ultrasonic_wake = time;
+      rx_status = 1;
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_FALLING);
       opo_u_state = ULTRASONIC_WAKE_FALLING;
     }
@@ -182,6 +185,7 @@ implementation {
     }
     else if(opo_u_state == ULTRASONIC_RISING) {
         t_ultrasonic = time;
+        rx_status = 3;
         opo_u_state = ULTRASONIC_FALLING;
         call UltrasonicCapture.setEdge(MSP430TIMER_CM_FALLING);
     }
@@ -198,6 +202,7 @@ implementation {
   async event void SFDCapture.captured(uint16_t time) {
     if(opo_rx_state == RX_DONE && t_rf == 0) {
       t_rf = time;
+      rx_status = 2;
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_RISING);
     }
     else if(opo_state == TX) {
@@ -240,7 +245,7 @@ implementation {
                            rx_msg);
       }
       else {
-        signal Opo.receive_failed();
+        signal Opo.receive_failed(rx_status);
       }
       atomic opo_state = IDLE;
     }
