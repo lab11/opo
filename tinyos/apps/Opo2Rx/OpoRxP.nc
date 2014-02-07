@@ -60,7 +60,6 @@ implementation {
         p->rx_seq = m_rx_seq;
 
         call Leds.led0Toggle();
-        call Leds.led1Toggle();
 
         guard = call Random.rand32() % 50;
         call BaseTimer.startOneShot(100 + guard);
@@ -68,6 +67,7 @@ implementation {
 
     event void Opo.receive_failed(uint8_t rx_status) {
         fcount += 1;
+        call Leds.led1Toggle();
         call RxTimer.startOneShot(50);
     }
 

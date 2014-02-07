@@ -20,7 +20,7 @@ typedef nx_struct opo_rx_base_msg {
     nx_uint16_t rx_t_ultrasonic;
     nx_uint32_t tx_seq;
     nx_uint16_t rx_seq;
-    nx_uint8_t  rx_rssi;
+    nx_int8_t   rx_rssi;
     nx_uint8_t  rx_fail_count;
 } opo_rx_base_msg_t;
 
