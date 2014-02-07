@@ -17,6 +17,7 @@ implementation {
   uint8_t readBuffer[15];
   uint16_t temperature;
   uint16_t rh;
+  uint16_t divisor = 16383;
 
   sht25_state_t sht25_state;
 
@@ -49,8 +50,10 @@ implementation {
           sht25_state = SHT25_IDLE;
           call I2CResource.release();
           temperature = readBuffer[0];
-          //temperature = temperature << 8;
+          temperature = temperature << 8;
           temperature += readBuffer[1];
+          temperature = temperature >> 2;
+          temperature &= divisor;
           signal HplSHT25.readTemperatureDone(temperature);
           break;
 
@@ -77,6 +80,8 @@ implementation {
           rh = readBuffer[0];
           rh = rh << 8;
           rh += readBuffer[1];
+          rh = rh >> 2;
+          rh &= divisor;
 
           signal HplSHT25.readRHDone(rh);
           break;
