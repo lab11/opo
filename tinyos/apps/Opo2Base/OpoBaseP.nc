@@ -78,13 +78,13 @@ implementation {
     printf("22 ");
 
     printf("0x");
-    for(i=0; i < 6; i++) {
+    for(i=5; i >= 0; i--) {
       printf("%x", data->rx_id[i]);
     }
     printf(" ");
 
     printf("0x");
-    for(i=0; i < 6; i++) {
+    for(i=5; i >= 0; i--) {
       printf("%x", data->tx_id[i]);
     }
     printf(" ");
@@ -111,12 +111,12 @@ implementation {
 
 
     printf("0x");
-    for(i=0; i<8; i++) {
+    for(i=7; i>=0; i--) {
       printf("%x", data->rx_id[i]);
     }
     printf("\n");
     printf("0x");
-    for(i=0; i<8; i++) {
+    for(i=7; i>=0; i--) {
       printf("%x", data->tx_id[i]);
     }
     printf("\n");
