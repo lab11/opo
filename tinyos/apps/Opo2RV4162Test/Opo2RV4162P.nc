@@ -1,4 +1,4 @@
-#include "OpoRV4162.h"
+#include "Opo2RV4162.h"
 module Opo2RV4162P {
 	uses {
 		interface Boot;

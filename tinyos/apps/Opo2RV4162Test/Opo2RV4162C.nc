@@ -1,4 +1,4 @@
-#include "OpoRV4162.h"
+#include "Opo2RV4162.h"
 
 configuration Opo2RV4162C {
 
