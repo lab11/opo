@@ -10,6 +10,7 @@ module OpoBaseP {
     interface Receive as ADCReceive;
     interface Receive as FlashReceive;
     interface Receive as SHT25Receive;
+    interface Receive as RTCReceive;
     interface SplitControl as RfControl;
     interface AMPacket;
     interface Boot;
@@ -179,6 +180,19 @@ implementation {
     printf("Temp: %u\n", data->temp);
 
     printf("RH: %u\n", data->rh);
+    printf("----------------------\n");
+
+    return msg;
+  }
+
+  event message_t* RTCReceive.receive(message_t *msg, void *payload, uint8_t len) {
+    opo_rtc_msg_t *data = (opo_rtc_msg_t *) payload;
+    int i;
+
+    for(i=0; i<8; i++) {
+      printf("%u\n", data->full_time[i]);
+    }
+
     printf("----------------------\n");
 
     return msg;

@@ -67,6 +67,10 @@ typedef nx_struct opo_sht25_test_message {
     nx_uint16_t rh;
 } opo_sht25_test_msg_t;
 
+typedef nx_struct opo_rtc_msg {
+    nx_uint16_t full_time[8];
+} opo_rtc_msg_t;
+
 enum {
     OPO_DATA = 20,
     OPO_BLINK = 21,
@@ -76,7 +80,8 @@ enum {
     OPO_VISUAL_STORE_BASE = 25,
     OPO_RF_TEST = 26,
     OPO_FLASH_TEST = 27,
-    OPO_SHT25_TEST = 28
+    OPO_SHT25_TEST = 28,
+    OPO_RTC_TEST = 29
 };
 
 #endif
