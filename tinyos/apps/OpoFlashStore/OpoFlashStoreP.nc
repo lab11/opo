@@ -24,6 +24,7 @@ implementation {
     // RF packet setup
     message_t packet;
     oflash_msg_t *opo_data;
+    oflash_msg_t *opo_rx_data;
 
     // Timer delays
     uint32_t guard = 0;
@@ -34,15 +35,21 @@ implementation {
 
     // Opo Bookkeeping
     uint16_t rx_fails = 0;
+    uint16_t enable_rx_fails = 0;
     uint16_t tx_fails = 0;
     uint16_t seq = 0;
 
     // Initial time for rtc
     uint16_t initial_time[8];
 
-    // node id and seed for rng
-    uint16_t m_id = 0;
-    uint32_t m_seed = 0;
+    // Flash Storage Stuff
+    oflash_base_msg_t buffer[12];
+    uint8_t buffer_index = 0;
+    uint16_t write_count = 0;
+    storage_addr_t addr = 0;
+
+    // id and seed
+    id_store_t m_id_store;
 
     void setGuardTime();
     void getRemainingTimerTime();
@@ -50,10 +57,6 @@ implementation {
     event void Boot.booted() {
         call Opo.setup_pins();
         call PacketAcks.noAck(&packet);
-        RandomMt.seed(m_seed);
-
-        setGuardTime();
-
         opo_data = (oflash_msg_t*) call Packet.getPayload(&packet,
                                                           sizeof(oflash_msg_t));
         call HplRV4162.setTime(initial_time);
@@ -64,10 +67,7 @@ implementation {
     }
 
     event void TxTimer.fired() {
-        p = (ovis_msg_t*) call Packet.getPayload(&packet,
-                                                 sizeof(ovis_msg_t));
-        p->seq = seq;
-
+        opo_data->seq = seq;
         call Opo.transmit(&packet, sizeof(ovis_msg_t));
     }
 
@@ -85,15 +85,11 @@ implementation {
     }
 
     event void Opo.receive(uint16_t t_rf,
-                           uint16_t t_ultrasonic_wake,
-                           uint16_t t_ultrasonic_wake_falling,
-                           uint16_t t_ultrasonic,
-                           uint16_t t_ultrasonic_falling,
-                           message_t* msg) {
-
-        uint16_t ultrasonic_wake_dt = 0;
-        uint16_t ultrasonic_dt = 0;
-        uint16_t ultrasonic_rf_dt = 0;
+                                        uint16_t t_ultrasonic_wake,
+                                        uint16_t t_ultrasonic_wake_falling,
+                                        uint16_t t_ultrasonic,
+                                        uint16_t t_ultrasonic_falling,
+                                        message_t* msg) {
 
         call TxTimer.stop();
         tn = call TxTimer.getNow();
@@ -101,8 +97,22 @@ implementation {
         dt = call TxTimer.getdt();
         getRemainingTimerTime();
 
-        opo_data = call Packet.getPayload(msg, sizeof(ovis_msg_t));
-        call HplRV4162.readFullTime();
+        opo_rx_data = Packet.getPayload(msg, sizeof(oflash_msg_t));
+
+        if (t_ultrasonic > t_rf) {
+            buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
+            buffer[buffer_index].seq = opo_rx_data->seq;
+            buffer[buffer_index].tx_id = opo_rx_data->tx_id;
+            buffer[buffer_index].rx_fails = rx_fails;
+            buffer[buffer_index].enable_rx_fails = enable_rx_fails;
+            buffer[buffer_index].tx_fails = tx_fails;
+            call HplRV4162.readFullTime();
+        }
+        else {
+            call RxTimer.startOneShot(RX_DELAY);
+            call TxTimer.startOneShot(rt);
+        }
+
     }
 
     event void Opo.receive_failed() {
@@ -111,17 +121,20 @@ implementation {
     }
 
     event void Opo.enable_receive_failed() {
+        enable_rx_fails += 1;
         call RxTimer.startOneShot(RX_DELAY);
     }
 
     event void HplRV4162.readFullTimeDone(error_t err, uint8_t *fullTime) {
-        // Store full time, re-enable Opo Transmit nad REceive
+        // read time and store to buffer;
+        for(i=0; i<8; i++) {
+            buffer[buffer_index].full_time[i] = fullTime[i];
+        }
     }
 
     event void HplRV4162.setTimeDone(error_t err) {
-        // After setting time, start Opo Protocol
-        call RxTimer.startOneShot(RX_DELAY);
-        call TxTimer.startOneShot(2000 + guard);
+        // After setting time, read out id
+        call BlockRead.read(addr, &m_id_store, sizeof(id_store_t));
     }
 
     event void FlashPower.startDone(error_t err) {}
@@ -138,17 +151,29 @@ implementation {
     }
     event void BlockWrite.eraseDone(error_t err) {}
 
+    event void BlockRead.readDone(storage_addr_t addr,
+                                                    void *buf,
+                                                    storage_len_t len,
+                                                    error_t error) {
+        call RandomMt.seed(m_id_store.seed);
+        opo_data->tx_id = m_id_store.id;
+        addr += sizeof(id_store_t);
+        call FlashPower.stop();
+    }
+
     event void FlashPower.stopDone(error_t err) {
-        // restart Opo protocol
+        // Start Opo protocol
+        setGuardTime();
         call RxTimer.startOneShot(RX_DELAY);
         call TxTimer.startOneShot(2000 + guard);
     }
 
+    event void BlockRead.computeCrcDone(storage_addr_t addr,
+                                                                storage_len_t len,
+                                                                uint16_t crc,
+                                                                error_t error) {}
     event void HplRV4162.writeSTBitDone(error_t err) {}
     event void HplRV4162.resetTimeDone(error_t err) {}
-
-
-
     event void CC2420Config.syncDone(error_t error) {}
 
     inline void setGuardTime() {

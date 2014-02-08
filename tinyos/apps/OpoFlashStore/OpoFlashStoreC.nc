@@ -31,6 +31,7 @@ implementation {
 
     components new BlockStorageC(VOLUME_BLOCKSTORE);
     OpoFlashStoreP.BlockWrite -> BlockStorageC.BlockWrite;
+    OpoFlashStoreP.BlockRead -> BlockStorageC.BlockRead;
 
     components RV4162C;
     OpoFlashStoreP.HplRV4162 -> RV4162C.HplRV4162;
