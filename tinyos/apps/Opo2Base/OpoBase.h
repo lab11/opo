@@ -81,7 +81,8 @@ enum {
     OPO_RF_TEST = 26,
     OPO_FLASH_TEST = 27,
     OPO_SHT25_TEST = 28,
-    OPO_RTC_TEST = 29
+    OPO_RTC_TEST = 29,
+    OPO_FLASH_STORE_BASE = 40
 };
 
 #endif
