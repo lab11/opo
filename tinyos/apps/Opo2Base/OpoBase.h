@@ -71,6 +71,12 @@ typedef nx_struct opo_rtc_msg {
     nx_uint16_t full_time[8];
 } opo_rtc_msg_t;
 
+typedef nx_struct id_store {
+    nx_uint16_t id;
+    nx_uint32_t seed;
+} id_store_t;
+
+
 enum {
     OPO_DATA = 20,
     OPO_BLINK = 21,
@@ -82,7 +88,8 @@ enum {
     OPO_FLASH_TEST = 27,
     OPO_SHT25_TEST = 28,
     OPO_RTC_TEST = 29,
-    OPO_FLASH_STORE_BASE = 40
+    OPO_FLASH_STORE_BASE = 40,
+    OPO_ID_WRITER_BASE = 41
 };
 
 #endif

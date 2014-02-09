@@ -11,6 +11,7 @@ module OpoBaseP {
     interface Receive as FlashReceive;
     interface Receive as SHT25Receive;
     interface Receive as RTCReceive;
+    interface Receive as IDReceive;
     interface SplitControl as RfControl;
     interface AMPacket;
     interface Boot;
@@ -196,6 +197,14 @@ implementation {
 
     printf("----------------------\n");
 
+    return msg;
+  }
+
+  event message_t* IDReceive.receive(message_t *msg, void *payload, uint8_t len) {
+    id_store_t *m_id = (id_store_t *) payload;
+    printf("ID: %u\n", m_id->id);
+    printf("SEED: %u\n", m_id->seed);
+    printf("---------------------------\n");
     return msg;
   }
 
