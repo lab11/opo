@@ -16,6 +16,7 @@ typedef nx_struct opo_flash_store_msg {
 typedef nx_struct opo_flash_store_base_msg {
     nx_uint16_t tx_id;
     nx_uint16_t ultrasonic_rf_dt;
+    nx_int8_t rssi;
     nx_uint8_t  full_time[8];
     nx_uint16_t seq;
     nx_uint16_t rx_fails;
@@ -24,9 +25,9 @@ typedef nx_struct opo_flash_store_base_msg {
 } oflash_base_msg_t;
 
 typedef nx_struct id_store {
-    uint16_t id;
-    uint32_t seed;
-} id_store_t
+    nx_uint16_t id;
+    nx_uint32_t seed;
+} id_store_t;
 
 enum {
     OPO_FLASH_STORE = 30,

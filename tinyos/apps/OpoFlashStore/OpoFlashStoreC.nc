@@ -1,4 +1,5 @@
 #include "OpoFlashStore.h"
+#include "StorageVolumes.h"
 
 configuration OpoFlashStoreC {}
 
@@ -14,6 +15,7 @@ implementation {
     OpoFlashStoreP.Opo -> OpoC.Opo;
 
     components ActiveMessageC;
+    components CC2420PacketC;
     components new AMSenderC(OPO_FLASH_STORE) as OpoRfSend;
     components new AMReceiverC(OPO_FLASH_STORE) as OpoRfReceive;
 
@@ -22,6 +24,7 @@ implementation {
     OpoC.RfControl -> ActiveMessageC.SplitControl;
     OpoFlashStoreP.Packet -> ActiveMessageC.Packet;
     OpoFlashStoreP.PacketAcks -> ActiveMessageC.PacketAcknowledgements;
+    OpoFlashStoreP.CC2420Packet -> CC2420PacketC.CC2420Packet;
 
     components CC2420ControlC;
     OpoFlashStoreP.CC2420Config -> CC2420ControlC.CC2420Config;

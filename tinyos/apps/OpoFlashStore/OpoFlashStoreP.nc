@@ -13,6 +13,8 @@ module OpoFlashStoreP {
         interface PacketAcknowledgements as PacketAcks;
         interface HplRV4162;
         interface CC2420Config;
+        interface CC2420Packet;
+        interface BlockRead;
         interface BlockWrite;
     }
 }
@@ -40,13 +42,13 @@ implementation {
     uint16_t seq = 0;
 
     // Initial time for rtc
-    uint16_t initial_time[8];
+    uint8_t initial_time[8];
 
     // Flash Storage Stuff
     oflash_base_msg_t buffer[12];
     uint8_t buffer_index = 0;
     uint16_t write_count = 0;
-    storage_addr_t addr = 0;
+    storage_addr_t flash_addr = sizeof(id_store_t);
 
     // id and seed
     id_store_t m_id_store;
@@ -68,7 +70,7 @@ implementation {
 
     event void TxTimer.fired() {
         opo_data->seq = seq;
-        call Opo.transmit(&packet, sizeof(ovis_msg_t));
+        call Opo.transmit(&packet, sizeof(oflash_msg_t));
     }
 
     event void Opo.transmit_done() {
@@ -97,7 +99,7 @@ implementation {
         dt = call TxTimer.getdt();
         getRemainingTimerTime();
 
-        opo_rx_data = Packet.getPayload(msg, sizeof(oflash_msg_t));
+        opo_rx_data = call Packet.getPayload(msg, sizeof(oflash_msg_t));
 
         if (t_ultrasonic > t_rf) {
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
@@ -106,6 +108,7 @@ implementation {
             buffer[buffer_index].rx_fails = rx_fails;
             buffer[buffer_index].enable_rx_fails = enable_rx_fails;
             buffer[buffer_index].tx_fails = tx_fails;
+            buffer[buffer_index].rssi = call CC2420Packet.getRssi(msg);
             call HplRV4162.readFullTime();
         }
         else {
@@ -130,24 +133,43 @@ implementation {
         for(i=0; i<8; i++) {
             buffer[buffer_index].full_time[i] = fullTime[i];
         }
+
+        if(write_count == 0) {
+            if(buffer_index == 10) {
+                buffer_index = 0;
+                call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 11);
+            }
+            else{
+                buffer_index++;
+            }
+        }
+        else {
+            if(buffer_index == 11) {
+                buffer_index = 0;
+                call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 12);
+            }
+            else {
+                buffer_index++;
+            }
+        }
     }
 
     event void HplRV4162.setTimeDone(error_t err) {
         // After setting time, read out id
-        call BlockRead.read(addr, &m_id_store, sizeof(id_store_t));
+        call BlockRead.read(flash_addr, &m_id_store, sizeof(id_store_t));
     }
 
     event void FlashPower.startDone(error_t err) {}
 
     event void BlockWrite.writeDone(storage_addr_t addr,
-                                    void *buf,
-                                    storage_len_t len,
-                                    error_t error) {
+                                                      void *buf,
+                                                      storage_len_t len,
+                                                      error_t error) {
         // Flush data to disk
         call BlockWrite.sync();
     }
     event void BlockWrite.syncDone(error_t err) {
-        call At45dbPowerC.stop();
+        call FlashPower.stop();
     }
     event void BlockWrite.eraseDone(error_t err) {}
 
@@ -163,6 +185,8 @@ implementation {
 
     event void FlashPower.stopDone(error_t err) {
         // Start Opo protocol
+        write_count += 1;
+        flash_addr = write_count * 256;
         setGuardTime();
         call RxTimer.startOneShot(RX_DELAY);
         call TxTimer.startOneShot(2000 + guard);
@@ -177,7 +201,7 @@ implementation {
     event void CC2420Config.syncDone(error_t error) {}
 
     inline void setGuardTime() {
-        guard = call Random.rand32();
+        guard = call RandomMt.rand32();
         guard = guard % 2000;
     }
 
