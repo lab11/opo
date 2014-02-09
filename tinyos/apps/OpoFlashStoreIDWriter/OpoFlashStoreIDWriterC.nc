@@ -4,6 +4,7 @@
 configuration OpoFlashStoreIDWriterC {}
 
 implementation {
+
     components OpoFlashStoreIDWriterP, MainC, LedsC;
     OpoFlashStoreIDWriterP.Boot -> MainC.Boot;
     OpoFlashStoreIDWriterP.Leds -> LedsC.Leds;
