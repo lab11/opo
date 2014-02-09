@@ -1,1 +1,0 @@
-typedef uint8_t time_packet[8];
