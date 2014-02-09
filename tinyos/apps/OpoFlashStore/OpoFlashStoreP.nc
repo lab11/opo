@@ -48,17 +48,18 @@ implementation {
     oflash_base_msg_t buffer[12];
     uint8_t buffer_index = 0;
     uint16_t write_count = 0;
-    storage_addr_t flash_addr = sizeof(id_store_t);
+    storage_addr_t flash_addr = 0;
 
     // id and seed
     id_store_t m_id_store;
-    m_id_store.seed = 0;
-    m_id_store.id = 0;
+
 
     void setGuardTime();
     void getRemainingTimerTime();
 
     event void Boot.booted() {
+        m_id_store.seed = 0;
+        m_id_store.id = 0;
         call Opo.setup_pins();
         call PacketAcks.noAck(&packet);
         opo_data = (oflash_msg_t*) call Packet.getPayload(&packet,
@@ -167,7 +168,7 @@ implementation {
         }
         else {
             if(write_count == 0) {
-                call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 11);
+                call BlockWrite.erase();
             }
             else {
                 call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 12);
@@ -181,13 +182,16 @@ implementation {
                                                       void *buf,
                                                       storage_len_t len,
                                                       error_t error) {
-        // Flush data to disk
         call BlockWrite.sync();
     }
     event void BlockWrite.syncDone(error_t err) {
+        write_count += 1;
+        flash_addr = write_count * 256;
         call FlashPower.stop();
     }
-    event void BlockWrite.eraseDone(error_t err) {}
+    event void BlockWrite.eraseDone(error_t err) {
+        call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 11);
+    }
 
     event void BlockRead.readDone(storage_addr_t addr,
                                                     void *buf,
@@ -200,9 +204,6 @@ implementation {
     }
 
     event void FlashPower.stopDone(error_t err) {
-        // Start Opo protocol
-        write_count += 1;
-        flash_addr = write_count * 256;
         setGuardTime();
         call RxTimer.startOneShot(RX_DELAY);
         call TxTimer.startOneShot(2000 + guard);
