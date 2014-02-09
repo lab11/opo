@@ -52,6 +52,8 @@ implementation {
 
     // id and seed
     id_store_t m_id_store;
+    m_id_store.seed = 0;
+    m_id_store.id = 0;
 
     void setGuardTime();
     void getRemainingTimerTime();
@@ -137,7 +139,7 @@ implementation {
         if(write_count == 0) {
             if(buffer_index == 10) {
                 buffer_index = 0;
-                call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 11);
+                call FlashPower.start();;
             }
             else{
                 buffer_index++;
@@ -146,7 +148,7 @@ implementation {
         else {
             if(buffer_index == 11) {
                 buffer_index = 0;
-                call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 12);
+                call FlashPower.start();
             }
             else {
                 buffer_index++;
@@ -156,10 +158,24 @@ implementation {
 
     event void HplRV4162.setTimeDone(error_t err) {
         // After setting time, read out id
-        call BlockRead.read(flash_addr, &m_id_store, sizeof(id_store_t));
+        call FlashPower.start();
     }
 
-    event void FlashPower.startDone(error_t err) {}
+    event void FlashPower.startDone(error_t err) {
+        if(m_id_store.seed == 0) {
+            call BlockRead.read(flash_addr, &m_id_store, sizeof(id_store_t));
+        }
+        else {
+            if(write_count == 0) {
+                call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 11);
+            }
+            else {
+                call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 12);
+            }
+
+        }
+
+    }
 
     event void BlockWrite.writeDone(storage_addr_t addr,
                                                       void *buf,
