@@ -42,7 +42,7 @@ implementation {
     uint16_t seq = 0;
 
     // Initial time for rtc
-    uint8_t initial_time[8];
+    uint8_t initial_time[8] = {0};
 
     // Flash Storage Stuff
     oflash_base_msg_t buffer[12];
