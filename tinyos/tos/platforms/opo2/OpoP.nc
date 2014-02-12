@@ -165,10 +165,9 @@ implementation {
   async event void UltrasonicCapture.captured(uint16_t time) {
     call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
     call UCapControl.clearPendingInterrupt();
-    atomic opo_state = RX;
-
 
     if(opo_rx_state == RX_WAKE) {
+      atomic opo_state = RX;
       opo_rx_state = RX_RANGE;
       call RxTimer.startOneShot(48);
     }
