@@ -10,6 +10,7 @@ module OpoFlashStoreP {
         interface Opo;
         interface Timer<TMilli> as TxTimer;
         interface Timer<TMilli> as RxTimer;
+        interface Timer<TMilli> as LedTimer;
         interface PacketAcknowledgements as PacketAcks;
         interface HplRV4162;
         interface CC2420Config;
@@ -60,6 +61,13 @@ implementation {
     event void Boot.booted() {
         m_id_store.seed = 0;
         m_id_store.id = 0;
+        initial_time[1] = M_SEC;
+        initial_time[2] = M_MIN;
+        initial_time[3] = M_HOUR;
+        initial_time[4] = M_WEEKDAY;
+        initial_time[5] = M_DATE;
+        initial_time[6] = M_MONTH;
+        initial_time[7] = M_YEAR;
         call Opo.setup_pins();
         call PacketAcks.noAck(&packet);
         opo_data = (oflash_msg_t*) call Packet.getPayload(&packet,
@@ -73,6 +81,7 @@ implementation {
 
     event void TxTimer.fired() {
         opo_data->seq = seq;
+        call Leds.led0Toggle();
         call Opo.transmit(&packet, sizeof(oflash_msg_t));
     }
 
@@ -85,7 +94,20 @@ implementation {
     }
 
     event void Opo.transmit_failed() {
+        uint8_t m_opo_state = call Opo.getOpoState();
         tx_fails += 1;
+        if (m_opo_state == 1) {
+            call Leds.led0On();
+            call Leds.led1Off();
+        }
+        else if (m_opo_state == 2) {
+            call Leds.led0Off();
+            call Leds.led1On();
+        }
+        else if (m_opo_state == 3) {
+            call Leds.led0On();
+            call Leds.led1On();
+        }
         call TxTimer.startOneShot(guard + 75);
     }
 
@@ -95,7 +117,6 @@ implementation {
                                         uint16_t t_ultrasonic,
                                         uint16_t t_ultrasonic_falling,
                                         message_t* msg) {
-
         call TxTimer.stop();
         tn = call TxTimer.getNow();
         t0 = call TxTimer.gett0();
@@ -103,7 +124,6 @@ implementation {
         getRemainingTimerTime();
 
         opo_rx_data = call Packet.getPayload(msg, sizeof(oflash_msg_t));
-
         if (t_ultrasonic > t_rf) {
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
             buffer[buffer_index].seq = opo_rx_data->seq;
@@ -144,6 +164,8 @@ implementation {
             }
             else{
                 buffer_index++;
+                call RxTimer.startOneShot(RX_DELAY);
+                call TxTimer.startOneShot(rt);
             }
         }
         else {
@@ -153,6 +175,8 @@ implementation {
             }
             else {
                 buffer_index++;
+                call RxTimer.startOneShot(RX_DELAY);
+                call TxTimer.startOneShot(rt);
             }
         }
     }
@@ -194,12 +218,12 @@ implementation {
     }
 
     event void BlockRead.readDone(storage_addr_t addr,
-                                                    void *buf,
-                                                    storage_len_t len,
-                                                    error_t error) {
+                                  void *buf,
+                                  storage_len_t len,
+                                  error_t error) {
         call RandomMt.seed(m_id_store.seed);
         opo_data->tx_id = m_id_store.id;
-        addr += sizeof(id_store_t);
+        flash_addr += sizeof(id_store_t);
         call FlashPower.stop();
     }
 
@@ -220,6 +244,11 @@ implementation {
     inline void setGuardTime() {
         guard = call RandomMt.rand32();
         guard = guard % 2000;
+    }
+
+    event void LedTimer.fired() {
+        call Leds.led0Off();
+        call Leds.led1Off();
     }
 
     inline void getRemainingTimerTime() {

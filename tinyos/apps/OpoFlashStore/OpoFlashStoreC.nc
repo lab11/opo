@@ -41,6 +41,8 @@ implementation {
 
     components new TimerMilliC() as TxTimer;
     components new TimerMilliC() as RxTimer;
+    components new TimerMilliC() as LedTimer;
     OpoFlashStoreP.TxTimer -> TxTimer;
     OpoFlashStoreP.RxTimer -> RxTimer;
+    OpoFlashStoreP.LedTimer -> LedTimer;
 }

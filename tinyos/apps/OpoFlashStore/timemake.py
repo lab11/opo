@@ -1,10 +1,15 @@
 import sh
-import shutil
 import datetime
-import os
+import sys
+
+if len(sys.argv) != 2:
+	print "need port"
+	sys.exit()
 
 today = datetime.datetime.today()
+port = sys.argv[1]
 
+#Wait this just converts to hex
 def getBCDRep(t):
 	bcd_rep = 0
 	time_remaining = t
@@ -32,24 +37,34 @@ def getBCDRep(t):
 
 	return bcd_rep
 
+year = getBCDRep(today.year - 2000)
 month = getBCDRep(today.month)
 date = getBCDRep(today.day)
+hour = getBCDRep(today.hour)
 minute = getBCDRep(today.minute)
-sec = today.second
-weekday = today.weekday()
+sec = getBCDRep(today.second)
 
+weekday = today.isoweekday() + 1
+if weekday == 8:
+	weekday = 1
 
+weekday = getBCDRep(weekday)
 
-shutil.move("OpoFlashStoreP.nc", "OpoFlashStoreP.nc.bak")
+positions = ["M_SEC", "M_MIN", "M_HOUR", "M_WEEKDAY", "M_DATE", "M_MONTH", "M_YEAR"]
+time_info = [sec,minute,hour, weekday, date,month,year]
 
-reader = open("OpoFlashStoreP.nc.bak", 'rb')
-writer = open("OpoFlashStoreP.nc", 'wb')
+rmake = open("Makefile.template", 'rb')
+wmake = open("Makefile", 'wb')
 
-for line in reader:
-	if line.strip() == "uint8_t initial_time[8];":
-		print line
+for line in rmake:
+	wmake.write(line)
 
-	writer.write(line)
+base = "CFLAGS += -D{0}={1}\n"
+for i in range(len(positions)):
+	wmake.write(base.format(positions[i], time_info[i]))
 
-os.remove("OpoFlashStoreP.nc.bak")
-#sh.make("opo", "install", "bsl,/dev/ttyUSB0")
+wmake.close()
+m = sh.make("opo", "install", "bsl,/dev/" + port)
+print m.stdout
+print m.stderr
+
