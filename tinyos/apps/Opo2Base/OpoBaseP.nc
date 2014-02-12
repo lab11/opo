@@ -12,6 +12,7 @@ module OpoBaseP {
     interface Receive as SHT25Receive;
     interface Receive as RTCReceive;
     interface Receive as IDReceive;
+    interface Receive as FlashStoreNodeReceive;
     interface SplitControl as RfControl;
     interface AMPacket;
     interface Boot;
@@ -208,6 +209,12 @@ implementation {
     return msg;
   }
 
+  event message_t* FlashStoreNodeReceive.receive(message_t *msg, void *payload, uint8_t len) {
+    oflash_msg_t *data = (oflash_msg_t *) payload;
+    printf("ID: %u\n", data->tx_id);
+    printf("FlashStoreNode---------------------------\n");
+    return msg;
+  }
 
   event void RfControl.startDone(error_t err) {
     printf("RfStartDone\n");
