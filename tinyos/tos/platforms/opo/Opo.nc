@@ -21,4 +21,5 @@ interface Opo {
 	event void receive_failed();
 
     command error_t setup_pins();
+    command uint8_t getOpoState();
 }

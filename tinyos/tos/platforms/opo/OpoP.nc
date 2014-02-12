@@ -190,10 +190,10 @@ implementation {
   async event void UltrasonicCapture.captured(uint16_t time) {
     call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
     call UCapControl.clearPendingInterrupt();
-    atomic opo_state = RX;
 
     if(opo_rx_state == RX_WAKE) {
       opo_rx_state = RX_RANGE;
+      atomic opo_state = RX;
       call RxTimer.startOneShot(48);
     }
 
@@ -251,9 +251,9 @@ implementation {
       printf("OpoRxTimerDone\n");
       printfflush();
       #endif
+      atomic opo_state = IDLE;
       opo_rx_state = RX_WAKE;
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_RISING);
-      atomic opo_state = IDLE;
     }
     else if(opo_rx_state == RX_RANGE) {
       call RfControl.start();
@@ -265,6 +265,9 @@ implementation {
       printfflush();
       #endif
       call RfControl.stop();
+      atomic opo_state = IDLE;
+      call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
+      call SFDCapture.setEdge(MSP430TIMER_CM_NONE);
       if(t_ultrasonic > t_rf && rx_msg != NULL) {
         signal Opo.receive(t_rf,
                            t_ultrasonic_wake,
@@ -276,7 +279,6 @@ implementation {
       else {
         signal Opo.receive_failed();
       }
-      atomic opo_state = IDLE;
     }
   }
 
@@ -335,6 +337,22 @@ implementation {
   /*============================= Helper =======================================
     Helper functions, primarily for ultrasonic stuff.
   ============================================================================*/
+
+  command uint8_t Opo.getOpoState() {
+    if(opo_state == IDLE) {
+      return 0;
+    }
+    else if(opo_state == RX_PREP) {
+      return 1;
+    }
+    else if(opo_state == RX) {
+      return 2;
+    }
+    else if(opo_state == TX) {
+      return 3;
+    }
+    return 4;
+  }
 
   /*
    * TACCR0 = Compare Register, what the timer counts to before rolling over
@@ -406,6 +424,8 @@ implementation {
 
       atomic {
         t_rf = 0;
+        t_ultrasonic_wake = 0;
+        t_ultrasonic_wake_falling = 0;
         t_ultrasonic = 0;
         t_ultrasonic_falling = 0;
         rx_msg = NULL;
