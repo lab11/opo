@@ -246,7 +246,6 @@ implementation {
       else {
         signal Opo.receive_failed(rx_status);
       }
-      atomic opo_state = IDLE;
     }
   }
 
