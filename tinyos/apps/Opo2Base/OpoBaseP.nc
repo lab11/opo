@@ -13,6 +13,7 @@ module OpoBaseP {
     interface Receive as RTCReceive;
     interface Receive as IDReceive;
     interface Receive as FlashStoreNodeReceive;
+    interface Receive as FlashReaderReceive;
     interface SplitControl as RfControl;
     interface AMPacket;
     interface Boot;
@@ -214,6 +215,20 @@ implementation {
     printf("ID: %u\n", data->tx_id);
     printf("FlashStoreNode---------------------------\n");
     return msg;
+  }
+
+  event message_t* FlashReaderReceive.receive(message_t *msg, void *payload, uint8_t len) {
+    int i = 0;
+    oflash_base_msg_t *data = (oflash_base_msg_t *) payload;
+    printf("TxID: %u\n", data->tx_id);
+    printf("ultrasonic_rf_dt: %u\n", data->ultrasonic_rf_dt);
+    printf("RSSI: %u\n", data->rssi);
+    printf("seq: %u\n", data->seq);
+    for(i=0;i<8;i++) {
+      printf("FullTime: %u\n", data->full_time[i]);
+    }
+    printf("FlashReader--------------------\n");
+
   }
 
   event void RfControl.startDone(error_t err) {
