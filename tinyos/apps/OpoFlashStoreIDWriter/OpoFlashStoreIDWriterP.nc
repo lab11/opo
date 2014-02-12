@@ -30,8 +30,8 @@ implementation {
     void getRemainingTimerTime();
 
     event void Boot.booted() {
-        m_id_store.seed = 12;
-        m_id_store.id = 24;
+        m_id_store.seed = M_SEED;
+        m_id_store.id = M_ID;
         read_id.seed = 0;
         read_id.id = 0;
         data = (id_store_t *) call AMSend.getPayload(&packet, sizeof(id_store_t));
