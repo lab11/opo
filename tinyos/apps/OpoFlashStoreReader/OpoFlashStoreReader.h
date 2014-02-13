@@ -21,7 +21,7 @@ typedef nx_struct opo_flash_store_base_msg {
 
 enum {
     OPO_FLASH_READER = 32,
-    OPO_FLASH_READER_BASE = 41
+    OPO_FLASH_READER_BASE = 42
 };
 
 #endif
