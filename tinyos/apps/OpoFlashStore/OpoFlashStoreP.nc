@@ -46,14 +46,15 @@ implementation {
     uint8_t initial_time[8] = {0};
 
     // Flash Storage Stuff
-    oflash_base_msg_t buffer[12];
     uint8_t buffer_index = 0;
-    uint16_t write_count = 0;
+    uint32_t write_count = 0;
     storage_addr_t flash_addr = 0;
+    storage_len_t pagesize = 528;
+    uint32_t max_size = 528 * 4096;
+    oflash_base_msg_t buffer[25];
 
     // id and seed
     id_store_t m_id_store;
-
 
     void setGuardTime();
     void getRemainingTimerTime();
