@@ -31,6 +31,8 @@ implementation {
     uint8_t buffer_index = 0;
     uint8_t buffer_size = 0;
     uint32_t read_counter = 0;
+    uint32_t base_epoch_time = 0;
+    uint32_t current_epoch_time = 0;
     int i = 0;
 
     event void Boot.booted() {
@@ -117,5 +119,9 @@ implementation {
                                         storage_len_t len,
                                         uint16_t crc,
                                         error_t error) {}
+
+    void calculateTime() {
+
+    }
 
 }
