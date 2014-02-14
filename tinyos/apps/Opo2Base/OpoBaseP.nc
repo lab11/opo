@@ -221,8 +221,9 @@ implementation {
 
   event message_t* FlashReaderReceive.receive(message_t *msg, void *payload, uint8_t len) {
     int i = 0;
-    oflash_base_msg_t *data = (oflash_base_msg_t *) payload;
+    oflash_base_rf_msg_t *data = (oflash_base_rf_msg_t *) payload;
     printf("TxID: %u\n", data->tx_id);
+    printf("RxID: %u\n", data->rx_id);
     printf("ultrasonic_rf_dt: %u\n", data->ultrasonic_rf_dt);
     printf("RSSI: %u\n", data->rssi);
     printf("seq: %u\n", data->seq);
