@@ -92,6 +92,12 @@ typedef nx_struct opo_flash_store_base_msg {
     nx_uint16_t tx_fails;
 } oflash_base_msg_t;
 
+typedef nx_struct opo_flash_reader_test_msg {
+    nx_uint32_t base_time;
+    nx_uint32_t current_time;
+} oflash_reader_test_msg_t;
+
+
 enum {
     OPO_DATA = 20,
     OPO_BLINK = 21,
@@ -106,7 +112,8 @@ enum {
     OPO_FLASH_STORE = 30,
     OPO_FLASH_STORE_BASE = 40,
     OPO_ID_WRITER_BASE = 41,
-    OPO_FLASH_READER_BASE = 42
+    OPO_FLASH_READER_BASE = 42,
+    OPO_FLASH_READER_TEST = 43
 };
 
 #endif

@@ -14,6 +14,7 @@ module OpoBaseP {
     interface Receive as IDReceive;
     interface Receive as FlashStoreNodeReceive;
     interface Receive as FlashReaderReceive;
+    interface Receive as FlashReaderTestReceive;
     interface SplitControl as RfControl;
     interface AMPacket;
     interface Boot;
@@ -229,6 +230,15 @@ implementation {
       printf("FullTime: %u\n", data->full_time[i]);
     }
     printf("FlashReader--------------------\n");
+    return msg;
+  }
+
+  event message_t* FlashReaderTestReceive.receive(message_t *msg, void *payload, uint8_t len) {
+    int i = 0;
+    oflash_reader_test_msg_t *data = (oflash_reader_test_msg_t *) payload;
+    printf("Base Time: %u\n", data->base_time);
+    printf("Current Time: %u\n", data->current_time);
+    printf("FlashReaderTest--------------------\n");
     return msg;
   }
 

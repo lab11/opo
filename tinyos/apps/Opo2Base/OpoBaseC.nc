@@ -19,6 +19,7 @@ implementation {
   components new AMReceiverC(OPO_ID_WRITER_BASE) as IDReceive;
   components new AMReceiverC(OPO_FLASH_STORE) as FlashStoreNodeReceive;
   components new AMReceiverC(OPO_FLASH_READER_BASE) as FlashReaderReceive;
+  components new AMReceiverC(OPO_FLASH_READER_TEST) as FlashReaderTestReceive;
 
   OpoBaseP.OpoReceive -> OpoReceive;
   OpoBaseP.BlinkReceive -> BlinkReceive;
@@ -31,6 +32,7 @@ implementation {
   OpoBaseP.IDReceive -> IDReceive;
   OpoBaseP.FlashStoreNodeReceive -> FlashStoreNodeReceive;
   OpoBaseP.FlashReaderReceive -> FlashReaderReceive;
+  OpoBaseP.FlashReaderTestReceive -> FlashReaderTestReceive;
 
   OpoBaseP.RfControl -> ActiveMessageC.SplitControl;
   OpoBaseP.AMPacket -> ActiveMessageC.AMPacket;
