@@ -49,8 +49,9 @@ implementation {
     uint8_t buffer_index = 0;
     uint32_t write_count = 0;
     storage_addr_t flash_addr = 0;
+    storage_len_t writesize = sizeof(oflash_base_msg_t) * 25;
     storage_len_t pagesize = 528;
-    uint32_t max_size = 528 * 4096;
+    storage_len_t max_size = 528 * 4096;
     oflash_base_msg_t buffer[25];
 
     // id and seed
@@ -82,7 +83,6 @@ implementation {
 
     event void TxTimer.fired() {
         opo_data->seq = seq;
-        call Leds.led0Toggle();
         call Opo.transmit(&packet, sizeof(oflash_msg_t));
     }
 
@@ -90,6 +90,8 @@ implementation {
         call RxTimer.stop();
         setGuardTime();
         seq += 1;
+        call Leds.led0Off();
+        call Leds.led1Off();
         call TxTimer.startOneShot(1000 + guard);
         call RxTimer.startOneShot(RX_DELAY);
     }
@@ -113,11 +115,12 @@ implementation {
     }
 
     event void Opo.receive(uint16_t t_rf,
-                                        uint16_t t_ultrasonic_wake,
-                                        uint16_t t_ultrasonic_wake_falling,
-                                        uint16_t t_ultrasonic,
-                                        uint16_t t_ultrasonic_falling,
-                                        message_t* msg) {
+                           uint16_t t_ultrasonic_wake,
+                           uint16_t t_ultrasonic_wake_falling,
+                           uint16_t t_ultrasonic,
+                           uint16_t t_ultrasonic_falling,
+                           message_t* msg) {
+
         call TxTimer.stop();
         tn = call TxTimer.getNow();
         t0 = call TxTimer.gett0();
@@ -196,7 +199,7 @@ implementation {
                 call BlockWrite.erase();
             }
             else {
-                call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 12);
+                call BlockWrite.write(flash_addr, &buffer, writesize);
             }
 
         }
@@ -211,11 +214,11 @@ implementation {
     }
     event void BlockWrite.syncDone(error_t err) {
         write_count += 1;
-        flash_addr = write_count * 256;
+        flash_addr = write_count * pagesize;
         call FlashPower.stop();
     }
     event void BlockWrite.eraseDone(error_t err) {
-        call BlockWrite.write(flash_addr, &buffer, sizeof(oflash_base_msg_t) * 11);
+        call BlockWrite.write(flash_addr, &buffer, writesize - sizeof(oflash_base_msg_t));
     }
 
     event void BlockRead.readDone(storage_addr_t addr,
@@ -235,9 +238,9 @@ implementation {
     }
 
     event void BlockRead.computeCrcDone(storage_addr_t addr,
-                                                                storage_len_t len,
-                                                                uint16_t crc,
-                                                                error_t error) {}
+                                        storage_len_t len,
+                                        uint16_t crc,
+                                        error_t error) {}
     event void HplRV4162.writeSTBitDone(error_t err) {}
     event void HplRV4162.resetTimeDone(error_t err) {}
     event void CC2420Config.syncDone(error_t error) {}
