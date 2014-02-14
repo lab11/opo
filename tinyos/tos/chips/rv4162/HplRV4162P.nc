@@ -46,8 +46,8 @@ implementation {
 
         case RV_FULL_TIME_READ:
           i2c_state = RV_IDLE;
-          fullTime[0] = fullTime[0] & 0x7F;
-          fullTime[1] = fullTime[1] & 0x7F;
+          fullTime[1] = fullTime[0] & 0x7F;
+          fullTime[2] = fullTime[1] & 0x7F;
           fullTime[4] = fullTime[4] & 0x07;
 
           call I2CResource.release();
@@ -162,7 +162,7 @@ implementation {
     masks[5] = 0x3F;
     masks[6] = 0xDF;
     masks[7] = 0xFF;
-    for(i=0; i < 7; i++) {
+    for(i=0; i < 8; i++) {
       i2c_write_buffer[i+1] = t[i] & masks[i];
     }
 
