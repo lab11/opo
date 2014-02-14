@@ -222,15 +222,16 @@ implementation {
   event message_t* FlashReaderReceive.receive(message_t *msg, void *payload, uint8_t len) {
     int i = 0;
     oflash_base_rf_msg_t *data = (oflash_base_rf_msg_t *) payload;
-    printf("TxID: %u\n", data->tx_id);
-    printf("RxID: %u\n", data->rx_id);
-    printf("ultrasonic_rf_dt: %u\n", data->ultrasonic_rf_dt);
-    printf("RSSI: %u\n", data->rssi);
-    printf("seq: %u\n", data->seq);
+    printf("FlashStoreReader ");
+    printf("%u ", data->rx_id);
+    printf("%u ", data->tx_id);
+    printf("%u ", data->ultrasonic_rf_dt);
+    printf("%u ", data->rssi);
+    printf("%u", data->seq);
     for(i=0;i<8;i++) {
-      printf("FullTime: %u\n", data->full_time[i]);
+      printf(" %u", data->full_time[i]);
     }
-    printf("FlashReader--------------------\n");
+    printf("\n");
     return msg;
   }
 
