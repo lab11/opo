@@ -49,10 +49,11 @@ implementation {
     uint8_t buffer_index = 0;
     uint32_t write_count = 0;
     storage_addr_t flash_addr = 0;
-    storage_len_t writesize = sizeof(oflash_base_msg_t) * 25;
+    uint8_t max_buffer_index = 19;
+    storage_len_t writesize = sizeof(oflash_base_msg_t) * 20;
     storage_len_t pagesize = 528;
     storage_len_t max_size = 528 * 4096;
-    oflash_base_msg_t buffer[25];
+    oflash_base_msg_t buffer[40];
 
     // id and seed
     id_store_t m_id_store;
@@ -162,7 +163,7 @@ implementation {
         }
 
         if(write_count == 0) {
-            if(buffer_index == 10) {
+            if(buffer_index == max_buffer_index) {
                 buffer_index = 0;
                 call FlashPower.start();;
             }
@@ -173,7 +174,7 @@ implementation {
             }
         }
         else {
-            if(buffer_index == 11) {
+            if(buffer_index == max_buffer_index) {
                 buffer_index = 0;
                 call FlashPower.start();
             }
@@ -218,7 +219,7 @@ implementation {
         call FlashPower.stop();
     }
     event void BlockWrite.eraseDone(error_t err) {
-        call BlockWrite.write(flash_addr, &buffer, writesize - sizeof(oflash_base_msg_t));
+        call BlockWrite.write(flash_addr, &buffer, writesize);
     }
 
     event void BlockRead.readDone(storage_addr_t addr,

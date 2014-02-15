@@ -51,7 +51,7 @@ if weekday == 8:
 weekday = getBCDRep(weekday)
 
 positions = ["M_SEC", "M_MIN", "M_HOUR", "M_WEEKDAY", "M_DATE", "M_MONTH", "M_YEAR"]
-time_info = [sec,minute,hour, weekday, date,month,year]
+time_info = [sec, minute, hour, weekday, date, month, year]
 
 rmake = open("Makefile.template", 'rb')
 wmake = open("Makefile", 'wb')
