@@ -21,4 +21,7 @@ implementation {
     components new BlockStorageC(VOLUME_BLOCKSTORE);
     OpoFlashStoreReaderP.BlockRead -> BlockStorageC.BlockRead;
 
+    components new TimerMilliC() as ReadTimer;
+    OpoFlashStoreReaderP.ReadTimer -> ReadTimer;
+
 }
