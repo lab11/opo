@@ -46,8 +46,8 @@ implementation {
 
         case RV_FULL_TIME_READ:
           i2c_state = RV_IDLE;
-          fullTime[1] = fullTime[0] & 0x7F;
-          fullTime[2] = fullTime[1] & 0x7F;
+          fullTime[1] = fullTime[1] & 0x7F;
+          fullTime[2] = fullTime[2] & 0x7F;
           fullTime[4] = fullTime[4] & 0x07;
 
           call I2CResource.release();
