@@ -153,7 +153,7 @@ implementation {
   command error_t HplRV4162.setTime(uint8_t t[8]) {
     uint8_t i;
     i2c_state = RV_SET_TIME;
-    i2c_write_buffer[0] = 0x00;
+    i2c_write_buffer[0] = 0x01;
     masks[0] = 0xFF;
     masks[1] = 0x7F;
     masks[2] = 0x7F;
