@@ -21,9 +21,7 @@ implementation {
 
   event message_t* FlashStoreNodeReceive.receive(message_t *msg, void *payload, uint8_t len) {
     oflash_msg_t *data = (oflash_msg_t *) payload;
-    printf("ID: %u\n", data->tx_id);
-    printf("Seq: %u\n", data->seq);
-    printf("FlashStoreNode---------------------------\n");
+    printf("FlashStoreNode %u %u\n", data->tx_id, data->seq);
     return msg;
   }
 
