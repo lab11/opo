@@ -1,4 +1,4 @@
-interface HplAT45DB {
+interface HplAt45dbs {
 
 	command void turnOn();
 	command void turnOff();
@@ -9,13 +9,12 @@ interface HplAT45DB {
 	event   void read_done(uint8_t *rxBuffer, uint16_t rx_len);
 
 	command void write_buffer_1(uint8_t *b, uint16_t len);
+	event   void write_buffer_1_done();
 	command void write_buffer_2(uint8_t *b, uint16_t len);
+	event   void write_buffer_2_done();
 
-	command void flush_buffer_1();
-	command void flush_buffer_2();
-
-	command void chip_erase();
-	event   void chip_erase_done();
-
-
+	command void flush_buffer_1(uint16_t page_addr);
+	event   void flush_buffer_1_done();
+	command void flush_buffer_2(uint16_t page_addr);
+	event   void flush_buffer_2_done();
 }
