@@ -29,12 +29,8 @@ implementation {
     components CC2420ControlC;
     OpoFlashStoreP.CC2420Config -> CC2420ControlC.CC2420Config;
 
-    components At45dbPowerC;
-    OpoFlashStoreP.FlashPower -> At45dbPowerC.SplitControl;
-
-    components new BlockStorageC(VOLUME_BLOCKSTORE);
-    OpoFlashStoreP.BlockWrite -> BlockStorageC.BlockWrite;
-    OpoFlashStoreP.BlockRead -> BlockStorageC.BlockRead;
+    components HplAt45dbC;
+    OpoFlashStoreP.HplAt45db -> HplAt45dbC.HplAt45db;
 
     components RV4162C;
     OpoFlashStoreP.HplRV4162 -> RV4162C.HplRV4162;

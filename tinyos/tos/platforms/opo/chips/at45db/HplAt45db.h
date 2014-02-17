@@ -11,8 +11,8 @@
 #define DEEP_POWER_DOWN                0xb9
 #define RESUME_FROM_PD                 0xab
 
-#define PAGE_ERASE_AND_PROGRAM_TIME_MS  40
-#define DEEP_POWER_DOWN_US              3
-#define STANDY_US                       30
+#define PAGE_ERASE_AND_PROGRAM_MS      40
+#define DEEP_POWER_DOWN_US             3
+#define STANDBY_US                     30
 
 #endif

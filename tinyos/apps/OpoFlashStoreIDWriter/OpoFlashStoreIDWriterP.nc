@@ -5,11 +5,9 @@ module OpoFlashStoreIDWriterP {
         interface Boot;
         interface Leds;
         interface AMSend;
-        interface SplitControl as FlashPower;
+        interface HplAt45db;
         interface SplitControl as RfControl;
         interface Timer<TMilli> as SendTimer;
-        interface BlockRead;
-        interface BlockWrite;
     }
 }
 
@@ -35,10 +33,12 @@ implementation {
         read_id.seed = 0;
         read_id.id = 0;
         data = (id_store_t *) call AMSend.getPayload(&packet, sizeof(id_store_t));
-        call FlashPower.start();
+        call HplAt45db.turnOn();
     }
 
     event void RfControl.startDone(error_t err) {
+        data->id = read_id.id;
+        data->seed = read_id.seed;
         call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(id_store_t));
     }
     event void RfControl.stopDone(error_t err) {
@@ -50,46 +50,39 @@ implementation {
     }
 
     event void SendTimer.fired() {
-        call Leds.led1Toggle();
         call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(id_store_t));
     }
 
-    event void FlashPower.startDone(error_t err) {
-        call BlockWrite.erase();
+    event void HplAt45db.turnedOn() {
+        call HplAt45db.write_buffer_1(&m_id_store, sizeof(m_id_store));
+
     }
-
-    event void BlockWrite.eraseDone(error_t err) {
-        call BlockWrite.write(0, &m_id_store, sizeof(id_store_t));
-    }
-
-    event void BlockWrite.writeDone(storage_addr_t addr,
-                                                      void *buf,
-                                                      storage_len_t len,
-                                                      error_t error) {
-        call BlockWrite.sync();
-    }
-
-    event void BlockWrite.syncDone(error_t err) {
-        call BlockRead.read(0, &read_id, sizeof(id_store_t));
-    }
-
-
-    event void BlockRead.readDone(storage_addr_t addr,
-                                                    void *buf,
-                                                    storage_len_t len,
-                                                    error_t error) {
-        data->id = read_id.id;
-        data->seed = read_id.seed;
+    event void HplAt45db.turnedOff() {
+        call Leds.led0On();
         call RfControl.start();
     }
 
+    event void HplAt45db.read_done(void *rxBuffer, uint16_t rx_len) {
+        call Leds.led1On();
+        call HplAt45db.turnOff();
+    }
 
+    event void HplAt45db.write_buffer_1_done() {
+        uint16_t page_addr = 0;
+        call HplAt45db.flush_buffer_1(page_addr);
 
-    event void FlashPower.stopDone(error_t err) {}
+    }
+    event void HplAt45db.write_buffer_2_done() {
 
-    event void BlockRead.computeCrcDone(storage_addr_t addr,
-                                                                storage_len_t len,
-                                                                uint16_t crc,
-                                                                error_t error) {}
+    }
+
+    event void HplAt45db.flush_buffer_1_done() {
+        uint16_t page_addr = 0;
+        call HplAt45db.read(page_addr, &read_id, sizeof(m_id_store));
+
+    }
+    event void HplAt45db.flush_buffer_2_done() {
+
+    }
 
 }

@@ -17,7 +17,6 @@ implementation {
 	components new Msp430Spi0C() as FlashSpi;
 	HplAt45dbP.SpiResource -> FlashSpi.Resource;
 	HplAt45dbP.SpiByte -> FlashSpi.SpiByte;
-	HplAt45dbP.SpiPacket -> FlashSpi.SpiPacket;
 
 	components HplMsp430GeneralIOC as GpIO;
   	components new Msp430GpioC() as FlashCSM;

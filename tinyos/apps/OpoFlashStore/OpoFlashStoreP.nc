@@ -5,7 +5,6 @@ module OpoFlashStoreP {
         interface Boot;
         interface Leds;
         interface RandomMt;
-        interface SplitControl as FlashPower;
         interface Packet;
         interface Opo;
         interface Timer<TMilli> as TxTimer;
@@ -15,8 +14,7 @@ module OpoFlashStoreP {
         interface HplRV4162;
         interface CC2420Config;
         interface CC2420Packet;
-        interface BlockRead;
-        interface BlockWrite;
+        interface HplAt45db;
     }
 }
 

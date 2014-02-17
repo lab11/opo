@@ -1,5 +1,4 @@
 #include "OpoFlashStoreIDWriter.h"
-#include "StorageVolumes.h"
 
 configuration OpoFlashStoreIDWriterC {}
 
@@ -15,12 +14,8 @@ implementation {
     OpoFlashStoreIDWriterP.AMSend -> OpoRfSend.AMSend;
     OpoFlashStoreIDWriterP.RfControl -> ActiveMessageC.SplitControl;
 
-    components At45dbPowerC;
-    OpoFlashStoreIDWriterP.FlashPower -> At45dbPowerC.SplitControl;
-
-    components new BlockStorageC(VOLUME_BLOCKSTORE);
-    OpoFlashStoreIDWriterP.BlockWrite -> BlockStorageC.BlockWrite;
-    OpoFlashStoreIDWriterP.BlockRead -> BlockStorageC.BlockRead;
+    components HplAt45dbC;
+    OpoFlashStoreIDWriterP.HplAt45db -> HplAt45dbC.HplAt45db;
 
     components new TimerMilliC() as SendTimer;
     OpoFlashStoreIDWriterP.SendTimer -> SendTimer;
