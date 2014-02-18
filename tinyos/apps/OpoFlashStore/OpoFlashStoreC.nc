@@ -1,5 +1,4 @@
 #include "OpoFlashStore.h"
-#include "StorageVolumes.h"
 
 configuration OpoFlashStoreC {}
 

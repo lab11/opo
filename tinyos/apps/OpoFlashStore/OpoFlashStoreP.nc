@@ -45,12 +45,9 @@ implementation {
 
     // Flash Storage Stuff
     uint8_t buffer_index = 0;
-    uint32_t write_count = 0;
-    storage_addr_t flash_addr = 0;
     uint8_t max_buffer_index = 19;
-    storage_len_t writesize = sizeof(oflash_base_msg_t) * 20;
-    storage_len_t pagesize = 528;
-    storage_len_t max_size = 528 * 4096;
+    uint16_t page_count = 0;
+    uint16_t writesize = sizeof(oflash_base_msg_t) * 20;
     oflash_base_msg_t buffer[40];
 
     // id and seed
@@ -160,86 +157,55 @@ implementation {
             buffer[buffer_index].full_time[i] = fullTime[i];
         }
 
-        if(write_count == 0) {
-            if(buffer_index == max_buffer_index) {
-                buffer_index = 0;
-                call FlashPower.start();;
-            }
-            else{
-                buffer_index++;
-                call RxTimer.startOneShot(RX_DELAY);
-                call TxTimer.startOneShot(rt);
-            }
+        if(buffer_index == max_buffer_index) {
+            buffer_index = 0;
+            call HplAt45db.turnOn();;
         }
-        else {
-            if(buffer_index == max_buffer_index) {
-                buffer_index = 0;
-                call FlashPower.start();
-            }
-            else {
-                buffer_index++;
-                call RxTimer.startOneShot(RX_DELAY);
-                call TxTimer.startOneShot(rt);
-            }
+        else{
+            buffer_index++;
+            call RxTimer.startOneShot(RX_DELAY);
+            call TxTimer.startOneShot(rt);
         }
     }
 
     event void HplRV4162.setTimeDone(error_t err) {
-        // After setting time, read out id
-        call FlashPower.start();
+        call HplAt45db.turnOn();
     }
 
-    event void FlashPower.startDone(error_t err) {
+    event void HplAt45db.turnedOn() {
         if(m_id_store.seed == 0) {
-            call BlockRead.read(flash_addr, &m_id_store, sizeof(id_store_t));
+            call HplAt45db.read(page_count, &m_id_store, sizeof(id_store_t));
         }
         else {
-            if(write_count == 0) {
-                call BlockWrite.erase();
-            }
-            else {
-                call BlockWrite.write(flash_addr, &buffer, writesize);
-            }
-
+            call HplAt45db.write_buffer_1(&buffer, writesize);
         }
-
     }
 
-    event void BlockWrite.writeDone(storage_addr_t addr,
-                                                      void *buf,
-                                                      storage_len_t len,
-                                                      error_t error) {
-        call BlockWrite.sync();
-    }
-    event void BlockWrite.syncDone(error_t err) {
-        write_count += 1;
-        flash_addr = write_count * pagesize;
-        call FlashPower.stop();
-    }
-    event void BlockWrite.eraseDone(error_t err) {
-        call BlockWrite.write(flash_addr, &buffer, writesize);
-    }
-
-    event void BlockRead.readDone(storage_addr_t addr,
-                                  void *buf,
-                                  storage_len_t len,
-                                  error_t error) {
-        call RandomMt.seed(m_id_store.seed);
-        opo_data->tx_id = m_id_store.id;
-        flash_addr += sizeof(id_store_t);
-        call FlashPower.stop();
-    }
-
-    event void FlashPower.stopDone(error_t err) {
+    event void HplAt45db.turnedOff() {
         setGuardTime();
         call RxTimer.startOneShot(RX_DELAY);
         call TxTimer.startOneShot(2000 + guard);
     }
 
-    event void BlockRead.computeCrcDone(storage_addr_t addr,
-                                        storage_len_t len,
-                                        uint16_t crc,
-                                        error_t error) {}
+    event void HplAt45db.read_done(void *rxBuffer, uint16_t rx_len) {
+        call RandomMt.seed(m_id_store.seed);
+        opo_data->tx_id = m_id_store.id;
+        page_count += 1;
+        call HplAt45db.turnOff();
+    }
+
+    event void HplAt45db.write_buffer_1_done() {
+        call HplAt45db.flush_buffer_1(page_count);
+
+    }
+    event void HplAt45db.write_buffer_2_done() {}
+
+    event void HplAt45db.flush_buffer_1_done() {
+        page_count += 1;
+        call HplAt45db.turnOff();
+    }
+    event void HplAt45db.flush_buffer_2_done() {}
+
     event void HplRV4162.writeSTBitDone(error_t err) {}
     event void HplRV4162.resetTimeDone(error_t err) {}
     event void CC2420Config.syncDone(error_t error) {}
