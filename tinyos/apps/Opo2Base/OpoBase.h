@@ -76,21 +76,15 @@ typedef nx_struct id_store {
     nx_uint32_t seed;
 } id_store_t;
 
-typedef nx_struct opo_flash_store_msg {
-    nx_uint16_t tx_id;
-    nx_uint16_t seq;
-} oflash_msg_t;
-
 typedef nx_struct opo_flash_store_base_rf_msg {
     nx_uint16_t tx_id;
     nx_uint16_t rx_id;
     nx_uint16_t ultrasonic_rf_dt;
-    nx_int8_t rssi;
-    nx_uint8_t  full_time[8];
-    nx_uint16_t seq;
+    nx_int8_t   rssi;
+    nx_uint8_t  full_time[5];
+    nx_uint16_t tx_seq;
     nx_uint16_t rx_fails;
-    nx_uint16_t enable_rx_fails;
-    nx_uint16_t tx_fails;
+    nx_uint16_t m_seq;
 } oflash_base_rf_msg_t;
 
 typedef nx_struct opo_flash_reader_test_msg {
@@ -110,7 +104,6 @@ enum {
     OPO_FLASH_TEST = 27,
     OPO_SHT25_TEST = 28,
     OPO_RTC_TEST = 29,
-    OPO_FLASH_STORE = 30,
     OPO_FLASH_STORE_BASE = 40,
     OPO_ID_WRITER_BASE = 41,
     OPO_FLASH_READER_BASE = 42,

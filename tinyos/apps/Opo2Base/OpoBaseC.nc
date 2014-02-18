@@ -17,7 +17,6 @@ implementation {
   components new AMReceiverC(OPO_SHT25_TEST) as SHT25Receive;
   components new AMReceiverC(OPO_RTC_TEST) as RTCReceive;
   components new AMReceiverC(OPO_ID_WRITER_BASE) as IDReceive;
-  components new AMReceiverC(OPO_FLASH_STORE) as FlashStoreNodeReceive;
   components new AMReceiverC(OPO_FLASH_READER_BASE) as FlashReaderReceive;
   components new AMReceiverC(OPO_FLASH_READER_TEST) as FlashReaderTestReceive;
 
@@ -30,7 +29,6 @@ implementation {
   OpoBaseP.SHT25Receive -> SHT25Receive;
   OpoBaseP.RTCReceive -> RTCReceive;
   OpoBaseP.IDReceive -> IDReceive;
-  OpoBaseP.FlashStoreNodeReceive -> FlashStoreNodeReceive;
   OpoBaseP.FlashReaderReceive -> FlashReaderReceive;
   OpoBaseP.FlashReaderTestReceive -> FlashReaderTestReceive;
 

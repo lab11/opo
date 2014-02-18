@@ -12,7 +12,6 @@ module OpoBaseP {
     interface Receive as SHT25Receive;
     interface Receive as RTCReceive;
     interface Receive as IDReceive;
-    interface Receive as FlashStoreNodeReceive;
     interface Receive as FlashReaderReceive;
     interface Receive as FlashReaderTestReceive;
     interface SplitControl as RfControl;
@@ -211,14 +210,6 @@ implementation {
     return msg;
   }
 
-  event message_t* FlashStoreNodeReceive.receive(message_t *msg, void *payload, uint8_t len) {
-    oflash_msg_t *data = (oflash_msg_t *) payload;
-    printf("ID: %u\n", data->tx_id);
-    printf("Seq: %u\n", data->seq);
-    printf("FlashStoreNode---------------------------\n");
-    return msg;
-  }
-
   event message_t* FlashReaderReceive.receive(message_t *msg, void *payload, uint8_t len) {
     int i = 0;
     oflash_base_rf_msg_t *data = (oflash_base_rf_msg_t *) payload;
@@ -227,8 +218,10 @@ implementation {
     printf("%u ", data->tx_id);
     printf("%u ", data->ultrasonic_rf_dt);
     printf("%u ", data->rssi);
-    printf("%u", data->seq);
-    for(i=0;i<8;i++) {
+    printf("%u ", data->tx_seq);
+    printf("%u ", data->m_seq);
+    printf("%u", data->rx_fails);
+    for(i=0;i<5;i++) {
       printf(" %u", data->full_time[i]);
     }
     printf("\n");
