@@ -207,8 +207,6 @@ implementation {
     }
     event void HplAt45db.flush_buffer_2_done() {}
 
-    event void HplRV4162.writeSTBitDone(error_t err) {}
-    event void HplRV4162.resetTimeDone(error_t err) {}
     event void CC2420Config.syncDone(error_t error) {}
 
     inline void setGuardTime() {
