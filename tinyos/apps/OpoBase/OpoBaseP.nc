@@ -103,7 +103,11 @@ implementation {
 
   event message_t* RxReceive.receive(message_t *msg, void *payload, uint8_t len) {
     opo_rx_base_msg_t *data = (opo_rx_base_msg_t *) payload;
+    float dt = data->t_ultrasonic - data->t_rf;
+    float range = dt/32000.0 * 340.29 - .12;
     int i;
+
+    printf("Range: %f\n", range);
 
     printf("0x");
     for(i=0; i<6; i++) {
