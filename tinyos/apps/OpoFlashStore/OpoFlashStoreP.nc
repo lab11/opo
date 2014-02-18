@@ -45,9 +45,9 @@ implementation {
 
     // Flash Storage Stuff
     uint8_t buffer_index = 0;
-    uint8_t max_buffer_index = 19;
+    uint8_t max_buffer_index = 32;
     uint16_t page_count = 0;
-    uint16_t writesize = sizeof(oflash_base_msg_t) * 20;
+    uint16_t writesize = sizeof(oflash_base_msg_t) * 32;
     oflash_base_msg_t buffer[40];
 
     // id and seed
@@ -126,11 +126,10 @@ implementation {
         opo_rx_data = call Packet.getPayload(msg, sizeof(oflash_msg_t));
         if (t_ultrasonic > t_rf) {
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
-            buffer[buffer_index].seq = opo_rx_data->seq;
+            buffer[buffer_index].tx_seq = opo_rx_data->seq;
             buffer[buffer_index].tx_id = opo_rx_data->tx_id;
             buffer[buffer_index].rx_fails = rx_fails;
-            buffer[buffer_index].enable_rx_fails = enable_rx_fails;
-            buffer[buffer_index].tx_fails = tx_fails;
+            buffer[buffer_index].m_seq = seq;
             buffer[buffer_index].rssi = call CC2420Packet.getRssi(msg);
             call HplRV4162.readFullTime();
         }
@@ -153,9 +152,11 @@ implementation {
 
     event void HplRV4162.readFullTimeDone(error_t err, uint8_t *fullTime) {
         // read time and store to buffer;
-        for(i=0; i<8; i++) {
-            buffer[buffer_index].full_time[i] = fullTime[i];
-        }
+        buffer[buffer_index].full_time[0] = fullTime[1];
+        buffer[buffer_index].full_time[1] = fullTime[2];
+        buffer[buffer_index].full_time[2] = fullTime[3];
+        buffer[buffer_index].full_time[3] = fullTime[5];
+        buffer[buffer_index].full_time[4] = fullTime[6];
 
         if(buffer_index == max_buffer_index) {
             buffer_index = 0;
