@@ -3,6 +3,7 @@
 # Include directories for epic platform
 PFLAGS += -I%T/platforms/opo
 PFLAGS += -I%T/platforms/opo/chips/rv4162
+PFLAGS += -I%T/platforms/opo/chips/at45db
 PFLAGS += -I%T/platforms/opo/chips/lis3dhtr
 PFLAGS += -I%T/platforms/epic
 PFLAGS += -I%T/platforms/epic/chips/at45db
