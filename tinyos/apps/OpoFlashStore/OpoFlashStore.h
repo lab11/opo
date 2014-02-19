@@ -11,6 +11,13 @@
 typedef nx_struct opo_flash_store_msg {
     nx_uint16_t tx_id;
     nx_uint16_t seq;
+    nx_uint8_t buffer_index;
+    nx_uint8_t full_time[5];
+    nx_uint16_t t_rf;
+    nx_uint16_t t_ultrasonic_wake;
+    nx_uint16_t t_ultrasonic_wake_falling;
+    nx_uint16_t t_ultrasonic;
+    nx_uint16_t t_ultrasonic_falling;
 } oflash_msg_t;
 
 typedef nx_struct opo_flash_store_base_msg {

@@ -19,6 +19,8 @@ module OpoFlashStoreP {
 }
 
 implementation {
+    #define BUFFER_SIZE 50
+
     uint32_t RX_DELAY = 70;
     uint8_t i = 0;
 
@@ -47,8 +49,8 @@ implementation {
     uint8_t buffer_index = 0;
     uint8_t max_buffer_index = 32;
     uint16_t page_count = 0;
-    uint16_t writesize = sizeof(oflash_base_msg_t) * 32;
-    oflash_base_msg_t buffer[40];
+    uint16_t writesize = 528;
+    oflash_base_msg_t buffer[BUFFER_SIZE];
 
     // id and seed
     id_store_t m_id_store;
@@ -59,6 +61,7 @@ implementation {
     event void Boot.booted() {
         m_id_store.seed = 0;
         m_id_store.id = 0;
+        initial_time[0] = 0;
         initial_time[1] = M_SEC;
         initial_time[2] = M_MIN;
         initial_time[3] = M_HOUR;
@@ -79,6 +82,7 @@ implementation {
 
     event void TxTimer.fired() {
         opo_data->seq = seq;
+        opo_data->buffer_index = buffer_index;
         call Opo.transmit(&packet, sizeof(oflash_msg_t));
     }
 
@@ -86,8 +90,6 @@ implementation {
         call RxTimer.stop();
         setGuardTime();
         seq += 1;
-        call Leds.led0Off();
-        call Leds.led1Off();
         call TxTimer.startOneShot(1000 + guard);
         call RxTimer.startOneShot(RX_DELAY);
     }
@@ -95,18 +97,6 @@ implementation {
     event void Opo.transmit_failed() {
         uint8_t m_opo_state = call Opo.getOpoState();
         tx_fails += 1;
-        if (m_opo_state == 1) {
-            call Leds.led0On();
-            call Leds.led1Off();
-        }
-        else if (m_opo_state == 2) {
-            call Leds.led0Off();
-            call Leds.led1On();
-        }
-        else if (m_opo_state == 3) {
-            call Leds.led0On();
-            call Leds.led1On();
-        }
         call TxTimer.startOneShot(guard + 75);
     }
 
@@ -124,6 +114,11 @@ implementation {
         getRemainingTimerTime();
 
         opo_rx_data = call Packet.getPayload(msg, sizeof(oflash_msg_t));
+        opo_data->t_rf = t_rf;
+        opo_data->t_ultrasonic_wake = t_ultrasonic_wake;
+        opo_data->t_ultrasonic_wake_falling = t_ultrasonic_wake_falling;
+        opo_data->t_ultrasonic = t_ultrasonic;
+        opo_data->t_ultrasonic_falling = t_ultrasonic_falling;
         if (t_ultrasonic > t_rf) {
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
             buffer[buffer_index].tx_seq = opo_rx_data->seq;
@@ -158,12 +153,18 @@ implementation {
         buffer[buffer_index].full_time[3] = fullTime[5];
         buffer[buffer_index].full_time[4] = fullTime[6];
 
-        if(buffer_index == max_buffer_index) {
+        opo_data->full_time[0] = fullTime[1];
+        opo_data->full_time[1] = fullTime[2];
+        opo_data->full_time[2] = fullTime[3];
+        opo_data->full_time[3] = fullTime[5];
+        opo_data->full_time[4] = fullTime[6];
+
+        if(buffer_index >= max_buffer_index) {
             buffer_index = 0;
-            call HplAt45db.turnOn();;
+            call HplAt45db.turnOn();
         }
         else{
-            buffer_index++;
+            buffer_index += 1;
             call RxTimer.startOneShot(RX_DELAY);
             call TxTimer.startOneShot(rt);
         }
@@ -189,6 +190,7 @@ implementation {
     }
 
     event void HplAt45db.read_done(void *rxBuffer, uint16_t rx_len) {
+        call Leds.led0Toggle();
         call RandomMt.seed(m_id_store.seed);
         opo_data->tx_id = m_id_store.id;
         page_count += 1;
@@ -196,6 +198,7 @@ implementation {
     }
 
     event void HplAt45db.write_buffer_1_done() {
+        call Leds.led1Toggle();
         call HplAt45db.flush_buffer_1(page_count);
 
     }
@@ -215,8 +218,7 @@ implementation {
     }
 
     event void LedTimer.fired() {
-        call Leds.led0Off();
-        call Leds.led1Off();
+        call HplAt45db.turnOn();
     }
 
     inline void getRemainingTimerTime() {
