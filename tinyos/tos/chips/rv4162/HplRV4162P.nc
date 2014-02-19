@@ -12,8 +12,7 @@ module HplRV4162P {
 }
 
 implementation {
-  uint8_t i2c_write_buffer[17];
-  uint8_t *i2c_write_buffer_ptr = i2c_write_buffer;
+  uint8_t i2c_write_buffer[20];
   uint8_t fullTime[20];
   uint8_t full_time_start_addr = 0;
 
@@ -59,7 +58,7 @@ implementation {
           call I2CPacket.write( (I2C_START | I2C_STOP),
                                 RV4162_ADDR,
                                 9,
-                                i2c_write_buffer);
+                                &i2c_write_buffer[0]);
           break;
 
         case RV_TIME_SET:
