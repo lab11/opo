@@ -8,6 +8,8 @@
 typedef nx_struct opo_flash_store_msg {
     nx_uint16_t tx_id;
     nx_uint16_t seq;
+    nx_uint8_t buffer_index;
+    nx_uint8_t full_time[5];
 } oflash_msg_t;
 
 enum {
