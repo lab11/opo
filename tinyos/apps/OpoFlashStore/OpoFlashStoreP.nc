@@ -190,7 +190,6 @@ implementation {
     }
 
     event void HplAt45db.read_done(void *rxBuffer, uint16_t rx_len) {
-        call Leds.led0Toggle();
         call RandomMt.seed(m_id_store.seed);
         opo_data->tx_id = m_id_store.id;
         page_count += 1;
@@ -198,9 +197,7 @@ implementation {
     }
 
     event void HplAt45db.write_buffer_1_done() {
-        call Leds.led1Toggle();
         call HplAt45db.flush_buffer_1(page_count);
-
     }
     event void HplAt45db.write_buffer_2_done() {}
 
