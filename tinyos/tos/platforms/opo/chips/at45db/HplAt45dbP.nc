@@ -31,24 +31,30 @@ implementation {
 
 
 	command void HplAt45db.turnOn() {
+		at45db_state = AT45DB_RESUME;
 		call SpiResource.request();
 	}
 	command void HplAt45db.turnOff() {
 		call FlashCS.clr();
 		call SpiByte.write(DEEP_POWER_DOWN);
 		call FlashCS.set();
-		call BusyWait.wait(DEEP_POWER_DOWN_US+1);
-		call SpiResource.release();
-		signal HplAt45db.turnedOff();
-
+		at45db_state = AT45DB_DEEP_POWER_DOWN;
+		call WaitTimer.startOneShot(1);
+		//call BusyWait.wait(DEEP_POWER_DOWN_US+1);
+		//call SpiResource.release();
+		//signal HplAt45db.turnedOff();
 	}
 
 	event void SpiResource.granted() {
-		call FlashCS.clr();
-		call SpiByte.write(RESUME_FROM_PD);
-		call FlashCS.set();
-		call BusyWait.wait(STANDBY_US+1);
-		signal HplAt45db.turnedOn();
+		if(at45db_state == AT45DB_RESUME) {
+			 call FlashCS.clr();
+			call SpiByte.write(RESUME_FROM_PD);
+			call FlashCS.set();
+			call WaitTimer.startOneShot(1);
+		}
+		//call BusyWait.wait(STANDBY_US+1);
+		//call Leds.led1Toggle();
+		//signal HplAt45db.turnedOn();
 	}
 
 	command void HplAt45db.read(uint16_t page_addr, void *rxBuffer, uint16_t rx_len) {
@@ -121,10 +127,21 @@ implementation {
 
 	event void WaitTimer.fired() {
 		if(at45db_state == AT45DB_PAGE_PROGRAM_ERASE_1) {
+			at45db_state = AT45DB_IDLE;
 			signal HplAt45db.flush_buffer_1_done();
 		}
-		if(at45db_state == AT45DB_PAGE_PROGRAM_ERASE_2) {
+		else if(at45db_state == AT45DB_PAGE_PROGRAM_ERASE_2) {
+			at45db_state = AT45DB_IDLE;
 			signal HplAt45db.flush_buffer_2_done();
+		}
+		else if(at45db_state == AT45DB_RESUME) {
+			at45db_state = AT45DB_IDLE;
+			signal HplAt45db.turnedOn();
+		}
+		else if(at45db_state == AT45DB_DEEP_POWER_DOWN) {
+			at45db_state = AT45DB_IDLE;
+			call SpiResource.release();
+			signal HplAt45db.turnedOff();
 		}
 	}
 
