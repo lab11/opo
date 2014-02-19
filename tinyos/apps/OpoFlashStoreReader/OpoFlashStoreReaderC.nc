@@ -1,5 +1,4 @@
 #include "OpoFlashStoreReader.h"
-#include "StorageVolumes.h"
 
 configuration OpoFlashStoreReaderC {}
 
@@ -15,11 +14,8 @@ implementation {
     OpoFlashStoreReaderP.AMSend -> OpoRfSend.AMSend;
     OpoFlashStoreReaderP.RfControl -> ActiveMessageC.SplitControl;
 
-    components At45dbPowerC;
-    OpoFlashStoreReaderP.FlashPower -> At45dbPowerC.SplitControl;
-
-    components new BlockStorageC(VOLUME_BLOCKSTORE);
-    OpoFlashStoreReaderP.BlockRead -> BlockStorageC.BlockRead;
+    components HplAt45dbC;
+    OpoFlashStoreReaderP.HplAt45db -> HplAt45dbC.HplAt45db;
 
     components new TimerMilliC() as ReadTimer;
     OpoFlashStoreReaderP.ReadTimer -> ReadTimer;
