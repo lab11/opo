@@ -214,11 +214,14 @@ implementation {
     int i = 0;
     oflash_base_rf_msg_t *data = (oflash_base_rf_msg_t *) payload;
     printf("FlashStoreReader ");
+    for(i=0;i<3;i++) {
+      printf("%u ",data->addr[i]);
+    }
+    printf("%u ", data->tx_seq);
     printf("%u ", data->rx_id);
     printf("%u ", data->tx_id);
     printf("%u ", data->ultrasonic_rf_dt);
     printf("%u ", data->rssi);
-    printf("%u ", data->tx_seq);
     printf("%u ", data->m_seq);
     printf("%u", data->rx_fails);
     for(i=0;i<5;i++) {

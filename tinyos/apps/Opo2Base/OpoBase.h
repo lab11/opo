@@ -85,6 +85,7 @@ typedef nx_struct opo_flash_store_base_rf_msg {
     nx_uint16_t tx_seq;
     nx_uint16_t rx_fails;
     nx_uint16_t m_seq;
+    nx_uint8_t  addr[3];
 } oflash_base_rf_msg_t;
 
 typedef nx_struct opo_flash_reader_test_msg {
