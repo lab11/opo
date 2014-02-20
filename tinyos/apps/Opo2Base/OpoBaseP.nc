@@ -218,7 +218,7 @@ implementation {
     printf("%u ", data->rx_id);
     printf("%u ", data->tx_id);
     printf("%u ", data->ultrasonic_rf_dt);
-    printf("%u ", data->rssi);
+    printf("%i ", data->rssi);
     printf("%u ", data->m_seq);
     printf("%u", data->rx_fails);
     for(i=0;i<5;i++) {
