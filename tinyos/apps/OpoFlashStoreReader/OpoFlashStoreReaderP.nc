@@ -51,14 +51,15 @@ implementation {
         call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(oflash_base_rf_msg_t));
     }
     event void RfControl.stopDone(error_t err) {
-        call ReadTimer.startOneShot(1000);
+        call HplAt45db.turnOn();
     }
 
     event void AMSend.sendDone(message_t *msg, error_t error) {
         //call Leds.led1Toggle();
-        call Leds.led1On();
+
         buffer_index += 1;
         if(buffer_index >= buffer_size) {
+            buffer_index = 0;
             call RfControl.stop();
         }
         else {
@@ -76,39 +77,30 @@ implementation {
             if(compare_times()) {
                 call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(oflash_base_rf_msg_t));
             }
-            else if(count < 50) {
-                count += 1;
-                call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(oflash_base_rf_msg_t));
-            }
-            else {}
         }
 
     }
 
     event void HplAt45db.turnedOn() {
-        if(first_read)
-            call HplAt45db.read(page_count, &id_store, sizeof(id_store_t));
-        else
+        if(first_read == TRUE) {
+            call HplAt45db.read(0, &id_store, sizeof(id_store_t));
+        }
+        else {
             call HplAt45db.read(page_count, &buffer, sizeof(oflash_base_msg_t) * buffer_size);
+        }
     }
     event void HplAt45db.turnedOff() {
         if(base_read == TRUE) {
                 base_read = FALSE;
                 call RfControl.start();
-            }
-            else if(compare_times()) {
-                call RfControl.start();
-            }
-            else if(count < 50) {
-                count++;
-                call RfControl.start();
-            }
-            else {
-                call Leds.led1On();
+        }
+        else if(compare_times()) {
+            call RfControl.start();
         }
     }
 
     event void HplAt45db.read_done(void *rxBuffer, uint16_t rx_len) {
+        uint8_t *m_addr = call HplAt45db.get_addr();
         page_count += 1;
 
         if(first_read == TRUE) {
@@ -119,7 +111,7 @@ implementation {
         }
         else {
             if(base_read == TRUE) {
-                for(i=0;i++;i<5)
+                for(i=0;i<5;i++)
                     base_time[i] = buffer[0].full_time[i];
             }
 
@@ -133,9 +125,12 @@ implementation {
                 data->full_time[i] = buffer[0].full_time[i];
                 current_time[i] = buffer[0].full_time[i];
             }
+            for(i=0;i<3;i++) {
+                data->addr[i] = m_addr[i];
+            }
+            data->page_addr = page_count - 1;
 
             call HplAt45db.turnOff();
-
         }
     }
 
