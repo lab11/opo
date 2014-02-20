@@ -16,7 +16,7 @@ while True:
 
     line = sys.stdin.readline()
     print line
-    m_file.write(line + "\n")
+    m_file.write(line)
     m_file.flush()
 
     """
