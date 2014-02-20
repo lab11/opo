@@ -224,7 +224,6 @@ implementation {
     for(i=0;i<5;i++) {
       printf(" %u", data->full_time[i]);
     }
-    printf("\n");
     for(i=0;i<5;i++) {
       printf(" %u", data->m_full_time[i]);
     }
