@@ -217,6 +217,7 @@ implementation {
     for(i=0;i<3;i++) {
       printf("%u ",data->addr[i]);
     }
+    printf("%u ",data->page_addr);
     printf("%u ", data->tx_seq);
     printf("%u ", data->rx_id);
     printf("%u ", data->tx_id);
