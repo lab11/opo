@@ -1,5 +1,4 @@
 #include "OpoFlashStoreEraser.h"
-#include "StorageVolumes.h"
 
 configuration OpoFlashStoreEraserC {}
 
@@ -9,9 +8,6 @@ implementation {
     OpoFlashStoreEraserP.Boot -> MainC.Boot;
     OpoFlashStoreEraserP.Leds -> LedsC.Leds;
 
-    components At45dbPowerC;
-    OpoFlashStoreEraserP.FlashPower -> At45dbPowerC.SplitControl;
-
-    components new BlockStorageC(VOLUME_BLOCKSTORE);
-    OpoFlashStoreEraserP.BlockWrite -> BlockStorageC.BlockWrite;
+    components HplAt45dbC;
+    OpoFlashStoreEraserP.HplAt45db -> HplAt45dbC.HplAt45db;
 }

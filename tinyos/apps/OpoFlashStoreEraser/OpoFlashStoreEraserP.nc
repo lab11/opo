@@ -4,48 +4,40 @@ module OpoFlashStoreEraserP {
     uses {
         interface Boot;
         interface Leds;
-        interface SplitControl as FlashPower;
-        interface BlockWrite;
+        interface HplAt45db;
     }
 }
 
 implementation {
     uint8_t buffer[528] = {0};
-    //storage_addr_t flash_addr = sizeof(id_store_t);
-    storage_addr_t flash_addr = sizeof(id_store_t);
-    uint32_t page_count = 0;
+    uint32_t page_count = 1;
 
     event void Boot.booted() {
-        call FlashPower.start();
+        call HplAt45db.turnOn();
     }
-
-    event void FlashPower.startDone(error_t err) {
-        call BlockWrite.erase();
+    event void HplAt45db.turnedOn() {
+        call HplAt45db.write_buffer_1(&buffer, 528);
     }
+    event void HplAt45db.turnedOff() {}
 
-    event void BlockWrite.eraseDone(error_t err) {
-        call BlockWrite.write(flash_addr, &buffer, 512 - sizeof(id_store_t));
+    event void HplAt45db.read_done(void *rxBuffer, uint16_t rx_len) {}
+
+    event void HplAt45db.write_buffer_1_done() {
+        call HplAt45db.flush_buffer_1(page_count);
     }
+    event void HplAt45db.write_buffer_2_done() {}
 
-    event void BlockWrite.writeDone(storage_addr_t addr,
-                                    void *buf,
-                                    storage_len_t len,
-                                    error_t error) {
-        call BlockWrite.sync();
-    }
-
-    event void BlockWrite.syncDone(error_t err) {
+    event void HplAt45db.flush_buffer_1_done() {
         page_count += 1;
-        flash_addr = page_count * 512;
         if(page_count < 4096) {
             call Leds.led1Toggle();
-            call BlockWrite.write(flash_addr, &buffer, 512);
-        } else {
+            call HplAt45db.write_buffer_1(&buffer, 528);
+        }
+        else {
             call Leds.led0On();
             call Leds.led1On();
         }
     }
-
-    event void FlashPower.stopDone(error_t err) {}
+    event void HplAt45db.flush_buffer_2_done() {}
 
 }
