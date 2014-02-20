@@ -27,7 +27,8 @@ implementation {
       printf(" %u", data->full_time[i]);
     }
     printf("\n");
-    printf("%u %u %u %u %u", data->t_ultrasonic_wake, data->t_ultrasonic_wake_falling, data->t_rf, data->t_ultrasonic, data->t_ultrasonic_falling);
+    printf("%u ", data->last_tx_id);
+    printf("%u %u %u %u %u", data->t_ultrasonic, data->t_rf, data->t_ultrasonic_wake, data->t_ultrasonic_wake_falling, data->t_ultrasonic_falling);
     printf("\n");
     return msg;
   }
