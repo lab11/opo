@@ -68,9 +68,7 @@ implementation {
     }
 
     event void HplAt45db.write_buffer_1_done() {
-        uint16_t page_addr = 0;
-        call HplAt45db.flush_buffer_1(page_addr);
-
+        call HplAt45db.flush_buffer_1(0);
     }
     event void HplAt45db.write_buffer_2_done() {
 
