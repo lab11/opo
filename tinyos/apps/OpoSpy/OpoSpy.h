@@ -7,9 +7,9 @@
 
 typedef nx_struct opo_flash_store_msg {
     nx_uint16_t tx_id;
-    nx_uint8_t buffer_index;
-    nx_uint8_t full_time[5];
     nx_uint16_t seq;
+    nx_uint8_t full_time[5];
+    nx_uint8_t buffer_index;
     nx_uint16_t last_tx_id;
     nx_uint16_t t_rf;
     nx_uint16_t t_ultrasonic_wake;
