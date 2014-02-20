@@ -48,7 +48,7 @@ implementation {
     // Flash Storage Stuff
     uint8_t buffer_index = 0;
     uint8_t max_buffer_index = 32;
-    uint16_t page_count = 0;
+    uint16_t page_count = 1;
     uint16_t writesize = 528;
     oflash_base_msg_t buffer[BUFFER_SIZE];
 
@@ -95,7 +95,6 @@ implementation {
     }
 
     event void Opo.transmit_failed() {
-        uint8_t m_opo_state = call Opo.getOpoState();
         tx_fails += 1;
         call TxTimer.startOneShot(guard + 75);
     }
@@ -176,7 +175,7 @@ implementation {
 
     event void HplAt45db.turnedOn() {
         if(m_id_store.seed == 0) {
-            call HplAt45db.read(page_count, &m_id_store, sizeof(id_store_t));
+            call HplAt45db.read(0, &m_id_store, sizeof(id_store_t));
         }
         else {
             call HplAt45db.write_buffer_1(&buffer, writesize);
@@ -192,7 +191,6 @@ implementation {
     event void HplAt45db.read_done(void *rxBuffer, uint16_t rx_len) {
         call RandomMt.seed(m_id_store.seed);
         opo_data->tx_id = m_id_store.id;
-        page_count += 1;
         call HplAt45db.turnOff();
     }
 
