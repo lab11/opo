@@ -17,4 +17,6 @@ interface HplAt45db {
 	event   void flush_buffer_1_done();
 	command void flush_buffer_2(uint16_t page_addr);
 	event   void flush_buffer_2_done();
+
+	command uint8_t* get_addr();
 }

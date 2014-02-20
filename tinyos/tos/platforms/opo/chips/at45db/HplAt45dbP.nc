@@ -145,8 +145,12 @@ implementation {
 		}
 	}
 
+	command uint8_t* HplAt45db.get_addr() {
+		return &addr[0];
+	}
+
 	void shiftPageAddr(uint16_t page_addr) {
-		addr[0] = page_addr >> 10;
+		addr[0] = page_addr >> 6;
 		addr[0] &= 0x3f;
 		addr[1] = page_addr << 2;
 		addr[1] &= 0xfc;
