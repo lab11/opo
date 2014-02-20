@@ -9,6 +9,7 @@ module OpoFlashStoreReaderP {
         interface SplitControl as RfControl;
         interface Timer<TMilli> as ReadTimer;
         interface HplAt45db;
+        interface HplRV4162;
     }
 }
 
@@ -48,14 +49,26 @@ implementation {
     }
 
     event void RfControl.startDone(error_t err) {
-        call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(oflash_base_rf_msg_t));
+        call HplRV4162.readFullTime();
     }
     event void RfControl.stopDone(error_t err) {
         call HplAt45db.turnOn();
     }
 
+    event void HplRV4162.readFullTimeDone(error_t err, uint8_t *fullTime) {
+        // read time and store to buffer;
+        data->m_full_time[0] = fullTime[1];
+        data->m_full_time[1] = fullTime[2];
+        data->m_full_time[2] = fullTime[3];
+        data->m_full_time[3] = fullTime[5];
+        data->m_full_time[4] = fullTime[6];
+
+        call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(oflash_base_rf_msg_t));
+    }
+
+    event void HplRV4162.setTimeDone(error_t err) {}
+
     event void AMSend.sendDone(message_t *msg, error_t error) {
-        //call Leds.led1Toggle();
 
         buffer_index += 1;
         if(buffer_index >= buffer_size) {
@@ -75,7 +88,7 @@ implementation {
             }
 
             if(compare_times()) {
-                call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(oflash_base_rf_msg_t));
+                call HplRV4162.readFullTime();
             }
         }
 
@@ -125,10 +138,6 @@ implementation {
                 data->full_time[i] = buffer[0].full_time[i];
                 current_time[i] = buffer[0].full_time[i];
             }
-            for(i=0;i<3;i++) {
-                data->addr[i] = m_addr[i];
-            }
-            data->page_addr = page_count - 1;
 
             call HplAt45db.turnOff();
         }

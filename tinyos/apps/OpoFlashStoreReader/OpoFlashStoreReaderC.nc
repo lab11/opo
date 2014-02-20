@@ -17,6 +17,9 @@ implementation {
     components HplAt45dbC;
     OpoFlashStoreReaderP.HplAt45db -> HplAt45dbC.HplAt45db;
 
+    components RV4162C;
+    OpoFlashStoreReaderP.HplRV4162 -> RV4162C.HplRV4162;
+
     components new TimerMilliC() as ReadTimer;
     OpoFlashStoreReaderP.ReadTimer -> ReadTimer;
 
