@@ -113,6 +113,7 @@ implementation {
         getRemainingTimerTime();
 
         opo_rx_data = call Packet.getPayload(msg, sizeof(oflash_msg_t));
+        opo_data->last_tx_id = opo_rx_data->tx_id;
         opo_data->t_rf = t_rf;
         opo_data->t_ultrasonic_wake = t_ultrasonic_wake;
         opo_data->t_ultrasonic_wake_falling = t_ultrasonic_wake_falling;
