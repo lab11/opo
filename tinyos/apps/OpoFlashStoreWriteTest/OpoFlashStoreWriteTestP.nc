@@ -16,7 +16,7 @@ implementation {
     id_store_t id_store;
 
     // Flash addr
-    uint16_t page_count = 0;
+    uint16_t page_count = 1;
 
     // Message Pointer
     oflash_base_rf_msg_t *data;
@@ -35,7 +35,7 @@ implementation {
         id_store.id = 0;
 
         for(i=0;i<buffer_size;i++) {
-            buffer[i].tx_seq = 5;
+            buffer[i].tx_seq = 1;
             buffer[i].m_seq = 2;
             buffer[i].tx_id = 27;
             buffer[i].ultrasonic_rf_dt = 22;
@@ -52,7 +52,7 @@ implementation {
     }
 
     event void HplAt45db.turnedOn() {
-        call HplAt45db.read(page_count, &id_store, sizeof(id_store_t));
+        call HplAt45db.write_buffer_1(&buffer, sizeof(oflash_base_msg_t) * buffer_size);
     }
     event void HplAt45db.turnedOff() {
         call Leds.led0On();
@@ -60,8 +60,6 @@ implementation {
     }
 
     event void HplAt45db.read_done(void *rxBuffer, uint16_t rx_len) {
-        page_count += 1;
-        call HplAt45db.write_buffer_1(&buffer, sizeof(oflash_base_msg_t) * buffer_size);
     }
 
     event void HplAt45db.write_buffer_1_done() {
@@ -72,8 +70,12 @@ implementation {
     event void HplAt45db.flush_buffer_1_done() {
         call Leds.led1Toggle();
         page_count += 1;
-        if(page_count < 500)
+        if(page_count < 500) {
+            for(i=0;i<buffer_size;i++) {
+                buffer[i].tx_seq = page_count;
+            }
             call HplAt45db.write_buffer_1(&buffer, sizeof(oflash_base_msg_t) * buffer_size);
+        }
         else
             call HplAt45db.turnOff();
     }
