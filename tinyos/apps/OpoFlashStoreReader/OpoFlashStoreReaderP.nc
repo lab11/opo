@@ -10,6 +10,7 @@ module OpoFlashStoreReaderP {
         interface Timer<TMilli> as ReadTimer;
         interface HplAt45db;
         interface HplRV4162;
+        interface PacketAcknowledgements as Acks;
     }
 }
 
@@ -45,6 +46,7 @@ implementation {
         id_store.seed = 0;
         id_store.id = 0;
         data = (oflash_base_rf_msg_t *) call AMSend.getPayload(&packet, sizeof(oflash_base_rf_msg_t));
+        call Acks.requestAck(&packet);
         call HplAt45db.turnOn();
     }
 
@@ -63,33 +65,37 @@ implementation {
         data->m_full_time[3] = fullTime[5];
         data->m_full_time[4] = fullTime[6];
 
-        call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(oflash_base_rf_msg_t));
+        call AMSend.send(1, &packet, sizeof(oflash_base_rf_msg_t));
     }
 
     event void HplRV4162.setTimeDone(error_t err) {}
 
     event void AMSend.sendDone(message_t *msg, error_t error) {
+        if(call Acks.wasAcked(msg)) {
+            buffer_index += 1;
+            if(buffer_index >= buffer_size) {
+                buffer_index = 0;
+                call RfControl.stop();
+            }
+            else {
+                data->tx_id = buffer[buffer_index].tx_id;
+                data->ultrasonic_rf_dt = buffer[buffer_index].ultrasonic_rf_dt;
+                data->rssi = buffer[buffer_index].rssi;
+                data->tx_seq = buffer[buffer_index].tx_seq;
+                data->rx_fails = buffer[buffer_index].rx_fails;
+                data->m_seq = buffer[buffer_index].m_seq;
+                for(i=0;i<5;i++) {
+                    data->full_time[i] = buffer[buffer_index].full_time[i];
+                    current_time[i] = buffer[buffer_index].full_time[i];
+                }
 
-        buffer_index += 1;
-        if(buffer_index >= buffer_size) {
-            buffer_index = 0;
-            call RfControl.stop();
+                if(compare_times()) {
+                    call HplRV4162.readFullTime();
+                }
+            }
         }
         else {
-            data->tx_id = buffer[buffer_index].tx_id;
-            data->ultrasonic_rf_dt = buffer[buffer_index].ultrasonic_rf_dt;
-            data->rssi = buffer[buffer_index].rssi;
-            data->tx_seq = buffer[buffer_index].tx_seq;
-            data->rx_fails = buffer[buffer_index].rx_fails;
-            data->m_seq = buffer[buffer_index].m_seq;
-            for(i=0;i<5;i++) {
-                data->full_time[i] = buffer[buffer_index].full_time[i];
-                current_time[i] = buffer[buffer_index].full_time[i];
-            }
-
-            if(compare_times()) {
-                call HplRV4162.readFullTime();
-            }
+            call AMSend.send(1, &packet, sizeof(oflash_base_rf_msg_t));
         }
 
     }
