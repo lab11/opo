@@ -224,6 +224,7 @@ implementation {
   async event void SFDCapture.captured(uint16_t time) {
     if(opo_rx_state == RX_DONE && t_rf == 0) {
       t_rf = time;
+      atomic opo_u_state = ULTRASONIC_RISING;
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_RISING);
     }
     else if(opo_state == TX) {
