@@ -64,7 +64,6 @@ implementation {
         data->m_full_time[2] = fullTime[3];
         data->m_full_time[3] = fullTime[5];
         data->m_full_time[4] = fullTime[6];
-
         call AMSend.send(1, &packet, sizeof(oflash_base_rf_msg_t));
     }
 
@@ -116,6 +115,10 @@ implementation {
         else if(compare_times()) {
             call RfControl.start();
         }
+        else {
+            call Leds.led0On();
+            call Leds.led1On();
+        }
     }
 
     event void HplAt45db.read_done(void *rxBuffer, uint16_t rx_len) {
@@ -123,7 +126,6 @@ implementation {
         page_count += 1;
 
         if(first_read == TRUE) {
-            call Leds.led0On();
             first_read = FALSE;
             data->rx_id = id_store.id;
             call HplAt45db.read(page_count, &buffer, sizeof(oflash_base_msg_t) * buffer_size);
@@ -133,7 +135,6 @@ implementation {
                 for(i=0;i<5;i++)
                     base_time[i] = buffer[0].full_time[i];
             }
-
             data->tx_id = buffer[0].tx_id;
             data->ultrasonic_rf_dt = buffer[0].ultrasonic_rf_dt;
             data->rssi = buffer[0].rssi;
