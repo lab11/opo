@@ -15,7 +15,6 @@ while True:
     packet = {}
 
     line = sys.stdin.readline()
-    print line
     m_file.write(line)
     m_file.flush()
 
