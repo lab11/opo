@@ -117,7 +117,6 @@ implementation {
         }
         else {
             call Leds.led0On();
-            call Leds.led1On();
         }
     }
 
@@ -125,7 +124,10 @@ implementation {
         uint8_t *m_addr = call HplAt45db.get_addr();
         page_count += 1;
 
-        if(first_read == TRUE) {
+        if(page_count >= 4095) {
+            call Leds.led1On();
+        }
+        else if(first_read == TRUE) {
             first_read = FALSE;
             data->rx_id = id_store.id;
             call HplAt45db.read(page_count, &buffer, sizeof(oflash_base_msg_t) * buffer_size);
