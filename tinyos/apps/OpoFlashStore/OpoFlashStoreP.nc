@@ -184,9 +184,14 @@ implementation {
     }
 
     event void HplAt45db.turnedOff() {
-        setGuardTime();
-        call RxTimer.startOneShot(RX_DELAY);
-        call TxTimer.startOneShot(2000 + guard);
+        if(page_count >= 4095) {
+            call Leds.led0On();
+        }
+        else {
+            setGuardTime();
+            call RxTimer.startOneShot(RX_DELAY);
+            call TxTimer.startOneShot(2000 + guard);
+        }
     }
 
     event void HplAt45db.read_done(void *rxBuffer, uint16_t rx_len) {
