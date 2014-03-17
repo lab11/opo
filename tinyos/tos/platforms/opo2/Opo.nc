@@ -13,10 +13,7 @@ interface Opo {
     event void enable_receive_failed();
 
 	event void receive(uint16_t t_rf,
-		               uint16_t t_ultrasonic_wake,
-		               uint16_t t_ultrasonic_wake_falling,
 		               uint16_t t_ultrasonic,
-		               uint16_t t_ultrasonic_falling,
 		               message_t* msg);
 	event void receive_failed(uint8_t rx_status);
 

@@ -38,7 +38,6 @@ implementation {
 
   enum {RX, RX_PREP, TX, IDLE} opo_state = IDLE;
   enum {RX_SETUP, RX_WAKE, RX_RANGE, RX_DONE, RX_IDLE} opo_rx_state = RX_IDLE;
-  enum {ULTRASONIC_WAKE, ULTRASONIC_WAKE_FALLING, ULTRASONIC_RISING, ULTRASONIC_FALLING} opo_u_state = ULTRASONIC_WAKE;
   enum {TX_WAKE, TX_WAKE_STOP, TX_RANGE, TX_RANGE_STOP, TX_IDLE} opo_tx_state = TX_IDLE;
 
   message_t *tx_packet;
@@ -47,10 +46,7 @@ implementation {
 
   // Timing and ranging
   uint16_t t_rf = 0; // SFD trigger time.
-  uint16_t t_ultrasonic_wake = 0;
-  uint16_t t_ultrasonic_wake_falling = 0;
   uint16_t t_ultrasonic = 0; // Ultrasonic Rise Time
-  uint16_t t_ultrasonic_falling = 0; // Ultrasonic falling edge time
   uint8_t  rx_status = 0;
 
   /* Helper function prototypes */
@@ -171,26 +167,8 @@ implementation {
       opo_rx_state = RX_RANGE;
       call RxTimer.startOneShot(48);
     }
-
-    if(opo_u_state == ULTRASONIC_WAKE) {
-      t_ultrasonic_wake = time;
-      rx_status = 1;
-      call UltrasonicCapture.setEdge(MSP430TIMER_CM_FALLING);
-      opo_u_state = ULTRASONIC_WAKE_FALLING;
-    }
-    else if(opo_u_state == ULTRASONIC_WAKE_FALLING) {
-      t_ultrasonic_wake_falling = time;
-      opo_u_state = ULTRASONIC_RISING;
-    }
-    else if(opo_u_state == ULTRASONIC_RISING) {
-        t_ultrasonic = time;
-        rx_status = 3;
-        opo_u_state = ULTRASONIC_FALLING;
-        call UltrasonicCapture.setEdge(MSP430TIMER_CM_FALLING);
-    }
-    else if(opo_u_state == ULTRASONIC_FALLING) {
-      t_ultrasonic_falling = time;
-      opo_u_state = ULTRASONIC_WAKE;
+    else {
+      t_ultrasonic = time;
     }
 
     if (call UltrasonicCapture.isOverflowPending()) {
@@ -237,10 +215,7 @@ implementation {
       call RfControl.stop();
       if(t_ultrasonic > t_rf && rx_msg != NULL) {
         signal Opo.receive(t_rf,
-                           t_ultrasonic_wake,
-                           t_ultrasonic_wake_falling,
                            t_ultrasonic,
-                           t_ultrasonic_falling,
                            rx_msg);
       }
       else {
