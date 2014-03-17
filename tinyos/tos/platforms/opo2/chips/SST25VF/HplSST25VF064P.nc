@@ -100,9 +100,6 @@ implementation {
 		signal HplSST25VF064.read_done(rxBuffer, rx_len);
 	}
 
-	command void HplSST25VF064.high_speed_read(uint8_t addr[3], uint8_t *cmdBuffer, uint8_t *rxBuffer, uint16_t rx_len) {}
-	command void HplSST25VF064.fast_read_dual_output(uint8_t addr[3], uint8_t *cmdBuffer, uint8_t *rxBuffer, uint16_t rx_len) {}
-
 	command void HplSST25VF064.read_sid(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len) {
 		uint8_t cmdBuffer[4];
 		cmdBuffer[0] = READ_SID;
@@ -117,8 +114,14 @@ implementation {
 
 	}
 
-	command void HplSST25VF064.program_sid(uint8_t addr[3], uint8_t *data, uint16_t tx_len) {
-
+	command void HplSST25VF064.program_sid(uint8_t addr[3], uint8_t *data, uint16_t len) {
+		uint8_t cmdBuffer[4];
+		cmdBuffer[0] = PROGRAM_SID;
+		cmdBuffer[1] = addr[0];
+		cmdBuffer[2] = addr[1];
+		cmdBuffer[3] = addr[2];
+		runSpiByteTx(*cmdBuffer, data, len);
+		signal HplSST25VF064.program_sid_done(data, len);
 	}
 
 	command uint8_t HplSST25VF064.read_status_register() {
@@ -160,8 +163,6 @@ implementation {
 
 		call WaitTimer.startOneShot(T_PAGE_PROGRAM);
 	}
-
-	command void HplSST25VF064.dual_input_page_program(uint8_t addr[3], uint8_t *cmdBuffer, uint16_t rx_len) {}
 
 	command void HplSST25VF064.sector_erase(uint8_t addr[3]) {}
 	command void HplSST25VF064.small_block_erase(uint8_t addr[3]) {}
