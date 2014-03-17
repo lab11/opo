@@ -1,7 +1,7 @@
 #ifndef OPO_FLASH_READER_H
 #define OPO_FLASH_READER_H
 
-#define CC2420_DEF_CHANNEL 16
+#define CC2420_DEF_CHANNEL 24
 
 typedef nx_struct id_store {
     nx_uint16_t id;
