@@ -342,10 +342,8 @@ implementation {
       atomic {
         t_rf = 0;
         t_ultrasonic = 0;
-        t_ultrasonic_falling = 0;
         rx_msg = NULL;
         opo_rx_state = RX_SETUP;
-        opo_u_state = ULTRASONIC_WAKE;
       }
 
       call RxTimer.startOneShot(40);
