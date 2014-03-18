@@ -7,14 +7,15 @@ module Opo2FlashStoreP {
         interface RandomMt;
         interface Packet;
         interface Opo;
+        interface HplMsp430GeneralIO as I2CSwitch;
         interface Timer<TMilli> as TxTimer;
         interface Timer<TMilli> as RxTimer;
         interface Timer<TMilli> as LedTimer;
         interface PacketAcknowledgements as PacketAcks;
         interface HplSST25VF064 as FlashHpl;
+        interface HplRV4162;
         interface CC2420Config;
         interface CC2420Packet;
-        interface FlashHpl;
     }
 }
 
@@ -47,14 +48,15 @@ implementation {
 
     // Flash Storage Stuff
     uint8_t buffer_index = 0;
-    uint8_t max_buffer_index = 32;
-    uint32_t page_count = 1;
-    uint16_t writesize = 528;
-    oflash_base_msg_t buffer[BUFFER_SIZE];
+    uint8_t max_buffer_index = 15;
+    uint32_t page_count = 0;
+    uint32_t byte_addr = 0;
+    oflash_base_msg_t buffer[16];
+    uint32_t buffer_size = 256;
 
     // id and seed
     id_store_t m_id_store;
-    uint8_t sidBuffer[10] = {0};
+    bool id_read = FALSE;
 
     void setGuardTime();
     void getRemainingTimerTime();
@@ -74,6 +76,8 @@ implementation {
         call PacketAcks.noAck(&packet);
         opo_data = (oflash_msg_t*) call Packet.getPayload(&packet,
                                                           sizeof(oflash_msg_t));
+        call I2CSwitch.makeOutput();
+        call I2CSwitch.set();
         call HplRV4162.setTime(initial_time);
     }
 
@@ -122,6 +126,7 @@ implementation {
             buffer[buffer_index].rx_fails = rx_fails;
             buffer[buffer_index].m_seq = seq;
             buffer[buffer_index].rssi = call CC2420Packet.getRssi(msg);
+            call I2CSwitch.set();
             call HplRV4162.readFullTime();
         }
         else {
@@ -130,7 +135,7 @@ implementation {
         }
     }
 
-    event void Opo.receive_failed() {
+    event void Opo.receive_failed(uint8_t rx_status) {
         rx_fails += 1;
         call RxTimer.startOneShot(RX_DELAY);
     }
@@ -142,6 +147,7 @@ implementation {
 
     event void HplRV4162.readFullTimeDone(error_t err, uint8_t *fullTime) {
         // read time and store to buffer;
+        call I2CSwitch.clr();
         buffer[buffer_index].full_time[0] = fullTime[1];
         buffer[buffer_index].full_time[1] = fullTime[2];
         buffer[buffer_index].full_time[2] = fullTime[3];
@@ -166,16 +172,17 @@ implementation {
     }
 
     event void HplRV4162.setTimeDone(error_t err) {
+        call I2CSwitch.clr();
         call FlashHpl.turnOn();
     }
 
     event void FlashHpl.turnedOn() {
-        if(m_id_store.seed == 0) {
-            uint8_t sid_addr[3] = {0,0,0};
-            call FlashHpl.read_sid(sid_addr, *sidBuffer, 10);
+        if(id_read == FALSE) {
+            call FlashHpl.read(page_count, &m_id_store, sizeof(id_store_t));
         }
         else {
-            call FlashHpl.page_program(addr, *txBuffer, sizeof(oflash_base_msg_t));
+            byte_addr = page_count * 256;
+            call FlashHpl.page_program(byte_addr, &buffer, buffer_size);
         }
     }
 
@@ -183,33 +190,25 @@ implementation {
         call FlashHpl.turnOff();
     }
 
-    event void FlashHpl.read_done(uint8_t *rxBuffer, uint16_t rx_len) {
+    event void FlashHpl.read_done(void *rxBuffer, uint32_t rx_len) {
+        id_read = TRUE;
+        page_count++;
         call RandomMt.seed(m_id_store.seed);
         opo_data->tx_id = m_id_store.id;
-        call FlashHpl.turnOff();
-    }
-
-    event void FlashHpl.read_sid_done(uint8_t *rxBuffer, uint16_t rx_len) {
-        for(i=4; i < 8; i++) {
-            m_id_store.seed << 8;
-            m_id_store.seed += sidBuffer[i];
-        }
-        for(i=8; i < 10; i++) {
-            m_id_store.id << 8;
-            m_id_store.id += sidBuffer[i];
-        }
-
         call FlashHpl.wrsr(0);
         call FlashHpl.chip_erase();
     }
 
-    event void FlashHpl.page_program_done(uint8_t *txBuffer, uint16_t len) {
-        page_count += 1;
+    event void FlashHpl.read_sid_done(void *rxBuffer, uint8_t rx_len) {}
+    event void FlashHpl.program_sid_done(void *txBuffer, uint8_t tx_len) {}
+
+    event void FlashHpl.page_program_done(void *txBuffer, uint32_t len) {
+        page_count++;
         call FlashHpl.turnOff();
     }
 
     event void FlashHpl.turnedOff() {
-        if(page_count >= 4095) {
+        if(page_count >= 31250) {
             call Leds.led0On();
         }
         else {
@@ -228,11 +227,6 @@ implementation {
     inline void setGuardTime() {
         guard = call RandomMt.rand32();
         guard = guard % 2000;
-    }
-
-    inline void incrementAddr() {
-        page_count += 256;
-        if page_count
     }
 
     inline void getRemainingTimerTime() {

@@ -25,11 +25,14 @@ implementation {
     Opo2FlashStoreP.PacketAcks -> ActiveMessageC.PacketAcknowledgements;
     Opo2FlashStoreP.CC2420Packet -> CC2420PacketC.CC2420Packet;
 
+    components HplMsp430GeneralIOC as GpIO;
+    Opo2FlashStoreP.I2CSwitch -> GpIO.Port65;
+
     components CC2420ControlC;
     Opo2FlashStoreP.CC2420Config -> CC2420ControlC.CC2420Config;
 
     components HplSST25VF064C;
-    Opo2FlashStoreP.HplSST25VF064 -> HplSST25VF064C.HplSST25VF064;
+    Opo2FlashStoreP.FlashHpl -> HplSST25VF064C.HplSST25VF064;
 
     components RV4162C;
     Opo2FlashStoreP.HplRV4162 -> RV4162C.HplRV4162;
