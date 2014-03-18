@@ -25,29 +25,30 @@ module HplSST25VF064P {
 }
 implementation {
 
-	int i; // for loop variable
-	enum {PAGE_PROGRAM_DONE, CHIP_ERASE_DONE, SMALL_BLOCK_ERASE_DONE, IDLE} status = IDLE;
+	enum {PAGE_PROGRAM_DONE, CHIP_ERASE_DONE, SMALL_BLOCK_ERASE_DONE, PROGRAM_SID_DONE, IDLE} status = IDLE;
 	uint16_t len;
 	uint8_t *buffer;
+	uint8_t m_addr[3];
+	uint8_t i;
 
-	inline void runSpiByteRx(uint8_t *cmdBuffer, uint8_t *rxBuffer, uint16_t rx_len) {
+	inline void runSpiByteRx(uint8_t *cmdBuffer, void *rxBuffer, uint32_t rx_len) {
 		call FlashCS.clr();
 		for(i = 0; i < 4; i++) {
 			call SpiByte.write(cmdBuffer[i]);
 		}
 		for(i = 0; i < rx_len; i++) {
-			rxBuffer[i] = call SpiByte.write(0);
+			((uint8_t *)rxBuffer)[i] = call SpiByte.write(0);
 		}
 		call FlashCS.set();
 	}
 
-	inline void runSpiByteTx(uint8_t *cmdBuffer, uint8_t *txBuffer, uint16_t tx_len) {
+	inline void runSpiByteTx(uint8_t *cmdBuffer, void *txBuffer, uint32_t tx_len) {
 		call FlashCS.clr();
 		for(i = 0; i < 4; i++) {
 			call SpiByte.write(cmdBuffer[i]);
 		}
 		for(i = 0; i < tx_len; i++) {
-			call SpiByte.write(txBuffer[i]);
+			call SpiByte.write(((uint8_t *)txBuffer)[i]);
 		}
 		call FlashCS.set();
 	}
@@ -58,6 +59,12 @@ implementation {
 		call FlashCS.set();
 	}
 
+	inline void shiftPageAddr(uint32_t user_addr) {
+		m_addr[0] = user_addr >> 16;
+		m_addr[1] = user_addr >> 8;
+		m_addr[2] = user_addr;
+	}
+
 	event void WaitTimer.fired() {
 		if(status == PAGE_PROGRAM_DONE) {
 			signal HplSST25VF064.page_program_done(buffer, len);
@@ -65,9 +72,14 @@ implementation {
 		else if(status == CHIP_ERASE_DONE) {
 			signal HplSST25VF064.chip_erase_done();
 		}
+		else if(status == PROGRAM_SID_DONE) {
+			signal HplSST25VF064.program_sid_done(buffer, len);
+		}
 	}
 
 	command void HplSST25VF064.turnOn() {
+		call ResetHoldPin.makeOutput();
+		call ResetHoldPin.clr();
 		call FlashPowerGate.clr();
 		call BusyWait.wait(150);
 		call ResetHoldPin.set();
@@ -88,25 +100,34 @@ implementation {
 		signal HplSST25VF064.turnedOn();
 	}
 
-	command void HplSST25VF064.read(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len) {
+	command void HplSST25VF064.read(uint32_t addr, void *rxBuffer, uint32_t rx_len) {
 		uint8_t cmdBuffer[4];
+		shiftPageAddr(addr);
 		cmdBuffer[0] = READ;
-		cmdBuffer[1] = addr[0];
-		cmdBuffer[2] = addr[1];
-		cmdBuffer[3] = addr[2];
+		cmdBuffer[1] = m_addr[0];
+		cmdBuffer[2] = m_addr[1];
+		cmdBuffer[3] = m_addr[2];
 
 		runSpiByteRx(&cmdBuffer[0], rxBuffer, rx_len);
 
 		signal HplSST25VF064.read_done(rxBuffer, rx_len);
 	}
 
-	command void HplSST25VF064.read_sid(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len) {
-		uint8_t cmdBuffer[4];
+	command void HplSST25VF064.read_sid(uint8_t addr, void *rxBuffer, uint8_t rx_len) {
+		uint8_t cmdBuffer[3];
 		cmdBuffer[0] = READ_SID;
-		cmdBuffer[1] = addr[0];
-		cmdBuffer[2] = addr[1];
-		cmdBuffer[3] = addr[2];
-		runSpiByteRx(&cmdBuffer[0], rxBuffer, rx_len);
+		cmdBuffer[1] = addr;
+		cmdBuffer[2] = 0;
+
+		call FlashCS.clr();
+		call SpiByte.write(cmdBuffer[0]);
+		call SpiByte.write(cmdBuffer[1]);
+		call SpiByte.write(cmdBuffer[2]);
+		for(i = 0; i < rx_len; i++) {
+			((uint8_t *)rxBuffer)[i] = call SpiByte.write(0);
+		}
+		call FlashCS.set();
+
 		signal HplSST25VF064.read_sid_done(rxBuffer, rx_len);
 	}
 
@@ -114,14 +135,26 @@ implementation {
 
 	}
 
-	command void HplSST25VF064.program_sid(uint8_t addr[3], uint8_t *data, uint16_t len) {
-		uint8_t cmdBuffer[4];
+	command void HplSST25VF064.program_sid(uint8_t addr, void *txBuffer, uint8_t tx_len) {
+		uint8_t cmdBuffer[2];
+		uint8_t check_status = 0;
 		cmdBuffer[0] = PROGRAM_SID;
-		cmdBuffer[1] = addr[0];
-		cmdBuffer[2] = addr[1];
-		cmdBuffer[3] = addr[2];
-		runSpiByteTx(*cmdBuffer, data, len);
-		signal HplSST25VF064.program_sid_done(data, len);
+		cmdBuffer[1] = addr;
+
+		call HplSST25VF064.write_enable();
+
+		call FlashCS.clr();
+		call SpiByte.write(cmdBuffer[0]);
+		call SpiByte.write(cmdBuffer[1]);
+		for(i = 0; i < tx_len; i++) {
+			call SpiByte.write(((uint8_t *)txBuffer)[i]);
+		}
+		call FlashCS.set();
+
+		status = PROGRAM_SID_DONE;
+		len = tx_len;
+		buffer = txBuffer;
+		call WaitTimer.startOneShot(T_PROGRAM_SID);
 	}
 
 	command uint8_t HplSST25VF064.read_status_register() {
@@ -145,14 +178,15 @@ implementation {
 	/*
 		The write_enable command must be called prior to page program.
 	*/
-	command void HplSST25VF064.page_program(uint8_t addr[3],
-											uint8_t *txBuffer,
-											uint16_t tx_len) {
+	command void HplSST25VF064.page_program(uint32_t addr,
+											void *txBuffer,
+											uint32_t tx_len) {
 		uint8_t cmdBuffer[4];
+		shiftPageAddr(addr);
 		cmdBuffer[0] = PAGE_PROGRAM;
-		cmdBuffer[1] = addr[0];
-		cmdBuffer[2] = addr[1];
-		cmdBuffer[3] = addr[2];
+		cmdBuffer[1] = m_addr[0];
+		cmdBuffer[2] = m_addr[1];
+		cmdBuffer[3] = m_addr[2];
 
 		call HplSST25VF064.write_enable();
 		runSpiByteTx(&cmdBuffer[0], txBuffer, tx_len);
@@ -163,10 +197,6 @@ implementation {
 
 		call WaitTimer.startOneShot(T_PAGE_PROGRAM);
 	}
-
-	command void HplSST25VF064.sector_erase(uint8_t addr[3]) {}
-	command void HplSST25VF064.small_block_erase(uint8_t addr[3]) {}
-	command void HplSST25VF064.large_block_erase(uint8_t addr[3]) {}
 
 	command void HplSST25VF064.chip_erase() {
 		call HplSST25VF064.write_enable();

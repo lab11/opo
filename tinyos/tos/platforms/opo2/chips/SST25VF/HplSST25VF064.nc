@@ -5,27 +5,23 @@ interface HplSST25VF064 {
 	event   void turnedOn();
 	event   void turnedOff();
 
-	command void read(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len);
-	event   void read_done(uint8_t *rxBuffer, uint16_t rx_len);
+	command void read(uint32_t addr, void *rxBuffer, uint32_t rx_len);
+	event   void read_done(void *rxBuffer, uint32_t rx_len);
 
-	command void read_sid(uint8_t addr[3], uint8_t *rxBuffer, uint16_t rx_len);
-	event   void read_sid_done(uint8_t *rxBuffer, uint16_t rx_len);
+	command void page_program(uint32_t addr, void *txBuffer, uint32_t len);
+	event   void page_program_done(void *txBuffer, uint32_t len);
+
+	command void read_sid(uint8_t addr, void *rxBuffer, uint8_t rx_len);
+	event   void read_sid_done(void *rxBuffer, uint8_t rx_len);
 
 	command void lock_sid();
-	command void program_sid(uint8_t addr[3], uint8_t *data, uint16_t len);
-	event   void program_sid_done(uint8_t *data, uint16_t len);
+	command void program_sid(uint8_t addr, void *data, uint8_t len);
+	event   void program_sid_done(void *data, uint8_t len);
 
 	command uint8_t read_status_register();
 
 	command void write_enable();
 	command void write_disable();
-
-	command void page_program(uint8_t addr[3], uint8_t *txBuffer, uint16_t len);
-	event   void page_program_done(uint8_t *txBuffer, uint16_t len);
-
-	command void sector_erase(uint8_t addr[3]);
-	command void small_block_erase(uint8_t addr[3]);
-	command void large_block_erase(uint8_t addr[3]);
 
 	command void chip_erase();
 	event   void chip_erase_done();
