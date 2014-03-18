@@ -203,9 +203,9 @@ implementation {
 
   event void RxTimer.fired() {
     if(opo_rx_state == RX_SETUP) {
+      atomic opo_state = IDLE;
       opo_rx_state = RX_WAKE;
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_RISING);
-      atomic opo_state = IDLE;
     }
     else if(opo_rx_state == RX_RANGE) {
       call RfControl.start();
@@ -213,6 +213,9 @@ implementation {
     else if(opo_rx_state == RX_DONE) {
       disableRx();
       call RfControl.stop();
+      atomic opo_state = IDLE;
+      call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
+      call SFDCapture.setEdge(MSP430TIMER_CM_NONE);
       if(t_ultrasonic > t_rf && rx_msg != NULL) {
         signal Opo.receive(t_rf,
                            t_ultrasonic,
