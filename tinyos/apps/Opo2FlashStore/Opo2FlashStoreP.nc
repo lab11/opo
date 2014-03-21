@@ -52,18 +52,26 @@ implementation {
     uint32_t page_count = 0;
     uint32_t byte_addr = 0;
     oflash_base_msg_t buffer[16];
+
+    uint32_t read_page_count = 0;
+    uint8_t read_buffer_index = 0;
+    bool read_new_page = TRUE;
+    oflash_base_msg_t read_buffer[16];
+
     uint32_t buffer_size = 256;
+    bool read = FALSE;
+    bool erase = TRUE;
 
     // id and seed
     id_store_t m_id_store;
-    bool id_read = FALSE;
 
     void setGuardTime();
     void getRemainingTimerTime();
 
     event void Boot.booted() {
-        m_id_store.seed = 0;
-        m_id_store.id = 0;
+        m_id_store.seed = M_SEED;
+        m_id_store.id = M_ID;
+
         initial_time[0] = 0;
         initial_time[1] = M_SEC;
         initial_time[2] = M_MIN;
@@ -74,8 +82,11 @@ implementation {
         initial_time[7] = M_YEAR;
         call Opo.setup_pins();
         call PacketAcks.noAck(&packet);
+
         opo_data = (oflash_msg_t*) call Packet.getPayload(&packet,
                                                           sizeof(oflash_msg_t));
+        opo_data->tx_id = m_id_store.id;
+
         call I2CSwitch.makeOutput();
         call I2CSwitch.set();
         call HplRV4162.setTime(initial_time);
@@ -86,6 +97,7 @@ implementation {
     }
 
     event void TxTimer.fired() {
+        call Leds.led0Toggle();
         opo_data->seq = seq;
         opo_data->buffer_index = buffer_index;
         call Opo.transmit(&packet, sizeof(oflash_msg_t));
@@ -100,6 +112,7 @@ implementation {
     }
 
     event void Opo.transmit_failed() {
+        call Leds.led1Toggle();
         tx_fails += 1;
         call TxTimer.startOneShot(guard + 75);
     }
@@ -119,7 +132,15 @@ implementation {
         opo_data->t_rf = t_rf;
         opo_data->t_ultrasonic = t_ultrasonic;
 
-        if (t_ultrasonic > t_rf) {
+        if (opo_rx_data->tx_id == m_id_store.id) {
+            if read_new_page == TRUE {
+                uint32_t read_byte_addr = read_page_count * 256;
+                call FlashHpl.read(read_byte_addr, &read_buffer, )
+
+            }
+
+        }
+        else if (t_ultrasonic > t_rf) {
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
             buffer[buffer_index].tx_seq = opo_rx_data->seq;
             buffer[buffer_index].tx_id = opo_rx_data->tx_id;
@@ -172,13 +193,18 @@ implementation {
     }
 
     event void HplRV4162.setTimeDone(error_t err) {
+        call RandomMt.seed(m_id_store.seed);
         call I2CSwitch.clr();
         call FlashHpl.turnOn();
     }
 
     event void FlashHpl.turnedOn() {
-        if(id_read == FALSE) {
-            call FlashHpl.read(page_count, &m_id_store, sizeof(id_store_t));
+        if(erase == TRUE) {
+            call FlashHpl.wrsr(0);
+            call FlashHpl.chip_erase();
+        }
+        else if(read == TRUE) {
+
         }
         else {
             byte_addr = page_count * 256;
@@ -187,16 +213,12 @@ implementation {
     }
 
     event void FlashHpl.chip_erase_done() {
+        erase = FALSE;
         call FlashHpl.turnOff();
     }
 
     event void FlashHpl.read_done(void *rxBuffer, uint32_t rx_len) {
-        id_read = TRUE;
-        page_count++;
-        call RandomMt.seed(m_id_store.seed);
-        opo_data->tx_id = m_id_store.id;
-        call FlashHpl.wrsr(0);
-        call FlashHpl.chip_erase();
+
     }
 
     event void FlashHpl.read_sid_done(void *rxBuffer, uint8_t rx_len) {}
