@@ -41,7 +41,7 @@ implementation {
     if (call LinuxUdpSocket.build_packet(GATD_MAGIC, strlen(GATD_MAGIC)) != SUCCESS) {
       fprintf(stderr, "OpoSpyP::receive\tbuild_packet failed\n");
     }
-    if (call LinuxUdpSocket.send_data((uint8_t *) data, sizeof(data)) != SUCCESS) {
+    if (call LinuxUdpSocket.send_data((uint8_t *) data, sizeof(oflash_msg_t)) != SUCCESS) {
       fprintf(stderr, "OpoSpyP::receive\tsend_data failed\n");
     }
 
