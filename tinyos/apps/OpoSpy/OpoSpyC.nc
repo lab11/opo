@@ -15,4 +15,6 @@ implementation {
   OpoSpyP.RfControl -> ActiveMessageC.SplitControl;
   OpoSpyP.AMPacket -> ActiveMessageC.AMPacket;
 
+  components new LinuxUdpSocketC();
+  OpoSpyP.LinuxUdpSocket -> LinuxUdpSocketC.LinuxUdpSocket;
 }
