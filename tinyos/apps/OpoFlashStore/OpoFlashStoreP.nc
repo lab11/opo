@@ -40,7 +40,7 @@ implementation {
     uint16_t rx_fails = 0;
     uint16_t enable_rx_fails = 0;
     uint16_t tx_fails = 0;
-    uint16_t seq = 0;
+    uint32_t seq = 0;
 
     // Initial time for rtc
     uint8_t initial_time[8] = {0};
@@ -82,7 +82,6 @@ implementation {
 
     event void TxTimer.fired() {
         opo_data->seq = seq;
-        opo_data->buffer_index = buffer_index;
         call Opo.transmit(&packet, sizeof(oflash_msg_t));
     }
 
@@ -113,19 +112,15 @@ implementation {
         getRemainingTimerTime();
 
         opo_rx_data = call Packet.getPayload(msg, sizeof(oflash_msg_t));
-        opo_data->last_tx_id = opo_rx_data->tx_id;
-        opo_data->t_rf = t_rf;
-        opo_data->t_ultrasonic_wake = t_ultrasonic_wake;
-        opo_data->t_ultrasonic_wake_falling = t_ultrasonic_wake_falling;
-        opo_data->t_ultrasonic = t_ultrasonic;
-        opo_data->t_ultrasonic_falling = t_ultrasonic_falling;
         if (t_ultrasonic > t_rf) {
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
             buffer[buffer_index].tx_seq = opo_rx_data->seq;
             buffer[buffer_index].tx_id = opo_rx_data->tx_id;
             buffer[buffer_index].rx_fails = rx_fails;
-            buffer[buffer_index].m_seq = seq;
             buffer[buffer_index].rssi = call CC2420Packet.getRssi(msg);
+            opo_data->last_tx_id = opo_rx_data->tx_id;
+            opo_data->last_seq = opo_rx_data->seq;
+            opo_data->dt_ul_rf = t_ultrasonic - t_rf;
             call HplRV4162.readFullTime();
         }
         else {
@@ -153,11 +148,11 @@ implementation {
         buffer[buffer_index].full_time[3] = fullTime[5];
         buffer[buffer_index].full_time[4] = fullTime[6];
 
-        opo_data->full_time[0] = fullTime[1];
-        opo_data->full_time[1] = fullTime[2];
-        opo_data->full_time[2] = fullTime[3];
-        opo_data->full_time[3] = fullTime[5];
-        opo_data->full_time[4] = fullTime[6];
+        opo_data->last_full_time[0] = fullTime[1];
+        opo_data->last_full_time[1] = fullTime[2];
+        opo_data->last_full_time[2] = fullTime[3];
+        opo_data->last_full_time[3] = fullTime[5];
+        opo_data->last_full_time[4] = fullTime[6];
 
         if(buffer_index >= max_buffer_index) {
             buffer_index = 0;
