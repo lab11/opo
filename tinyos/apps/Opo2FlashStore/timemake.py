@@ -64,7 +64,7 @@ for i in range(len(positions)):
 	wmake.write(base.format(positions[i], time_info[i]))
 
 wmake.close()
-m = sh.make("opo", "install", "bsl,/dev/" + port)
+m = sh.make("opo2", "install", "bsl,/dev/" + port)
 print m.stdout
 print m.stderr
 
