@@ -28,13 +28,11 @@ implementation {
   event message_t* FlashStoreNodeReceive.receive(message_t *msg, void *payload, uint8_t len) {
     int i = 0;
     oflash_msg_t *data = (oflash_msg_t *) payload;
-    printf("FlashStoreNode %u %u %u", data->tx_id, data->seq, data->buffer_index);
+    printf("FlashStoreNode %u %u ", data->tx_id, data->seq);
+    printf("%u %u %u", data->last_tx_id, data->last_seq, data->dt_ul_rf);
     for(i=0;i<5;i++) {
-      printf(" %u", data->full_time[i]);
+      printf(" %u", data->last_full_time[i]);
     }
-    printf("\n");
-    printf("%u ", data->last_tx_id);
-    printf("%u %u %u %u %u", data->t_ultrasonic, data->t_rf, data->t_ultrasonic_wake, data->t_ultrasonic_wake_falling, data->t_ultrasonic_falling);
     printf("\n");
 
     // Send a copy of this off to GATD
