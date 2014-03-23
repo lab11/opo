@@ -19,7 +19,7 @@ module OpoFlashStoreP {
 }
 
 implementation {
-    #define BUFFER_SIZE 50
+    #define BUFFER_SIZE 40
 
     uint32_t RX_DELAY = 70;
     uint8_t i = 0;
