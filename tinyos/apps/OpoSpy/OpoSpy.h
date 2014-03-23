@@ -15,7 +15,7 @@ typedef nx_struct opo_flash_store_msg {
 } oflash_msg_t;
 
 enum {
-    OPO_FLASH_STORE = 30
+    OPO_FLASH_STORE = 31
 };
 
 #endif
