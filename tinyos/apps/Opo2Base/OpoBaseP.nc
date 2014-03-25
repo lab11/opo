@@ -219,13 +219,9 @@ implementation {
     printf("%u ", data->tx_id);
     printf("%u ", data->ultrasonic_rf_dt);
     printf("%i ", data->rssi);
-    printf("%u ", data->m_seq);
     printf("%u", data->rx_fails);
     for(i=0;i<5;i++) {
       printf(" %u", data->full_time[i]);
-    }
-    for(i=0;i<5;i++) {
-      printf(" %u", data->m_full_time[i]);
     }
     printf("\n");
     return msg;

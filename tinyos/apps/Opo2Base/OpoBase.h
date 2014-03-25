@@ -82,10 +82,8 @@ typedef nx_struct opo_flash_store_base_rf_msg {
     nx_uint16_t ultrasonic_rf_dt;
     nx_int8_t   rssi;
     nx_uint8_t  full_time[5];
-    nx_uint8_t  m_full_time[5];
-    nx_uint16_t tx_seq;
+    nx_uint32_t tx_seq;
     nx_uint16_t rx_fails;
-    nx_uint16_t m_seq;
 } oflash_base_rf_msg_t;
 
 
