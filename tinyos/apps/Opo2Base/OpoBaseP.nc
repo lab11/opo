@@ -157,7 +157,7 @@ implementation {
     printf("flashrx\n");
 
     printf("sid: ");
-    for(i = 0; i < 8; i++) {
+    for(i = 0; i < 16; i++) {
       printf("%u", data->sid[i]);
     }
     printf("\n");
