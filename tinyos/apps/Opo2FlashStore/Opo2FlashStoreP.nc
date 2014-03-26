@@ -16,6 +16,8 @@ module Opo2FlashStoreP {
         interface HplRV4162;
         interface CC2420Config;
         interface CC2420Packet;
+        interface Acks;
+        interface AMSend as OpoBaseSend;
     }
 }
 
@@ -24,6 +26,9 @@ implementation {
 
     uint32_t RX_DELAY = 70;
     uint8_t i = 0;
+
+    //config setup
+    oconfig_t m_config;
 
     // RF packet setup
     message_t packet;
@@ -45,6 +50,7 @@ implementation {
 
     // Initial time for rtc
     uint8_t initial_time[8] = {0};
+    uint8_t
 
     // Flash Storage Stuff
     uint8_t buffer_index = 0;
@@ -54,13 +60,17 @@ implementation {
     oflash_base_msg_t buffer[16];
 
     uint32_t read_page_count = 0;
+    uint32_t read_byte_addr = 0;
     uint8_t read_buffer_index = 0;
-    bool read_new_page = TRUE;
+    bool read_new_page = FALSE;
+    bool read_buffer_has_data = FALSE;
     oflash_base_msg_t read_buffer[16];
 
     uint32_t buffer_size = 256;
     bool read = FALSE;
     bool erase = TRUE;
+    bool boot = TRUE;
+    bool write_config = FALSE;
 
     // id and seed
     id_store_t m_id_store;
@@ -71,6 +81,9 @@ implementation {
     event void Boot.booted() {
         m_id_store.seed = M_SEED;
         m_id_store.id = M_ID;
+
+        m_config.valid = 0;
+        m_config.reset_counter = 0;
 
         initial_time[0] = 0;
         initial_time[1] = M_SEC;
@@ -87,9 +100,11 @@ implementation {
                                                           sizeof(oflash_msg_t));
         opo_data->tx_id = m_id_store.id;
 
-        call I2CSwitch.makeOutput();
-        call I2CSwitch.set();
-        call HplRV4162.setTime(initial_time);
+        call FlashHpl.turnOn();
+
+        //call I2CSwitch.makeOutput();
+        //call I2CSwitch.set();
+        //call HplRV4162.setTime(initial_time);
     }
 
     event void RxTimer.fired() {
@@ -134,11 +149,12 @@ implementation {
 
         if (opo_rx_data->tx_id == m_id_store.id) {
             if read_new_page == TRUE {
-                uint32_t read_byte_addr = read_page_count * 256;
-                call FlashHpl.read(read_byte_addr, &read_buffer, )
+                read = TRUE;
+                call FlashHpl.on();
+            }
+            else if read_buffer_has_data == TRUE {
 
             }
-
         }
         else if (t_ultrasonic > t_rf) {
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
@@ -199,12 +215,12 @@ implementation {
     }
 
     event void FlashHpl.turnedOn() {
-        if(erase == TRUE) {
-            call FlashHpl.wrsr(0);
-            call FlashHpl.chip_erase();
+        if(boot == TRUE) {
+            call FlashHpl.read(read_page_count, &m_config, sizeof(m_config));
         }
         else if(read == TRUE) {
-
+            read_byte_addr = read_page_count * 256;
+            call FlashHpl.read(read_byte_addr, &read_buffer, buffer_size);
         }
         else {
             byte_addr = page_count * 256;
@@ -218,7 +234,37 @@ implementation {
     }
 
     event void FlashHpl.read_done(void *rxBuffer, uint32_t rx_len) {
+        if(boot == TRUE) {
+            if (read_page_count == 0) {
+                if(m_config.valid != 27) {
+                    m_config.valid = 27;
+                    m_config.reset_counter = 0;
+                    write_config = TRUE;
+                }
+                read_page_count += 1;
+                call FlashHpl.read(read_page_count*256, &read_buffer, sizeof(read_buffer));
+            }
+            if(read_buffer[0].tx_id < 65535) {
+                read_page_count += 1;
+                page_count += 1;
+                if(read_page_count >= 31250) {
+                    call Leds.led0On();
+                    should_store = FALSE;
+                    call RxTimer.startOneShot(RX_DELAY);
+                    call TxTimer.startOneShot(2000 + guard);
+                } else {
+                    call FlashHpl.read(read_page_count*256, &read_buffer, sizeof(read_buffer));
+                }
+            } else {
 
+            }
+        } else {
+            read = FALSE;
+            read_page_count += 1;
+            if(read_page_count >= 31250) {
+                read_page_count = 0;
+            }
+        }
     }
 
     event void FlashHpl.read_sid_done(void *rxBuffer, uint8_t rx_len) {}
@@ -237,6 +283,36 @@ implementation {
             setGuardTime();
             call RxTimer.startOneShot(RX_DELAY);
             call TxTimer.startOneShot(2000 + guard);
+        }
+    }
+
+    event void OpoBaseSend.sendDone(message_t *msg, error_t error) {
+        if(call Acks.wasAcked(msg)) {
+            read_buffer_index += 1;
+            if(read_buffer_index >= buffer_size) {
+                read_buffer_index = 0;
+                call RadControl.stop();
+            } else {
+                base_data->tx_id = read_buffer[read_buffer_index].tx_id;
+                base_data->ultrasonic_rf_dt = read_buffer[read_buffer_index].ultrasonic_rf_dt;
+                base_data->rssi = read_buffer[read_buffer_index].rssi;
+                base_data->tx_seq = read_buffer[read_buffer_index].tx_seq;
+                base_data->rx_fails = read_buffer[read_buffer_index].rx_fails;
+                for(i=0;i<5;i++) {
+                    base_data->full_time[i] = read_buffer[read_buffer_index].full_time[i];
+                    current_time[i] = read_buffer[read_buffer_index].full_time[i];
+                }
+
+                if(compare_times() && base_data->tx_id < 255) {
+                    call OpoBaseSend.send(1, &basePacket, sizeof(oflash_base_rf_msg_t));
+                }
+                else {
+                    call FlashHpl.chip_erase();
+                }
+            }
+        }
+        else {
+            call OpoBaseSend.send(1, &basePacket, sizeof(oflash_base_rf_msg_t));
         }
     }
 
@@ -263,6 +339,18 @@ implementation {
         else {
             rt = dt;
         }
+    }
+
+    bool compare_times() {
+        for(i=4;i>=0;i--) {
+            if(current_time[i] > base_time[i]) {
+                return TRUE;
+            }
+            if(current_time[i] < base_time[i]) {
+                return FALSE;
+            }
+        }
+        return FALSE;
     }
 
 }

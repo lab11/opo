@@ -1,12 +1,24 @@
 import sh
 import datetime
 import sys
+import csv
 
 if len(sys.argv) != 2:
 	print "need port"
 	sys.exit()
 
-today = datetime.datetime.today()
+r = open('node_info.data', 'rb')
+m_id = 0
+m_seed = 0
+for line in r:
+	raw = line.strip().split()
+	i = int(raw[0].strip())
+	s = int(raw[1].strip())
+	if i == mid:
+		m_id = i
+		m_seed = s
+		break
+
 port = sys.argv[1]
 
 #Wait this just converts to hex
@@ -37,6 +49,9 @@ def getBCDRep(t):
 
 	return bcd_rep
 
+r.next()
+
+today = datetime.datetime.today()
 year = getBCDRep(today.year - 2000)
 month = getBCDRep(today.month)
 date = getBCDRep(today.day)
@@ -63,6 +78,8 @@ base = "CFLAGS += -D{0}={1}\n"
 for i in range(len(positions)):
 	wmake.write(base.format(positions[i], time_info[i]))
 
+wmake.write(base.format('M_SEED', m_seed))
+wmake.write(base.format('M_ID', m_id))
 wmake.close()
 m = sh.make("opo2", "install", "bsl,/dev/" + port)
 print m.stdout
