@@ -17,6 +17,7 @@ module Opo2FlashStoreP {
         interface CC2420Config;
         interface CC2420Packet;
         interface Acks;
+        interface SplitControl as RadControl;
         interface AMSend as OpoBaseSend;
     }
 }
@@ -230,7 +231,11 @@ implementation {
 
     event void FlashHpl.chip_erase_done() {
         erase = FALSE;
-        call FlashHpl.turnOff();
+        if (write_config == TRUE) {
+            call FlashHpl.page_program(0, &m_config, sizeof(m_config));
+        } else {
+            call FlashHpl.turnOff();
+        }
     }
 
     event void FlashHpl.read_done(void *rxBuffer, uint32_t rx_len) {
@@ -244,19 +249,17 @@ implementation {
                 read_page_count += 1;
                 call FlashHpl.read(read_page_count*256, &read_buffer, sizeof(read_buffer));
             }
-            if(read_buffer[0].tx_id < 65535) {
+            else if(read_buffer[0].tx_id < 65535) {
                 read_page_count += 1;
                 page_count += 1;
                 if(read_page_count >= 31250) {
-                    call Leds.led0On();
-                    should_store = FALSE;
-                    call RxTimer.startOneShot(RX_DELAY);
-                    call TxTimer.startOneShot(2000 + guard);
+                    call FlashHpl.turnOff()
                 } else {
                     call FlashHpl.read(read_page_count*256, &read_buffer, sizeof(read_buffer));
                 }
             } else {
-
+                call FlashHpl.wrsr();
+                call FlashHpl.chip_erase();
             }
         } else {
             read = FALSE;
@@ -271,19 +274,22 @@ implementation {
     event void FlashHpl.program_sid_done(void *txBuffer, uint8_t tx_len) {}
 
     event void FlashHpl.page_program_done(void *txBuffer, uint32_t len) {
-        page_count++;
+        if(write_config == TRUE) {
+            write_config = FALSE;
+        } else {
+            page_count++;
+        }
         call FlashHpl.turnOff();
     }
 
     event void FlashHpl.turnedOff() {
         if(page_count >= 31250) {
             call Leds.led0On();
+            should_store = FALSE;
         }
-        else {
-            setGuardTime();
-            call RxTimer.startOneShot(RX_DELAY);
-            call TxTimer.startOneShot(2000 + guard);
-        }
+        setGuardTime();
+        call RxTimer.startOneShot(RX_DELAY);
+        call TxTimer.startOneShot(2000 + guard);
     }
 
     event void OpoBaseSend.sendDone(message_t *msg, error_t error) {
