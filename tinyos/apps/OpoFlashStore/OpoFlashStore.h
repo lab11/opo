@@ -32,7 +32,7 @@ typedef nx_struct id_store {
 } id_store_t;
 
 enum {
-    OPO_FLASH_STORE = 30,
+    OPO_FLASH_STORE = 31,
     OPO_FLASH_STORE_BASE = 40
 };
 
