@@ -15,9 +15,11 @@ implementation {
     opo_flash_t *p;
     uint8_t sidBuffer[25]  = {0};
     uint8_t readBuffer[25] = {0};
+    uint8_t writeSidBuffer[8] = {1,2,3,22,5,6,7,8};
     uint8_t addr[3] = {0,0,0};
     uint8_t status_register = 0;
     uint16_t len = 8;
+    bool w = FALSE;
 
     event void Boot.booted() {
         for(i=0; i < 25; i++) {
@@ -29,15 +31,19 @@ implementation {
     }
 
     event void FlashHpl.turnedOn() {
-    	call FlashHpl.read_sid(addr, &sidBuffer[0], len);
+        call FlashHpl.program_sid(8, &writeSidBuffer, 8);
+
     }
 
     event void FlashHpl.turnedOff() {
 
     }
 
-    event void FlashHpl.read_sid_done(uint8_t *rxBuffer, uint16_t rx_len) {
-        for(i=0; i < rx_len; i++) {
+    event void FlashHpl.program_sid_done(void *data, uint8_t tx_len) {
+        call FlashHpl.read_sid(0, &sidBuffer, 16);
+    }
+    event void FlashHpl.read_sid_done(void *rxBuffer, uint8_t rx_len) {
+        for(i=0; i < 16; i++) {
             p->sid[i] = sidBuffer[i];
         }
         call FlashHpl.wrsr(0);
@@ -45,27 +51,34 @@ implementation {
     }
 
     event void FlashHpl.chip_erase_done() {
-        call FlashHpl.page_program(addr, &sidBuffer[0], len);
+        if(w == FALSE) {
+            call FlashHpl.page_program(0, &sidBuffer, len);
+        }
+        else {
+            call FlashHpl.read(0, &readBuffer, len);
+        }
+        //
+
     }
 
-    event void FlashHpl.page_program_done(uint8_t *txBuffer, uint16_t page_len) {
+    event void FlashHpl.page_program_done(void *txBuffer, uint32_t tx_len) {
+        w = TRUE;
         status_register = call FlashHpl.read_status_register();
-        call FlashHpl.read(addr, &readBuffer[0], len);
+        //call FlashHpl.chip_erase();
+        call FlashHpl.read(0, &readBuffer, len);
     }
 
-    event void FlashHpl.read_done(uint8_t *rxBuffer, uint16_t rx_len) {
-
+    event void FlashHpl.read_done(void *rxBuffer, uint32_t rx_len) {
         for(i=0; i < rx_len; i++) {
-            p->readBuffer[i] = rxBuffer[i];
+            p->readBuffer[i] = readBuffer[i];
             p->statusRegister = status_register;
         }
-
         call SplitControl.start();
-
     }
 
 
     event void AMSend.sendDone(message_t *msg, error_t err) {
+        call Leds.led0Toggle();
         call FlashTimer.startOneShot(1500);
     }
 
