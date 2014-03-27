@@ -16,7 +16,6 @@ module Opo2FlashStoreP {
         interface HplRV4162;
         interface CC2420Config;
         interface CC2420Packet;
-        interface Acks;
         interface SplitControl as RadControl;
         interface AMSend as OpoBaseSend;
         interface AMPacket;
@@ -37,6 +36,7 @@ implementation {
     message_t base_packet;
     oflash_msg_t *opo_data;
     oflash_msg_t *opo_rx_data;
+    oflash_base_rf_msg_t *base_data;
 
     // Timer delays
     uint32_t guard = 0;
@@ -46,15 +46,17 @@ implementation {
     uint32_t rt = 0;
 
     // Opo Bookkeeping
-    uint16_t rx_fails = 0;
-    uint16_t enable_rx_fails = 0;
-    uint16_t tx_fails = 0;
-    uint16_t seq = 0;
+    uint32_t rx_fails = 0;
+    uint32_t enable_rx_fails = 0;
+    uint32_t tx_fails = 0;
+    uint32_t seq = 0;
+    uint32_t m_reset_counter = 0;
 
     // Initial time for rtc
     uint8_t initial_time[8] = {0};
 
     // Flash Storage Stuff
+    uint32_t max_pages = 32767;
     uint8_t buffer_index = 0;
     uint8_t max_buffer_index = 15;
     uint32_t page_count = 0;
@@ -64,6 +66,7 @@ implementation {
     uint8_t read_buffer_index = 0;
     bool read_new_page = FALSE;
     bool read_buffer_has_data = FALSE;
+    bool should_store = TRUE;
     oflash_base_msg_t read_buffer[16];
 
     uint32_t buffer_size = 256;
@@ -71,7 +74,7 @@ implementation {
     // id and seed
     id_store_t m_id_store;
 
-    enum {BASE_SEND, BASE_SEND_DONE, FLASH_STORE, FLASH_ERASE, BOOT, RANGING, WRITE_CONFIG, OFS_RECEIVE, OFS_TX, OFS_IDLE} m_state = BOOT;
+    enum {BASE_SEND, BASE_SEND_DONE, FLASH_STORE, ERASED, BOOT, RANGING, RESET, OFS_RECEIVE, OFS_TX, OFS_IDLE} m_state = BOOT;
 
     void setGuardTime();
     void getRemainingTimerTime();
@@ -97,7 +100,9 @@ implementation {
 
         opo_data = (oflash_msg_t*) call Packet.getPayload(&packet,
                                                           sizeof(oflash_msg_t));
-        opo_data->tx_id = m_id_store.id;
+
+        base_data = (oflash_base_rf_msg_t*) call Packet.getPayload(&base_packet,
+                                                                   sizeof(oflash_base_rf_msg_t));
 
         call AMPacket.setSource(&base_packet, m_id_store.id);
         call AMPacket.setSource(&packet, m_id_store.id);
@@ -155,11 +160,9 @@ implementation {
         getRemainingTimerTime();
 
         opo_rx_data = call Packet.getPayload(msg, sizeof(oflash_msg_t));
-        opo_data->last_tx_id = opo_rx_data->tx_id;
-        opo_data->t_rf = t_rf;
-        opo_data->t_ultrasonic = t_ultrasonic;
+        opo_data->last_tx_id = call AMPacket.source(&packet);
 
-        if (opo_rx_data->tx_id == m_id_store.id) {
+        if (call AMPacket.source(&packet) == m_id_store.id) {
             m_state = BASE_SEND;
             for(i=0;i<8;i++) {
                 initial_time[i] = opo_rx_data->m_full_time[i];
@@ -168,17 +171,19 @@ implementation {
             call HplRV4162.setTime(initial_time);
         }
         else if (t_ultrasonic > t_rf) {
+            opo_data->dt_ul_rf = t_ultrasonic - t_rf;
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
             buffer[buffer_index].tx_seq = opo_rx_data->seq;
-            buffer[buffer_index].tx_id = opo_rx_data->tx_id;
+            buffer[buffer_index].tx_id = call AMPacket.source(&packet);
             buffer[buffer_index].rx_fails = rx_fails;
             buffer[buffer_index].tx_seq = opo_rx_data->seq;
             buffer[buffer_index].rssi = call CC2420Packet.getRssi(msg);
             buffer[buffer_index].reset_counter = m_reset_counter;
-            for(i=0;i<8;++) {
+            for(i=0;i<8;i++) {
                 buffer[buffer_index].tx_full_time[i] = opo_rx_data->m_full_time[i];
             }
             call I2CSwitch.set();
+            call CC2420Config.setChannel(BASE_CHANNEL);
             call HplRV4162.readFullTime();
         }
         else {
@@ -281,7 +286,7 @@ implementation {
                 m_state = ERASED;
                 buffer[0].tx_id = 0;
                 buffer[0].reset_counter = 0;
-                call FlashHpl.write(0, &buffer, sizeof(buffer));
+                call FlashHpl.page_program (0, &buffer, sizeof(buffer));
             }
         }
         else if (m_state == RESET) {
@@ -289,9 +294,9 @@ implementation {
                 page_count += 1;
                 read_page_count += 1;
 
-                if(page_count > last_page) {
+                if(page_count > max_pages) {
                     should_store = FALSE;
-                    page_count = last_page;
+                    page_count = max_pages;
                     read_page_count = 0;
                     call FlashHpl.turnOff();
                 }
@@ -308,7 +313,7 @@ implementation {
             } else {
                 buffer[0].tx_id = 0;
                 buffer[0].reset_counter = 0;
-                call FlashHpl.write(256*page_count, &buffer, sizeof(buffer));
+                call FlashHpl.page_program(256*page_count, &buffer, sizeof(buffer));
             }
 
         } else if (m_state == BASE_SEND) {
@@ -324,7 +329,7 @@ implementation {
     event void FlashHpl.page_program_done(void *txBuffer, uint32_t len) {
         if(m_state == ERASED || m_state == RESET) {
             page_count += 1;
-            reading_page_count += 1;
+            read_page_count = 0;
             call FlashHpl.turnOff();
         }
         else if(m_state == OFS_RECEIVE) {
@@ -345,9 +350,16 @@ implementation {
             m_state = OFS_IDLE;
             restartOpo();
         }
+        else if(m_state == BASE_SEND_DONE) {
+            read_buffer_index = 0;
+            buffer_index = 0;
+            page_count = 0;
+            read_page_count = 0;
+            call CC2420Config.setChannel(OPO_CHANNEL);
+        }
     }
 
-    event void RadControl.startDone() {
+    event void RadControl.startDone(error_t err) {
         /*
             Check to make sure that we want to send data to the base station, and not just
             conducting an opo transaction.
@@ -365,20 +377,20 @@ implementation {
                 base_data->full_time[i] = read_buffer[0].full_time[i];
                 base_data->tx_full_time[i] = read_buffer[0].tx_full_time[i];
             }
-            call OpoBaseSend.send(1, &packet, sizeof(opo_flash_store_base_rf_msg));
+            call OpoBaseSend.send(1, &base_packet, sizeof(oflash_base_rf_msg_t));
         }
     }
-    event void RadControl.stopDone() {
+    event void RadControl.stopDone(error_t err) {
         if(m_state == BASE_SEND) {
             if(read_page_count >= page_count) {
                 m_state = BASE_SEND_DONE;
             }
-            call FlashHpl.on();
+            call FlashHpl.turnOn();
         }
     }
 
     event void OpoBaseSend.sendDone(message_t *msg, error_t error) {
-        if(call Acks.wasAcked(msg)) {
+        if(call PacketAcks.wasAcked(msg)) {
             read_buffer_index += 1;
             if(read_buffer_index >= buffer_size) {
                 read_buffer_index = 0;
@@ -397,7 +409,7 @@ implementation {
             }
         }
         else {
-            call OpoBaseSend.send(1, &basePacket, sizeof(oflash_base_rf_msg_t));
+            call OpoBaseSend.send(1, &base_packet, sizeof(oflash_base_rf_msg_t));
         }
     }
 

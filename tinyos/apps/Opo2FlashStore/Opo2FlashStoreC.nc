@@ -15,8 +15,9 @@ implementation {
 
     components ActiveMessageC;
     components CC2420PacketC;
+    components CC2420ActiveMessageC;
     components new AMSenderC(OPO_FLASH_STORE) as OpoRfSend;
-    components new AMSenderC(OPO_FLASH_STORE_BASEH) as OpoBaseSend;
+    components new AMSenderC(OPO_FLASH_STORE_BASE) as OpoBaseSend;
     components new AMReceiverC(OPO_FLASH_STORE) as OpoRfReceive;
 
     OpoC.AMSend -> OpoRfSend.AMSend;
@@ -25,8 +26,9 @@ implementation {
     Opo2FlashStoreP.Packet -> ActiveMessageC.Packet;
     Opo2FlashStoreP.PacketAcks -> ActiveMessageC.PacketAcknowledgements;
     Opo2FlashStoreP.OpoBaseSend -> OpoBaseSend.AMSend;
-    Opo2FlashStoreP.Acks -> CC2420Packet.Acks;
     Opo2FlashStoreP.CC2420Packet -> CC2420PacketC.CC2420Packet;
+    Opo2FlashStoreP.AMPacket -> CC2420ActiveMessageC.AMPacket;
+    Opo2FlashStoreP.RadControl -> ActiveMessageC.SplitControl;
 
     components HplMsp430GeneralIOC as GpIO;
     Opo2FlashStoreP.I2CSwitch -> GpIO.Port65;
