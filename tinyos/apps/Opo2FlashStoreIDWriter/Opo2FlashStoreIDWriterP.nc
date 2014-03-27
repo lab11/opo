@@ -70,7 +70,7 @@ implementation {
     }
 
     event void FlashHpl.program_sid_done(void *txBuffer, uint8_t len) {
-        call FlashHpl.read_sid(0, &sidBuffer, 8);
+        call FlashHpl.read_sid(8, &read_id_store, sizeof(m_id_store));
     }
 
     event void FlashHpl.read_sid_done(void *rxBuffer, uint8_t rx_len) {
@@ -80,12 +80,7 @@ implementation {
         if(status == 0) {
             call Leds.led0On();
         }
-
-        for(i=4; i < 8; i++) {
-            seed <<= 8;
-            seed += converter[i];
-        }
-        call FlashHpl.chip_erase();
+        call FlashHpl.turnOff();
     }
 
     event void FlashHpl.read_done(void *rxBuffer, uint32_t rx_len) {
@@ -99,7 +94,7 @@ implementation {
 
     event void FlashHpl.chip_erase_done() {
         uint32_t test_page = 0;
-        call FlashHpl.page_program(test_page, &m_id_store, sizeof(m_id_store));
+        call FlashHpl.program_sid(8, &m_id_store, sizeof(m_id_store));
     }
 
 }
