@@ -84,4 +84,3 @@ wmake.close()
 m = sh.make("opo2", "install", "bsl,/dev/" + port)
 print m.stdout
 print m.stderr
-
