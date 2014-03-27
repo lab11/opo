@@ -22,13 +22,16 @@ implementation {
   event message_t* FlashStoreNodeReceive.receive(message_t *msg, void *payload, uint8_t len) {
     int i = 0;
     oflash_msg_t *data = (oflash_msg_t *) payload;
-    printf("FlashStoreNode %u %u %u", data->tx_id, data->seq, data->buffer_index);
-    for(i=0;i<5;i++) {
-      printf(" %u", data->full_time[i]);
+    printf("FlashStoreNode %u %u %u", call AMPacket.source(msg), data->seq, data->reset_counter);
+    for(i=0;i<8;i++) {
+      printf(" %u", data->m_full_time[i]);
     }
     printf("\n");
     printf("%u ", data->last_tx_id);
-    printf("%u %u %u %u %u", data->t_ultrasonic, data->t_rf);
+    printf("%u ", data->dt_ul_rf);
+    for(i=0;i<8;i++) {
+      printf(" %u", data->last_full_time[i]);
+    }
     printf("\n");
     return msg;
   }

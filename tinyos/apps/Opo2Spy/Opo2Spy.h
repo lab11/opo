@@ -1,18 +1,16 @@
 #ifndef OPO2_SPY_H
 #define OPO2_SPY_H
 
-#define CC2420_DEF_CHANNEL 15
-#define CC2520_DEF_CHANNEL 15
+#define CC2520_DEF_CHANNEL 23
 
 
 typedef nx_struct opo_flash_store_msg {
-    nx_uint16_t tx_id;
-    nx_uint16_t seq;
-    nx_uint8_t full_time[5];
-    nx_uint8_t buffer_index;
+    nx_uint32_t seq;
+    nx_uint32_t reset_counter;
     nx_uint16_t last_tx_id;
-    nx_uint16_t t_rf;
-    nx_uint16_t t_ultrasonic;
+    nx_uint8_t  m_full_time[8];
+    nx_uint16_t dt_ul_rf;
+    nx_uint8_t  last_full_time[8];
 } oflash_msg_t;
 
 
