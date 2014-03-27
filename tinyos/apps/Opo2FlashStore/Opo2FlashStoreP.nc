@@ -23,10 +23,10 @@ module Opo2FlashStoreP {
 }
 
 implementation {
-    #define BUFFER_SIZE 50
+    #define BUFFER_SIZE 7
 
     uint32_t RX_DELAY = 70;
-    uint8_t i = 0;
+    uint16_t i = 0;
 
     //config setup
     oconfig_t m_config;
@@ -58,16 +58,16 @@ implementation {
     // Flash Storage Stuff
     uint32_t max_pages = 32767;
     uint8_t buffer_index = 0;
-    uint8_t max_buffer_index = 15;
+    uint8_t max_buffer_index = 6;
     uint32_t page_count = 0;
-    oflash_base_msg_t buffer[16];
+    oflash_base_msg_t buffer[7];
 
     uint32_t read_page_count = 0;
     uint8_t read_buffer_index = 0;
     bool read_new_page = FALSE;
     bool read_buffer_has_data = FALSE;
     bool should_store = TRUE;
-    oflash_base_msg_t read_buffer[16];
+    oflash_base_msg_t read_buffer[7];
 
     uint32_t buffer_size = 256;
 
@@ -104,10 +104,8 @@ implementation {
         base_data = (oflash_base_rf_msg_t*) call Packet.getPayload(&base_packet,
                                                                    sizeof(oflash_base_rf_msg_t));
 
-        call AMPacket.setSource(&base_packet, m_id_store.id);
-        call AMPacket.setSource(&packet, m_id_store.id);
-
         call I2CSwitch.makeOutput();
+        call I2CSwitch.clr();
         call FlashHpl.turnOn();
     }
 
@@ -118,6 +116,7 @@ implementation {
     event void TxTimer.fired() {
         bool should_tx = FALSE;
         opo_data->seq = seq;
+        opo_data->reset_counter = m_reset_counter;
         m_state = OFS_TX;
         atomic {
             if(call Opo.is_receiving()) {
@@ -152,7 +151,7 @@ implementation {
     event void Opo.receive(uint16_t t_rf,
                            uint16_t t_ultrasonic,
                            message_t* msg) {
-
+        call Leds.led1Toggle();
         call TxTimer.stop();
         tn = call TxTimer.getNow();
         t0 = call TxTimer.gett0();
@@ -162,7 +161,7 @@ implementation {
         opo_rx_data = call Packet.getPayload(msg, sizeof(oflash_msg_t));
         opo_data->last_tx_id = call AMPacket.source(&packet);
 
-        if (call AMPacket.source(&packet) == m_id_store.id) {
+        if (call AMPacket.source(msg) == m_id_store.id) {
             m_state = BASE_SEND;
             for(i=0;i<8;i++) {
                 initial_time[i] = opo_rx_data->m_full_time[i];
@@ -171,6 +170,7 @@ implementation {
             call HplRV4162.setTime(initial_time);
         }
         else if (t_ultrasonic > t_rf) {
+            call Leds.led0On();
             opo_data->dt_ul_rf = t_ultrasonic - t_rf;
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
             buffer[buffer_index].tx_seq = opo_rx_data->seq;

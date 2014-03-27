@@ -3,23 +3,26 @@ import datetime
 import sys
 import csv
 
-if len(sys.argv) != 2:
-	print "need port"
+if len(sys.argv) != 3:
+	print "need id and port"
 	sys.exit()
 
 r = open('node_info.data', 'rb')
-m_id = 0
+m_id = int(sys.argv[1])
 m_seed = 0
+port = sys.argv[2]
+
+r.next()
 for line in r:
 	raw = line.strip().split()
 	i = int(raw[0].strip())
 	s = int(raw[1].strip())
-	if i == mid:
-		m_id = i
+	if i == m_id:
+		m_id = m_id
 		m_seed = s
 		break
 
-port = sys.argv[1]
+
 
 #Wait this just converts to hex
 def getBCDRep(t):
@@ -81,6 +84,6 @@ for i in range(len(positions)):
 wmake.write(base.format('M_SEED', m_seed))
 wmake.write(base.format('M_ID', m_id))
 wmake.close()
-m = sh.make("opo2", "install", "bsl,/dev/" + port)
+m = sh.make("opo2", "install." + str(m_id), "bsl,/dev/" + port)
 print m.stdout
 print m.stderr
