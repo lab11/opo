@@ -136,10 +136,10 @@ implementation {
   ============================================================================*/
   command bool Opo.is_receiving() {
     atomic {
-      if(opo_rx == TRUE) {
-        reutrn TRUE;
-      } else {
+      if(opo_state == IDLE) {
         return FALSE;
+      } else {
+        return TRUE;
       }
     }
   }
