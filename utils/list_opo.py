@@ -31,7 +31,7 @@ query = {'profile_id': '4wbddZCSIj'}
 pkts = {}
 names = {}
 
-dup_cnt = 0
+dup_cnt = {}
 
 class stream_receiver (sioc.BaseNamespace):
 	def on_reconnect (self):
@@ -61,12 +61,11 @@ class stream_receiver (sioc.BaseNamespace):
 		except KeyError:
 			pkts[spkt] = 1
 		if verbose:
-			print("Count: {}. Packet: {}".format(pkts[spkt], pkt))
+			print("Count: {}. Packet: {}".format(pkts[spkt], orig_pkt))
 		else:
-			global dup_cnt
-			sys.stdout.write(' '*40 + '\r')
+			sys.stdout.write(' '*80 + '\r')
 			if pkts[spkt] == 1:
-				dup_cnt = 1
+				dup_cnt[pkt['tx_id']] = 0
 				# last_tx_id --> tx_id
 				try:
 					print('{:1.2f}m {} --> {}'.format(pkt['range'],
@@ -75,8 +74,23 @@ class stream_receiver (sioc.BaseNamespace):
 					print('{:1.2f}m {} --> {}'.format(pkt['range'],
 						pkt['last_tx_id'], pkt['tx_id']))
 			else:
-				dup_cnt += 1
-				sys.stdout.write('Suppressed {} duplicate(s)\r'.format(dup_cnt))
+				try:
+					dup_cnt[pkt['tx_id']] += 1
+				except KeyError:
+					dup_cnt[pkt['tx_id']] = 1
+
+			ids = dup_cnt.keys()
+			ids.sort()
+			s = ''
+			c = 0
+			for i in ids:
+				c += dup_cnt[i]
+				try:
+					s += '{}: {} '.format(names[i], dup_cnt[i])
+				except KeyError:
+					s += '{}: {} '.format(i, dup_cnt[i])
+			if c:
+				sys.stdout.write('Suppressed {} duplicate(s). {}\r'.format(c, s))
 				sys.stdout.flush()
 
 
