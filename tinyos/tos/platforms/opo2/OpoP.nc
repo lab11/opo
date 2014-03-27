@@ -134,6 +134,15 @@ implementation {
   /*============================= Opo Receive ==================================
    Handles Receieve protocol and resetting upon false positive
   ============================================================================*/
+  command bool Opo.is_receiving() {
+    atomic {
+      if(opo_rx == TRUE) {
+        reutrn TRUE;
+      } else {
+        return FALSE;
+      }
+    }
+  }
 
   command error_t Opo.enable_receive() {
     bool opo_rx = FALSE;
@@ -357,6 +366,9 @@ implementation {
     call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
     call SFDCapture.setEdge(MSP430TIMER_CM_NONE);
     atomic opo_rx_state = RX_IDLE;
+    t_rf = 0;
+    t_ultrasonic = 0;
+    rx_msg = NULL;
   }
 
 }

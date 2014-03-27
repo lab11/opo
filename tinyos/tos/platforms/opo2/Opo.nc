@@ -18,4 +18,5 @@ interface Opo {
 	event void receive_failed(uint8_t rx_status);
 
     command error_t setup_pins();
+    command bool is_receiving();
 }
