@@ -69,7 +69,7 @@ class stream_receiver (sioc.BaseNamespace):
 		if verbose:
 			print("Count: {}. Packet: {}".format(pkts[spkt], orig_pkt))
 		else:
-			sys.stdout.write(' '*80 + '\r')
+			sys.stdout.write(' '*120 + '\r')
 			if pkts[spkt] == 1:
 				dup_cnt[pkt['tx_id']] = 0
 				# last_tx_id --> tx_id
