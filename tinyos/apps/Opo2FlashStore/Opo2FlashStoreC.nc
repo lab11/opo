@@ -32,6 +32,7 @@ implementation {
 
     components HplMsp430GeneralIOC as GpIO;
     Opo2FlashStoreP.I2CSwitch -> GpIO.Port65;
+    OpoC.I2CSwitch -> GpIO.Port65;
 
     components CC2420ControlC;
     Opo2FlashStoreP.CC2420Config -> CC2420ControlC.CC2420Config;
