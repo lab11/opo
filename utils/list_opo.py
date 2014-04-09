@@ -19,6 +19,12 @@ except ImportError:
 	print('sudo pip install socketIO-client')
 	sys.exit(1)
 
+try:
+	import termcolor
+except ImportError:
+	print('Could not import the termcolor library')
+	print('sudo pip install termcolor')
+
 import logging
 logging.basicConfig()
 
@@ -63,7 +69,7 @@ class stream_receiver (sioc.BaseNamespace):
 		if verbose:
 			print("Count: {}. Packet: {}".format(pkts[spkt], orig_pkt))
 		else:
-			sys.stdout.write(' '*80 + '\r')
+			sys.stdout.write(' '*120 + '\r')
 			if pkts[spkt] == 1:
 				dup_cnt[pkt['tx_id']] = 0
 				# last_tx_id --> tx_id
@@ -86,9 +92,13 @@ class stream_receiver (sioc.BaseNamespace):
 			for i in ids:
 				c += dup_cnt[i]
 				try:
-					s += '{}: {} '.format(names[i], dup_cnt[i])
+					t = '{}: {} '.format(names[i], dup_cnt[i])
 				except KeyError:
-					s += '{}: {} '.format(i, dup_cnt[i])
+					t = '{}: {} '.format(i, dup_cnt[i])
+				if i == pkt['tx_id']:
+					s += termcolor.colored(t, color='yellow', attrs=['bold'])
+				else:
+					s += t
 			if c:
 				sys.stdout.write('Suppressed {} duplicate(s). {}\r'.format(c, s))
 				sys.stdout.flush()
