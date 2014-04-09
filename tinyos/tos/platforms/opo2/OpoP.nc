@@ -49,11 +49,13 @@ implementation {
   uint16_t t_rf = 0; // SFD trigger time.
   uint16_t t_ultrasonic = 0; // Ultrasonic Rise Time
   uint8_t  rx_status = 0;
+  uint16_t TACTL_RESTORE = 0;
 
   /* Helper function prototypes */
   void startTransducer(); // starts PWM to drive Ultrasonic Transducers
   void stopTransducer(); // stops PWM driving Ultrasonic Transducers
   void setupUltrasonicPWM(); // Sets up TimerA for PWM
+  void restoreTimerA();
   void setupRx(); // sets up Opo for receiving
   void disableRx(); // disables ultrasoinc capture, timers, etc
 
@@ -80,6 +82,7 @@ implementation {
       call TxRxSel.set();
 
       opo_tx_state = TX_WAKE;
+      TACTL_RESTORE = TACTL;
       setupUltrasonicPWM();
 
       tx_packet = packet;
@@ -111,6 +114,7 @@ implementation {
       stopTransducer();
       opo_tx_state = TX_IDLE;
       atomic opo_state = IDLE;
+      restoreTimerA();
       signal Opo.transmit_done();
     }
   }
@@ -162,7 +166,6 @@ implementation {
     call UCapControl.clearPendingInterrupt();
 
     if(opo_rx_state == RX_WAKE) {
-      call Leds.led0Toggle();
       atomic opo_state = RX;
       opo_rx_state = RX_RANGE;
       call RxTimer.startOneShot(48);
@@ -326,10 +329,9 @@ implementation {
     }
   }
 
-  inline void setupTACTL() {
+  inline void restoreTimerA() {
     atomic {
-      TACTL = 0x0000;
-      TACTL = TASSEL_2 | ID_1 | MC_1;
+      TACTL = TACTL_RESTORE;
     }
   }
 
