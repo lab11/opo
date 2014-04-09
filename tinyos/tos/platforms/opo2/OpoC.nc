@@ -8,6 +8,7 @@ configuration OpoC {
     interface AMSend;
     interface SplitControl as RfControl;
     interface Receive as AMReceive;
+    interface HplMsp430GeneralIO as I2CSwitch;
   }
 }
 
@@ -24,6 +25,7 @@ implementation {
   OpoP.Receive = AMReceive;
   OpoP.AMSend = AMSend;
   OpoP.RfControl = RfControl;
+  OpoP.I2CSwitch = I2CSwitch;
 
   components HplMsp430GeneralIOC as GpIO;
   OpoP.UCapGpIO -> GpIO.U_CAP_PIN;

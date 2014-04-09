@@ -28,6 +28,7 @@ module OpoP {
     interface Msp430Capture as UltrasonicCapture;
     interface Msp430TimerControl as SFDCapControl;
     interface Msp430TimerControl as UCapControl;
+    interface HplMsp430GeneralIO as I2CSwitch;
     interface Leds;
   }
 }
@@ -172,7 +173,7 @@ implementation {
     call UCapControl.clearPendingInterrupt();
 
     if(opo_rx_state == RX_WAKE) {
-      call Leds.led0Toggle();
+      //call Leds.led0Toggle();
       atomic opo_state = RX;
       opo_rx_state = RX_RANGE;
       call RxTimer.startOneShot(48);
@@ -218,9 +219,11 @@ implementation {
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_RISING);
     }
     else if(opo_rx_state == RX_RANGE) {
+      call I2CSwitch.clr();
       call RfControl.start();
     }
     else if(opo_rx_state == RX_DONE) {
+      //call Leds.led1Toggle();
       disableRx();
       call RfControl.stop();
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
@@ -249,10 +252,9 @@ implementation {
                        tx_psize);
     }
     else if(opo_state == RX) {
-      call Leds.led1Toggle();
       opo_rx_state = RX_DONE;
-      call SFDCapture.setEdge(MSP430TIMER_CM_RISING);
       call RxTimer.startOneShot(9);
+      call SFDCapture.setEdge(MSP430TIMER_CM_RISING);
     }
   }
 
@@ -369,9 +371,6 @@ implementation {
     call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
     call SFDCapture.setEdge(MSP430TIMER_CM_NONE);
     atomic opo_rx_state = RX_IDLE;
-    t_rf = 0;
-    t_ultrasonic = 0;
-    rx_msg = NULL;
   }
 
 }
