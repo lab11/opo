@@ -129,7 +129,7 @@ implementation {
             }
         }
         if(should_tx == TRUE) {
-            call Leds.led0Toggle();
+            //call Leds.led0Toggle();
             call I2CSwitch.set();
             call HplRV4162.readFullTime();
         }
@@ -140,14 +140,14 @@ implementation {
 
     event void Opo.transmit_done() {
         call RxTimer.stop();
-        call Leds.led1Toggle();
+        //call Leds.led1Toggle();
         seq += 1;
         restartOpo();
     }
 
     event void Opo.transmit_failed() {
         tx_fails += 1;
-        call Leds.led1Toggle();
+        //call Leds.led1Toggle();
         call TxTimer.startOneShot(guard + 75);
     }
 
@@ -183,8 +183,8 @@ implementation {
             for(i=0;i<8;i++) {
                 buffer[buffer_index].tx_full_time[i] = opo_rx_data->m_full_time[i];
             }
+            m_state = OFS_RECEIVE;
             call I2CSwitch.set();
-            call CC2420Config.setChannel(BASE_CHANNEL);
             call HplRV4162.readFullTime();
         }
         else {
@@ -345,6 +345,7 @@ implementation {
             call HplRV4162.setTime(initial_time);
         }
         else if(m_state == BASE_SEND) {
+            call CC2420Config.setChannel(BASE_CHANNEL);
             call RadControl.start();
         }
         else if(m_state == OFS_RECEIVE) {
