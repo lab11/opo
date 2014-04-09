@@ -65,10 +65,6 @@ implementation {
 
   command error_t Opo.transmit(message_t* packet, size_t psize) {
     bool opo_tx = FALSE;
-    #ifdef OPO_DEBUG
-    printf("OPO_TX\n");
-    printfflush();
-    #endif
     atomic {
       if (opo_state == IDLE) {
         opo_state = TX;
@@ -76,17 +72,9 @@ implementation {
       }
     }
     if (opo_tx == FALSE) {
-      #ifdef OPO_DEBUG
-      printf("OPO_TXF\n");
-      printfflush();
-      #endif
       signal Opo.transmit_failed();
     }
     else {
-      #ifdef OPO_DEBUG
-      printf("OPO_TXS\n");
-      printfflush();
-      #endif;
       disableRx();
 
       call TxRxSel.set();
@@ -116,6 +104,7 @@ implementation {
     }
     else if(opo_tx_state == TX_RANGE) {
       opo_tx_state = TX_RANGE_STOP;
+      call I2CSwitch.clr();
       call RfControl.start();
     }
     else if(opo_tx_state == TX_RANGE_STOP) {
@@ -173,7 +162,7 @@ implementation {
     call UCapControl.clearPendingInterrupt();
 
     if(opo_rx_state == RX_WAKE) {
-      //call Leds.led0Toggle();
+      call Leds.led0Toggle();
       atomic opo_state = RX;
       opo_rx_state = RX_RANGE;
       call RxTimer.startOneShot(48);
@@ -223,7 +212,6 @@ implementation {
       call RfControl.start();
     }
     else if(opo_rx_state == RX_DONE) {
-      //call Leds.led1Toggle();
       disableRx();
       call RfControl.stop();
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
