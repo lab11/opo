@@ -118,6 +118,7 @@ implementation {
         opo_data->seq = seq;
         opo_data->reset_counter = m_reset_counter;
         m_state = OFS_TX;
+        //all Leds.led1Toggle();
         atomic {
             if(call Opo.is_receiving()) {
                 should_tx = FALSE;
@@ -161,9 +162,10 @@ implementation {
         getRemainingTimerTime();
 
         opo_rx_data = call Packet.getPayload(msg, sizeof(oflash_msg_t));
-        opo_data->last_tx_id = call AMPacket.source(&packet);
+        opo_data->last_tx_id = call AMPacket.source(msg);
 
         if (call AMPacket.source(msg) == m_id_store.id) {
+            call Leds.led1On();
             m_state = BASE_SEND;
             for(i=0;i<8;i++) {
                 initial_time[i] = opo_rx_data->m_full_time[i];
@@ -209,6 +211,7 @@ implementation {
         if(m_state == OFS_RECEIVE) {
             for(i=0;i<8;i++) {
                 buffer[buffer_index].full_time[i] = fullTime[i];
+                opo_data->last_full_time[i] = fullTime[i];
             }
 
             if(buffer_index >= max_buffer_index) {
@@ -217,6 +220,7 @@ implementation {
             }
             else {
                 buffer_index += 1;
+                m_state = OFS_IDLE;
                 call RxTimer.startOneShot(RX_DELAY);
                 call TxTimer.startOneShot(rt);
             }
