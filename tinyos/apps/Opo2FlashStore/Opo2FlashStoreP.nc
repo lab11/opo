@@ -121,14 +121,15 @@ implementation {
         atomic {
             if(call Opo.is_receiving()) {
                 should_tx = FALSE;
-                call Opo.disable_receive();
+                tx_fails += 1;
             }
             else {
+                call Opo.disable_receive();
                 should_tx = TRUE;
-                tx_fails += 1;
             }
         }
         if(should_tx == TRUE) {
+            call Leds.led0Toggle();
             call I2CSwitch.set();
             call HplRV4162.readFullTime();
         }
@@ -139,19 +140,20 @@ implementation {
 
     event void Opo.transmit_done() {
         call RxTimer.stop();
+        call Leds.led1Toggle();
         seq += 1;
         restartOpo();
     }
 
     event void Opo.transmit_failed() {
         tx_fails += 1;
+        call Leds.led1Toggle();
         call TxTimer.startOneShot(guard + 75);
     }
 
     event void Opo.receive(uint16_t t_rf,
                            uint16_t t_ultrasonic,
                            message_t* msg) {
-        call Leds.led1Toggle();
         call TxTimer.stop();
         tn = call TxTimer.getNow();
         t0 = call TxTimer.gett0();
@@ -170,7 +172,6 @@ implementation {
             call HplRV4162.setTime(initial_time);
         }
         else if (t_ultrasonic > t_rf) {
-            call Leds.led0On();
             opo_data->dt_ul_rf = t_ultrasonic - t_rf;
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
             buffer[buffer_index].tx_seq = opo_rx_data->seq;
