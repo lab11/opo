@@ -51,22 +51,13 @@ implementation {
     }
 
     event void RfControl.startDone(error_t err) {
-        call HplRV4162.readFullTime();
+        call AMSend.send(1, &packet, sizeof(oflash_base_rf_msg_t));
     }
     event void RfControl.stopDone(error_t err) {
         call HplAt45db.turnOn();
     }
 
-    event void HplRV4162.readFullTimeDone(error_t err, uint8_t *fullTime) {
-        // read time and store to buffer;
-        data->m_full_time[0] = fullTime[1];
-        data->m_full_time[1] = fullTime[2];
-        data->m_full_time[2] = fullTime[3];
-        data->m_full_time[3] = fullTime[5];
-        data->m_full_time[4] = fullTime[6];
-        call AMSend.send(1, &packet, sizeof(oflash_base_rf_msg_t));
-    }
-
+    event void HplRV4162.readFullTimeDone(error_t err, uint8_t *fullTime) {}
     event void HplRV4162.setTimeDone(error_t err) {}
 
     event void AMSend.sendDone(message_t *msg, error_t error) {
@@ -82,21 +73,19 @@ implementation {
                 data->rssi = buffer[buffer_index].rssi;
                 data->tx_seq = buffer[buffer_index].tx_seq;
                 data->rx_fails = buffer[buffer_index].rx_fails;
-                data->m_seq = buffer[buffer_index].m_seq;
                 for(i=0;i<5;i++) {
                     data->full_time[i] = buffer[buffer_index].full_time[i];
                     current_time[i] = buffer[buffer_index].full_time[i];
                 }
 
                 if(compare_times()) {
-                    call HplRV4162.readFullTime();
+                    call AMSend.send(1, &packet, sizeof(oflash_base_rf_msg_t));
                 }
             }
         }
         else {
             call AMSend.send(1, &packet, sizeof(oflash_base_rf_msg_t));
         }
-
     }
 
     event void HplAt45db.turnedOn() {
@@ -142,7 +131,6 @@ implementation {
             data->rssi = buffer[0].rssi;
             data->tx_seq = buffer[0].tx_seq;
             data->rx_fails = buffer[0].rx_fails;
-            data->m_seq = buffer[0].m_seq;
             for(i=0;i<5;i++) {
                 data->full_time[i] = buffer[0].full_time[i];
                 current_time[i] = buffer[0].full_time[i];
