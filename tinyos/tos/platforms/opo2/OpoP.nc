@@ -172,6 +172,7 @@ implementation {
     call UCapControl.clearPendingInterrupt();
 
     if(opo_rx_state == RX_WAKE) {
+      call Leds.led0Toggle();
       atomic opo_state = RX;
       opo_rx_state = RX_RANGE;
       call RxTimer.startOneShot(48);
@@ -222,9 +223,9 @@ implementation {
     else if(opo_rx_state == RX_DONE) {
       disableRx();
       call RfControl.stop();
-      atomic opo_state = IDLE;
       call UltrasonicCapture.setEdge(MSP430TIMER_CM_NONE);
       call SFDCapture.setEdge(MSP430TIMER_CM_NONE);
+      atomic opo_state = IDLE;
       if(t_ultrasonic > t_rf && rx_msg != NULL) {
         signal Opo.receive(t_rf,
                            t_ultrasonic,
@@ -241,14 +242,16 @@ implementation {
   ============================================================================*/
 
   event void RfControl.startDone(error_t err) {
-    call SFDCapture.setEdge(MSP430TIMER_CM_RISING);
     if(opo_state == TX) {
+      call SFDCapture.setEdge(MSP430TIMER_CM_RISING);
       call AMSend.send(AM_BROADCAST_ADDR,
                        tx_packet,
                        tx_psize);
     }
     else if(opo_state == RX) {
+      call Leds.led1Toggle();
       opo_rx_state = RX_DONE;
+      call SFDCapture.setEdge(MSP430TIMER_CM_RISING);
       call RxTimer.startOneShot(9);
     }
   }
