@@ -118,7 +118,6 @@ implementation {
         opo_data->seq = seq;
         opo_data->reset_counter = m_reset_counter;
         m_state = OFS_TX;
-        //all Leds.led1Toggle();
         atomic {
             if(call Opo.is_receiving()) {
                 should_tx = FALSE;
@@ -130,7 +129,7 @@ implementation {
             }
         }
         if(should_tx == TRUE) {
-            //call Leds.led0Toggle();
+            //call Leds.led1On();
             call I2CSwitch.set();
             call HplRV4162.readFullTime();
         }
@@ -141,14 +140,14 @@ implementation {
 
     event void Opo.transmit_done() {
         call RxTimer.stop();
-        //call Leds.led1Toggle();
+        //call Leds.led1Off();
         seq += 1;
         restartOpo();
     }
 
     event void Opo.transmit_failed() {
         tx_fails += 1;
-        //call Leds.led1Toggle();
+        //call Leds.led1Off();
         call TxTimer.startOneShot(guard + 75);
     }
 
@@ -165,7 +164,6 @@ implementation {
         opo_data->last_tx_id = call AMPacket.source(msg);
 
         if (call AMPacket.source(msg) == m_id_store.id) {
-            call Leds.led1On();
             m_state = BASE_SEND;
             for(i=0;i<8;i++) {
                 initial_time[i] = opo_rx_data->m_full_time[i];
@@ -216,6 +214,7 @@ implementation {
 
             if(buffer_index >= max_buffer_index) {
                 buffer_index = 0;
+                call Leds.led1On();
                 call FlashHpl.turnOn();
             }
             else {
@@ -255,7 +254,7 @@ implementation {
             call FlashHpl.chip_erase();
         }
         else if(m_state == OFS_RECEIVE) {
-            call FlashHpl.page_program(page_count*256, &buffer, buffer_size);
+            call FlashHpl.page_program(page_count*256, &buffer, sizeof(buffer));
         }
     }
 
