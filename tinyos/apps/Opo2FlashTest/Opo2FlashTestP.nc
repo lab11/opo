@@ -32,7 +32,6 @@ implementation {
 
     event void FlashHpl.turnedOn() {
         call FlashHpl.program_sid(8, &writeSidBuffer, 8);
-
     }
 
     event void FlashHpl.turnedOff() {
@@ -52,13 +51,12 @@ implementation {
 
     event void FlashHpl.chip_erase_done() {
         if(w == FALSE) {
-            call FlashHpl.page_program(0, &sidBuffer, len);
+            //call FlashHpl.page_program(0, &sidBuffer, len);
+            call SplitControl.start();
         }
         else {
             call FlashHpl.read(0, &readBuffer, len);
         }
-        //
-
     }
 
     event void FlashHpl.page_program_done(void *txBuffer, uint32_t tx_len) {
