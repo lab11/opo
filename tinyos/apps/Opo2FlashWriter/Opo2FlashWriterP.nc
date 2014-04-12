@@ -92,9 +92,9 @@ implementation {
             p->rx_fails = buff[rindex].rx_fails;
             rindex++;
             call AMSend.send(AM_BROADCAST_ADDR, &packet, sizeof(oflash_base_rf_msg_t));
-        } else if (page_count > 100) {
-            call Leds.led1On();
-            call Leds.led0On();
+        } else if (page_count >= 100) {
+            call Leds.led1Off();
+            call Leds.led0Off();
         }
         else {
             rindex = 0;
