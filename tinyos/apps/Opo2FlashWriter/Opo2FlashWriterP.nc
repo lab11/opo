@@ -14,7 +14,7 @@ implementation {
     message_t packet;
     oflash_base_rf_msg_t *p;
     oflash_base_rf_msg_t buff[7];
-		oflash_base_rf_msg_t rbuff[7]
+		oflash_base_rf_msg_t rbuff[7];
     uint16_t rindex = 0;
     uint32_t page_count = 0;
 		bool boot = TRUE;
