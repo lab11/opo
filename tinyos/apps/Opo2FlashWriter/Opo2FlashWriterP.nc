@@ -23,7 +23,7 @@ implementation {
         p = (oflash_base_rf_msg_t *) call AMSend.getPayload(&packet, sizeof(oflash_base_rf_msg_t));
 				for(i=0;i<7;i++) {
 					buff[i].tx_id = 11;
-					buff[i].ultrasonic_rf_dt = 27;
+					buff[i].ultrasonic_rf_dt = 28;
 					buff[i].rssi = 69;
 					buff[i].reset_counter = 2;
 					buff[i].tx_seq = 4;
@@ -35,6 +35,7 @@ implementation {
     event void FlashHpl.turnedOn() {
 			if(boot == TRUE) {
 				boot = FALSE;
+				call FlashHpl.wrsr(0);
 				call FlashHpl.chip_erase();
 			} else {
 				page_count = 0;
