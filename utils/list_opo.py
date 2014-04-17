@@ -53,9 +53,12 @@ class stream_receiver (sioc.BaseNamespace):
 		orig_pkt = copy.deepcopy(pkt)
 		del pkt['time']
 		del pkt['seq']
-		del pkt['last_seq']
 		del pkt['_id']
+		del pkt['true_full_time']
+		del pkt['last_full_time']
+		del pkt['m_full_time']
 		spkt = json.dumps(pkt)
+		#print(spkt)
 
 		try:
 			names[pkt['tx_id']] = pkt['name']
@@ -72,13 +75,13 @@ class stream_receiver (sioc.BaseNamespace):
 			sys.stdout.write(' '*120 + '\r')
 			if pkts[spkt] == 1:
 				dup_cnt[pkt['tx_id']] = 0
-				# last_tx_id --> tx_id
+				# rx_id --> tx_id
 				try:
 					print('{:1.2f}m {} --> {}'.format(pkt['range'],
-						names[pkt['last_tx_id']], names[pkt['tx_id']]))
+						names[pkt['rx_id']], names[pkt['tx_id']]))
 				except KeyError:
 					print('{:1.2f}m {} --> {}'.format(pkt['range'],
-						pkt['last_tx_id'], pkt['tx_id']))
+						pkt['rx_id'], pkt['tx_id']))
 			else:
 				try:
 					dup_cnt[pkt['tx_id']] += 1
