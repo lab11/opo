@@ -5,20 +5,11 @@ module Opo2FlashStoreP {
         interface Boot;
         interface Leds;
         interface RandomMt;
-        interface Packet;
-        interface Opo;
         interface HplMsp430GeneralIO as I2CSwitch;
-        interface Timer<TMilli> as TxTimer;
-        interface Timer<TMilli> as RxTimer;
         interface Timer<TMilli> as LedTimer;
-        interface PacketAcknowledgements as PacketAcks;
         interface HplSST25VF064 as FlashHpl;
-        interface HplRV4162;
-        interface CC2420Config;
-        interface CC2420Packet;
         interface SplitControl as RadControl;
         interface AMSend as OpoBaseSend;
-        interface AMPacket;
     }
 }
 
@@ -67,6 +58,8 @@ implementation {
     bool read_new_page = FALSE;
     bool read_buffer_has_data = FALSE;
     bool should_store = TRUE;
+    bool firstRead = TRUE;
+    bool firstWrite = TRUE;
     oflash_base_msg_t read_buffer[7];
 
     // id and seed
@@ -76,7 +69,6 @@ implementation {
 
     void setGuardTime();
     void getRemainingTimerTime();
-    void restartOpo();
 
     event void Boot.booted() {
         m_id_store.seed = M_SEED;
@@ -93,83 +85,19 @@ implementation {
         initial_time[5] = M_DATE;
         initial_time[6] = M_MONTH;
         initial_time[7] = M_YEAR;
-        call Opo.setup_pins();
-        call PacketAcks.noAck(&packet);
 
-        opo_data = (oflash_msg_t*) call Packet.getPayload(&packet,
-                                                          sizeof(oflash_msg_t));
+        for(i=0;i<7;i++) {
+            buffer[i].tx_seq = 2;
+            buffer[i].rx_fails = 10;
+            buffer[i].tx_id = 12;
+            buffer[i].rssi = page_count;
+            buffer[i].reset_counter = 16;
+        }
 
-        base_data = (oflash_base_rf_msg_t*) call Packet.getPayload(&base_packet,
+        base_data = (oflash_base_rf_msg_t*) call OpoBaseSend.getPayload(&base_packet,
                                                                    sizeof(oflash_base_rf_msg_t));
 
-        call PacketAcks.requestAck(&base_packet);
-
-        call I2CSwitch.makeOutput();
-        call I2CSwitch.clr();
         call FlashHpl.turnOn();
-    }
-
-    event void RxTimer.fired() {
-    }
-
-    event void TxTimer.fired() {
-        bool should_tx = FALSE;
-        opo_data->seq = seq;
-        opo_data->reset_counter = m_reset_counter;
-        m_state = OFS_TX;
-        atomic {
-            if(call Opo.is_receiving()) {
-                should_tx = FALSE;
-                tx_fails += 1;
-            }
-            else {
-                call Opo.disable_receive();
-                should_tx = TRUE;
-            }
-        }
-        if(should_tx == TRUE) {
-            call I2CSwitch.set();
-            call HplRV4162.readFullTime();
-        }
-        else {
-            call TxTimer.startOneShot(guard + 75);
-        }
-    }
-
-    event void Opo.transmit_done() {
-        call FlashHpl.turnOn();
-    }
-
-    event void Opo.transmit_failed() {
-        tx_fails += 1;
-        call TxTimer.startOneShot(guard + 75);
-    }
-
-    event void Opo.receive(uint16_t t_rf,
-                           uint16_t t_ultrasonic,
-                           message_t* msg) {
-    }
-
-    event void Opo.receive_failed(uint8_t rx_status) {}
-
-    event void Opo.enable_receive_failed() {}
-
-    event void HplRV4162.readFullTimeDone(error_t err, uint8_t *fullTime) {
-        call I2CSwitch.clr();
-        if (m_state == OFS_TX) {
-            for(i=0;i<8;i++) {
-                opo_data->m_full_time[i] = fullTime[i];
-            }
-            call Opo.transmit(&packet, sizeof(oflash_msg_t));
-        }
-    }
-
-    event void HplRV4162.setTimeDone(error_t err) {
-        if(m_state == BOOT) {
-            call RandomMt.seed(m_id_store.seed);
-            call I2CSwitch.clr();
-            call TxTimer.startOneShot(1000);
-        }
     }
 
     event void FlashHpl.turnedOn() {
@@ -180,10 +108,10 @@ implementation {
         else if(m_state == OFS_TX) {
             call FlashHpl.wrsr(0);
             for(i=0;i<7;i++) {
-                buffer[i].seq = 1;
+                buffer[i].tx_seq = 1;
                 buffer[i].rx_fails = 11;
                 buffer[i].tx_id = 13;
-                buffer[i].rssi = 15;
+                buffer[i].rssi = page_count;
                 buffer[i].reset_counter = 17;
             }
             call FlashHpl.page_program(page_count*256, &buffer, sizeof(buffer));
@@ -194,21 +122,14 @@ implementation {
     }
 
     event void FlashHpl.chip_erase_done() {
-        if(m_state == BOOT) {
-            for(i=0;i<7;i++) {
-                buffer[i].seq = 2;
-                buffer[i].rx_fails = 10;
-                buffer[i].tx_id = 12;
-                buffer[i].rssi = 14;
-                buffer[i].reset_counter = 16;
-            }
+        if(m_state == BOOT || m_state == OFS_TX) {
+            call FlashHpl.wrsr(0);
             call FlashHpl.page_program(page_count*256, &buffer, sizeof(buffer));
         }
     }
 
     event void FlashHpl.read_done(void *rxBuffer, uint32_t rx_len) {
         if (m_state == BASE_SEND) {
-            // Reading data to send to base station
             read_page_count += 1;
             call FlashHpl.turnOff();
         }
@@ -221,7 +142,7 @@ implementation {
         if(m_state == BOOT) {
             page_count++;
             call FlashHpl.turnOff();
-        } 
+        }
         else if(m_state == OFS_TX) {
             call FlashHpl.turnOff();
         }
@@ -229,15 +150,17 @@ implementation {
 
     event void FlashHpl.turnedOff() {
         if(m_state == BOOT) {
-            call HplRV4162.setTime(initial_time);
+            //call I2CSwitch.set();
+            m_state = OFS_TX;
+            call LedTimer.startOneShot(1000);
         }
         else if(m_state == OFS_TX) {
-            m_state == BASE_SEND;
+            m_state = BASE_SEND;
             call LedTimer.startOneShot(1000);
-        } 
+        }
         else if(m_state == BASE_SEND) {
+            firstRead = TRUE;
             call I2CSwitch.clr();
-            call CC2420Config.setChannel(BASE_CHANNEL);
             call RadControl.start();
         }
     }
@@ -266,12 +189,12 @@ implementation {
     }
 
     event void OpoBaseSend.sendDone(message_t *msg, error_t error) {
-        if(call PacketAcks.wasAcked(msg)) {
             read_buffer_index += 1;
-            if(read_buffer_index > max_buffer_index) {
+            if(read_buffer_index > 6) {
                 read_buffer_index = 0;
                 call RadControl.stop();
             } else {
+                call Leds.led0Toggle();
                 base_data->tx_id = read_buffer[read_buffer_index].tx_id;
                 base_data->ultrasonic_rf_dt = read_buffer[read_buffer_index].ultrasonic_rf_dt;
                 base_data->rssi = read_buffer[read_buffer_index].rssi;
@@ -282,14 +205,11 @@ implementation {
                     base_data->full_time[i] = read_buffer[read_buffer_index].full_time[i];
                     base_data->tx_full_time[i] = read_buffer[read_buffer_index].tx_full_time[i];
                 }
+                call OpoBaseSend.send(1, &base_packet, sizeof(oflash_base_rf_msg_t));
             }
-        }
-        else {
-            call OpoBaseSend.send(1, &base_packet, sizeof(oflash_base_rf_msg_t));
-        }
+
     }
 
-    event void CC2420Config.syncDone(error_t error) {}
 
     event void LedTimer.fired() {
         call FlashHpl.turnOn();
@@ -298,12 +218,6 @@ implementation {
     inline void setGuardTime() {
         guard = call RandomMt.rand32();
         guard = guard % 2000;
-    }
-
-    inline void restartOpo() {
-        setGuardTime();
-        call TxTimer.startOneShot(1000 + guard);
-        call RxTimer.startOneShot(RX_DELAY);
     }
 
     inline void getRemainingTimerTime() {

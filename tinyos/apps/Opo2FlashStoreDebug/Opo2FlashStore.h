@@ -1,7 +1,7 @@
 #ifndef OPO2_FLASH_H
 #define OPO2_FLASH_H
 
-#define CC2420_DEF_CHANNEL 23
+#define CC2420_DEF_CHANNEL 16
 #define OPO_CHANNEL 23
 #define BASE_CHANNEL 16
 
