@@ -79,12 +79,15 @@ implementation {
 
 	command void HplSST25VF064.turnOn() {
 		call ResetHoldPin.makeOutput();
+		call FlashPowerGate.makeOutput();
+		call WriteProtectPin.makeOutput();
+		call FlashCS.makeOutput();
 		call ResetHoldPin.clr();
 		call FlashPowerGate.clr();
 		call BusyWait.wait(150);
 		call ResetHoldPin.set();
-		call WriteProtectPin.makeOutput();
 		call WriteProtectPin.set();
+		call FlashCS.clr();
 		call SpiResource.request();
 	}
 
@@ -97,6 +100,7 @@ implementation {
 	}
 
 	event void SpiResource.granted() {
+		call FlashCS.set();
 		signal HplSST25VF064.turnedOn();
 	}
 

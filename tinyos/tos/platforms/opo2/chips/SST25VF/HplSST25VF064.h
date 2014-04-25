@@ -22,7 +22,7 @@
 #define PROGRAM_SID           0xa5
 #define LOCKOUT_SID           0x85
 #define T_PROGRAM_SID         5
-#define T_PAGE_PROGRAM        15
+#define T_PAGE_PROGRAM        5
 #define T_CHIP_ERASE		  50
 #define T_BLOCK_ERASE         25
 
