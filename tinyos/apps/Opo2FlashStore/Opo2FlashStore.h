@@ -23,7 +23,8 @@ typedef nx_struct opo_flash_store_base_msg {
     nx_int8_t   rssi;
     nx_uint8_t  full_time[8];
     nx_uint8_t  tx_full_time[8];
-    nx_uint32_t reset_counter;
+    nx_uint32_t m_reset_counter;
+    nx_uint32_t tx_reset_counter;
     nx_uint32_t tx_seq;
     nx_uint32_t rx_fails;
 } oflash_base_msg_t;
@@ -34,7 +35,8 @@ typedef nx_struct opo_flash_store_base_rf_msg {
     nx_int8_t   rssi;
     nx_uint8_t  full_time[8];
     nx_uint8_t  tx_full_time[8];
-    nx_uint32_t reset_counter;
+    nx_uint32_t m_reset_counter;
+    nx_uint32_t tx_reset_counter;
     nx_uint32_t tx_seq;
     nx_uint32_t rx_fails;
 } oflash_base_rf_msg_t;

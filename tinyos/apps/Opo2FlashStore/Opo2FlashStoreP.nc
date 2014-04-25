@@ -58,16 +58,16 @@ implementation {
     // Flash Storage Stuff
     uint32_t max_pages = 32767;
     uint8_t buffer_index = 0;
-    uint8_t max_buffer_index = 6;
+    uint8_t max_buffer_index = 5;
     uint32_t page_count = 0;
-    oflash_base_msg_t buffer[7];
+    oflash_base_msg_t buffer[6];
 
     uint32_t read_page_count = 0;
     uint8_t read_buffer_index = 0;
     bool read_new_page = FALSE;
     bool read_buffer_has_data = FALSE;
     bool should_store = TRUE;
-    oflash_base_msg_t read_buffer[7];
+    oflash_base_msg_t read_buffer[6];
 
     // id and seed
     id_store_t m_id_store;
@@ -158,10 +158,10 @@ implementation {
         getRemainingTimerTime();
 
         opo_rx_data = call Packet.getPayload(msg, sizeof(oflash_msg_t));
-        opo_data->last_tx_id = call AMPacket.source(msg);
 
         if (call AMPacket.source(msg) == m_id_store.id) {
             m_state = BASE_SEND;
+            m_reset_counter += 1;
             for(i=0;i<8;i++) {
                 initial_time[i] = opo_rx_data->m_full_time[i];
             }
@@ -170,13 +170,14 @@ implementation {
         }
         else if (t_ultrasonic > t_rf) {
             opo_data->dt_ul_rf = t_ultrasonic - t_rf;
+            opo_data->last_tx_id = call AMPacket.source(msg);
             buffer[buffer_index].ultrasonic_rf_dt = t_ultrasonic - t_rf;
             buffer[buffer_index].tx_seq = opo_rx_data->seq;
-            buffer[buffer_index].tx_id = call AMPacket.source(&packet);
+            buffer[buffer_index].tx_id = call AMPacket.source(msg);
             buffer[buffer_index].rx_fails = rx_fails;
-            buffer[buffer_index].tx_seq = opo_rx_data->seq;
             buffer[buffer_index].rssi = call CC2420Packet.getRssi(msg);
-            buffer[buffer_index].reset_counter = m_reset_counter;
+            buffer[buffer_index].m_reset_counter = m_reset_counter;
+            buffer[buffer_index].tx_reset_counter = opo_rx_data->reset_counter;
             for(i=0;i<8;i++) {
                 buffer[buffer_index].tx_full_time[i] = opo_rx_data->m_full_time[i];
             }
@@ -214,7 +215,6 @@ implementation {
                     buffer_index = 0;
                     call FlashHpl.turnOn();
                 } else {
-                    call Leds.led0On();
                     buffer_index = 0;
                     m_state = OFS_IDLE;
                     call RxTimer.startOneShot(RX_DELAY);
@@ -249,16 +249,16 @@ implementation {
 
     event void FlashHpl.turnedOn() {
         if(m_state == BOOT) {
-            call FlashHpl.read(read_page_count, &read_buffer, sizeof(read_buffer));
+            call FlashHpl.read(read_page_count*256, &read_buffer, sizeof(read_buffer));
         }
         else if(m_state == BASE_SEND) {
             call FlashHpl.read(read_page_count*256, &read_buffer, sizeof(read_buffer));
         }
         else if(m_state == BASE_SEND_DONE) {
+            call FlashHpl.wrsr(0);
             call FlashHpl.chip_erase();
         }
         else if(m_state == OFS_RECEIVE) {
-            call Leds.led1Toggle();
             call FlashHpl.wrsr(0);
             call FlashHpl.page_program(page_count*256, &buffer, sizeof(buffer));
         }
@@ -275,46 +275,31 @@ implementation {
 
     event void FlashHpl.read_done(void *rxBuffer, uint32_t rx_len) {
         if(m_state == BOOT) {
-            //page_count += 1;
-            /*
             if(read_buffer[0].tx_id < 65535) {
-                uint8_t index_counter = 0;
                 m_state = RESET;
                 read_page_count += 1;
+                page_count += 1;
                 for(i=0;i<8;i++) {
                     initial_time[i]=0;
                 }
 
-                for(i=0; i <= max_buffer_index; i++) {
-                    if(read_buffer[i].tx_id < 65535) {
-                        index_counter = i;
-                        m_reset_counter = read_buffer[i].reset_counter + 1;
-                    }
+                if(read_buffer[0].tx_id == 0) {
+                    m_reset_counter = read_buffer[0].m_reset_counter + 1;
                 }
 
-                if(index_counter == 0) {
-                    // Only reset once
-                    buffer[0].tx_id = 0;
-                    buffer[0].reset_counter = m_reset_counter;
-                    call FlashHpl.wrsr(0);
-                    call FlashHpl.page_program(page_count*256, &buffer, sizeof(buffer));
-                } else {
-                    // reset more than once
-                    call FlashHpl.read(read_page_count*256, &read_buffer, sizeof(read_buffer));
-                }
+                call FlashHpl.read(read_page_count*256, &read_buffer, sizeof(read_buffer));
 
-            } else {*/
+            } else {
                 m_state = ERASED;
                 buffer[0].tx_id = 0;
-                buffer[0].reset_counter = 0;
+                buffer[0].m_reset_counter = 0;
                 call FlashHpl.chip_erase();
-            //}
+            }
         }
         else if (m_state == RESET) {
-            page_count += 1;
             if(read_buffer[0].tx_id < 65535) {
-                uint8_t index_counter = 0;
                 read_page_count += 1;
+                page_count += 1;
 
                 if(page_count > max_pages) {
                     should_store = FALSE;
@@ -323,16 +308,14 @@ implementation {
                     call FlashHpl.turnOff();
                 }
 
-                for(i=0; i <= max_buffer_index; i++) {
-                    if(read_buffer[i].tx_id < 65535) {
-                        index_counter = i;
-                        m_reset_counter = read_buffer[i].reset_counter + 1;
-                    }
+                if(read_buffer[0].tx_id == 0) {
+                    m_reset_counter = read_buffer[0].m_reset_counter + 1;
                 }
+
                 call FlashHpl.read(read_page_count*256, &read_buffer, sizeof(read_buffer));
             } else {
                 buffer[0].tx_id = 0;
-                buffer[0].reset_counter = m_reset_counter;
+                buffer[0].m_reset_counter = m_reset_counter;
                 call FlashHpl.wrsr(0);
                 call FlashHpl.page_program(256*page_count, &buffer, sizeof(buffer));
             }
@@ -347,12 +330,12 @@ implementation {
     event void FlashHpl.program_sid_done(void *txBuffer, uint8_t tx_len) {}
 
     event void FlashHpl.page_program_done(void *txBuffer, uint32_t len) {
+        page_count += 1;
         if(m_state == ERASED || m_state == RESET) {
             read_page_count = 0;
             call FlashHpl.turnOff();
         }
         else if(m_state == OFS_RECEIVE) {
-            page_count += 1;
             call FlashHpl.turnOff();
         }
     }
@@ -360,7 +343,7 @@ implementation {
     event void FlashHpl.turnedOff() {
         if(m_state == ERASED || m_state == RESET) {
             if(should_store == FALSE) {
-                call Leds.led0On();
+                call Leds.led1On();
             }
             call I2CSwitch.set();
             call HplRV4162.setTime(initial_time);
@@ -397,7 +380,8 @@ implementation {
             base_data->rssi = read_buffer[0].rssi;
             base_data->tx_seq = read_buffer[0].tx_seq;
             base_data->rx_fails = read_buffer[0].rx_fails;
-            base_data->reset_counter = read_buffer[0].reset_counter;
+            base_data->m_reset_counter = read_buffer[0].m_reset_counter;
+            base_data->tx_reset_counter = read_buffer[0].tx_reset_counter;
             for(i=0; i<8; i++) {
                 base_data->full_time[i] = read_buffer[0].full_time[i];
                 base_data->tx_full_time[i] = read_buffer[0].tx_full_time[i];
@@ -426,15 +410,16 @@ implementation {
                 base_data->rssi = read_buffer[read_buffer_index].rssi;
                 base_data->tx_seq = read_buffer[read_buffer_index].tx_seq;
                 base_data->rx_fails = read_buffer[read_buffer_index].rx_fails;
-                base_data->reset_counter = read_buffer[0].reset_counter;
+                base_data->m_reset_counter = read_buffer[read_buffer_index].m_reset_counter;
+                base_data->tx_reset_counter = read_buffer[read_buffer_index].tx_reset_counter;
                 for(i=0; i<8; i++) {
                     base_data->full_time[i] = read_buffer[read_buffer_index].full_time[i];
                     base_data->tx_full_time[i] = read_buffer[read_buffer_index].tx_full_time[i];
                 }
+                call OpoBaseSend.send(1, &base_packet, sizeof(oflash_base_rf_msg_t));
             }
         }
         else {
-            call Leds.led0Toggle();
             call OpoBaseSend.send(1, &base_packet, sizeof(oflash_base_rf_msg_t));
         }
     }
