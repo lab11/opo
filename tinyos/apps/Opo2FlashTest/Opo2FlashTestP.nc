@@ -31,11 +31,12 @@ implementation {
     }
 
     event void FlashHpl.turnedOn() {
-        call FlashHpl.program_sid(8, &writeSidBuffer, 8);
+        call FlashHpl.wrsr(0);
+        call FlashHpl.chip_erase();
     }
 
     event void FlashHpl.turnedOff() {
-
+        call Leds.led1On();
     }
 
     event void FlashHpl.program_sid_done(void *data, uint8_t tx_len) {
@@ -50,13 +51,8 @@ implementation {
     }
 
     event void FlashHpl.chip_erase_done() {
-        if(w == FALSE) {
-            //call FlashHpl.page_program(0, &sidBuffer, len);
-            call SplitControl.start();
-        }
-        else {
-            call FlashHpl.read(0, &readBuffer, len);
-        }
+        call Leds.led0On();
+        call FlashHpl.turnOff();
     }
 
     event void FlashHpl.page_program_done(void *txBuffer, uint32_t tx_len) {

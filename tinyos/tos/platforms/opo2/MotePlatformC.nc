@@ -9,7 +9,7 @@ implementation {
     atomic {
 
         P1SEL = 0;
-        P1DIR = 0x40;
+        P1DIR = 0x00;
         P1OUT = 0x00;
         P1IE = 0;
 
@@ -24,14 +24,14 @@ implementation {
 
         P4SEL = 0;
         P4DIR = 0xf4;
-        P4OUT = 0x54;
+        P4OUT = 0x50;
 
         P5SEL = 0;
-        P5DIR = 0xff;
+        P5DIR = 0xfb;
         P5OUT = 0x78;
 
         P6SEL = 0;
-        P6DIR = 0x3e;
+        P6DIR = 0xfe;
         P6OUT = 0x1e;
 
 	// the commands above take care of the pin directions

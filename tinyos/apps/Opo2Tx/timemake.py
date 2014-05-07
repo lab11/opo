@@ -18,8 +18,10 @@ for line in r:
 	i = int(raw[0].strip())
 	s = int(raw[1].strip())
 	if i == m_id:
+		m_id = m_id
 		m_seed = s
 		break
+
 
 
 #Wait this just converts to hex

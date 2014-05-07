@@ -39,7 +39,7 @@ implementation {
     printf(" %u", rx_id);
     printf(" %u", data->tx_id);
     printf(" %u %i", data->ultrasonic_rf_dt, data->rssi);
-    printf(" %u %u %u", data->reset_counter, data->tx_seq, data->rx_fails);
+    printf(" %u %u %u %u", data->m_reset_counter, data->tx_reset_counter, data->tx_seq, data->rx_fails);
     for(i=0;i<8;i++) {
       printf(" %u", data->full_time[i]);
     }
