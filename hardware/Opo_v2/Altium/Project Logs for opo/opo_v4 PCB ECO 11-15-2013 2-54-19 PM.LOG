@@ -1,0 +1,9 @@
+Removed Pin From Net: NetName=VCC_GATE Pin=U16-5
+Removed Pin From Net: NetName=VCC_GATE Pin=U17-5
+Change Component Description : Designator=U13 Old Description=0.5 ? SPDT/2:1 Mux in SC70 New Description=0.5 ? SPDT/2:1 Mux in SC70
+Change Component Description : Designator=B1 Old Description=Ultra Low Profile 0404 Balun   50? to 200? Balanced New Description=Ultra Low Profile 0404 Balun   50? to 200? Balanced
+Added Pin To Net: NetName=VCC_GATE Pin=U3-26
+Added Pin To Net: NetName=VCC3.3 Pin=U16-5
+Added Pin To Net: NetName=VCC3.3 Pin=U17-5
+Change Net Name : Old Net Name=NetQ1_1 New Net Name=NetU3_51
+Change Net Name : Old Net Name=VCC_GATE New Net Name=DS2411_EN

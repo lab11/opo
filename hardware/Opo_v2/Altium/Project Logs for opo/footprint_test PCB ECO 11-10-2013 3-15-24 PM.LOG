@@ -1,0 +1,4 @@
+Added Component: Designator=*(0402)
+Added Component: Designator=R?(0402)
+Added Class: Name=footprint_test
+Added Room: Name=footprint_test

@@ -1,0 +1,25 @@
+Removed Member From Class: ClassName=U_programming Member=D1
+Removed Member From Class: ClassName=U_ultrasonic_rx Member=R6
+Removed Member From Class: ClassName=U_ultrasonic_rx Member=R9
+Removed Member From Class: ClassName=U_impulse Member=R19
+Removed Member From Class: ClassName=U_programming Member=R19
+Removed Member From Class: ClassName=U_impulse Member=R20
+Removed Member From Class: ClassName=U_impulse Member=R21
+Removed Member From Class: ClassName=U_ultrasonic_tx Member=U5
+Removed Member From Class: ClassName=U_impulse Member=U8
+Removed Member From Class: ClassName=U_power Member=U10
+Added Pin To Net: NetName=NetR1_2 Pin=Y1-1
+Added Pin To Net: NetName=NetR2_2 Pin=Y1-8
+Change Net Name : Old Net Name=NetR1_2 New Net Name=SDA
+Change Net Name : Old Net Name=NetR2_2 New Net Name=SCL
+Added Member To Class: ClassName=U_programming Member=Component D3 LED, Orange
+Added Member To Class: ClassName=U_impulse Member=Component R6 Chip resistor
+Added Member To Class: ClassName=U_impulse Member=Component R7 Chip resistor
+Added Member To Class: ClassName=U_impulse Member=Component R8 Chip resistor
+Added Member To Class: ClassName=U_programming Member=Component R15 Chip resistor
+Added Member To Class: ClassName=U_ultrasonic_rx Member=Component R24 Chip resistor
+Added Member To Class: ClassName=U_ultrasonic_rx Member=Component R25 Chip resistor
+Added Member To Class: ClassName=U_impulse Member=Component U5 NX3L4684
+Added Member To Class: ClassName=U_power Member=Component U9 ADP162
+Added Member To Class: ClassName=U_ultrasonic_rx Member=Component U14 ADG849
+Added Member To Class: ClassName=U_ultrasonic_tx Member=Component U17 NLX2G14

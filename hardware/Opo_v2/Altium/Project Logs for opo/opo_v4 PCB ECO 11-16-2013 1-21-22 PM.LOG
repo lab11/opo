@@ -1,0 +1,21 @@
+Removed Pin From Net: NetName=AMP2_OUT Pin=C38-1
+Removed Pin From Net: NetName=NetC37_2 Pin=R17-1
+Removed Pin From Net: NetName=NetC38_2 Pin=R18-1
+Removed Pin From Net: NetName=AMP3_OUT Pin=R20-1
+Removed Pin From Net: NetName=AMP3_OUT Pin=U13-4
+Change Component Description : Designator=U13 Old Description=0.5 ? SPDT/2:1 Mux in SC70 New Description=0.5 ? SPDT/2:1 Mux in SC70
+Change Component Description : Designator=B1 Old Description=Ultra Low Profile 0404 Balun   50? to 200? Balanced New Description=Ultra Low Profile 0404 Balun   50? to 200? Balanced
+Added Pin To Net: NetName=AMP3_OUT Pin=C38-1
+Added Pin To Net: NetName=NetC38_2 Pin=R17-1
+Added Pin To Net: NetName=NetC37_2 Pin=R18-1
+Added Pin To Net: NetName=AMP2_OUT Pin=R20-1
+Added Pin To Net: NetName=AMP2_OUT Pin=U13-4
+Change Net Name : Old Net Name=AMP1_OUT New Net Name=AMP2_OUT
+Change Net Name : Old Net Name=AMP2_OUT New Net Name=AMP3_OUT
+Change Net Name : Old Net Name=AMP3_OUT New Net Name=AMP1_OUT
+Added Room: Name=U_accero_humid_rtc
+Added Room: Name=U_impulse
+Added Room: Name=U_power
+Added Room: Name=U_programming
+Added Room: Name=U_ultrasonic_rx
+Added Room: Name=U_ultrasonic_tx
