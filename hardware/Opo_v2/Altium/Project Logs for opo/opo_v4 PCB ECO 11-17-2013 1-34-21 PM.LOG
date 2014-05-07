@@ -1,7 +1,0 @@
-Removed Pin From Net: NetName=VBAT Pin=SW1-1
-Removed Pin From Net: NetName=VSUPPLY Pin=SW1-2
-Removed Member From Class: ClassName=U_power Member=SW1
-Added Component: Designator=J4(JST GH series)
-Added Pin To Net: NetName=VSUPPLY Pin=J4-1
-Added Pin To Net: NetName=GND Pin=J4-2
-Added Member To Class: ClassName=U_power Member=Component J4 BM02B-GHS-TBT

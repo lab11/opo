@@ -1,2 +1,0 @@
-1. wire VCCUSB3.3 to MCU as interrupt
-2. Flip the USB connector to bottom side of board.
