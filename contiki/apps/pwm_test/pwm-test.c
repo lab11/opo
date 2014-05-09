@@ -75,6 +75,8 @@
 #include "dev/serial-line.h"
 #include "dev/sys-ctrl.h"
 #include "net/rime/broadcast.h"
+#include "systick.h"
+#include "lpm.h"
 
 #include "dev/ioc.h"
 
@@ -83,7 +85,7 @@
 /*---------------------------------------------------------------------------*/
 #define LOOP_INTERVAL       CLOCK_SECOND
 #define LEDS_OFF_HYSTERISIS (RTIMER_SECOND >> 1)
-#define LEDS_PERIODIC       LEDS_ORANGE | LEDS_RED
+#define LEDS_PERIODIC       LEDS_ALL
 #define LEDS_BUTTON         LEDS_RED
 #define LEDS_SERIAL_IN      LEDS_ORANGE
 #define LEDS_REBOOT         LEDS_ALL
@@ -122,27 +124,30 @@ PROCESS_THREAD(cc2538_demo_process, ev, data)
 
   PROCESS_BEGIN();
 
-  // Initialize GPT_1
   REG(SYS_CTRL_RCGCGPT) |= SYS_CTRL_RCGCGPT_GPT1;
+  REG(SYS_CTRL_DCGCGPT) |= SYS_CTRL_DCGCGPT_GPT1;
+
+  //Initialize GPT1
   REG(GPT_1_BASE | GPTIMER_CTL) = 0; // Make sure GPT1 is turned off
   REG(GPT_1_BASE | GPTIMER_CFG) = 0x04; // 16 bit timer
-  REG(GPT_1_BASE | GPTIMER_TAMR) = GPTIMER_TAMR_TAMR_PERIODIC | GPTIMER_TAMR_TAAMS; // Periodic PWM
-  REG(GPT_1_BASE | GPTIMER_TAPR) = 0x0F; // Prescalar = 16
 
-  // Reroute GPT_1 PWM output to PB1
-  ioc_set_sel(GPIO_C_NUM, 3, IOC_PXX_SEL_GPT1_ICP1);
-  ioc_set_over(GPIO_C_NUM, 3, IOC_OVERRIDE_DIS);
-  GPIO_PERIPHERAL_CONTROL(GPIO_C_BASE, 0x08 );
+  REG(GPT_1_BASE | GPTIMER_TAMR) = 0;
+  REG(GPT_1_BASE | GPTIMER_TAMR) |= GPTIMER_TAMR_TAAMS; // 1=PWM.0=Capture
+  REG(GPT_1_BASE | GPTIMER_TAMR) |= GPTIMER_TAMR_TAMR_PERIODIC;
 
   // Set up and turn on PWM
-  REG(GPT_1_BASE | GPTIMER_TAILR) = 0x50;
-  REG(GPT_1_BASE | GPTIMER_TAMATCHR) = 0x25;
-  REG(GPT_1_BASE | GPTIMER_TAPMR) = 0x0F;
-  REG(GPT_1_BASE | GPTIMER_TAMR) |= GPTIMER_TAMR_TAMRSU;
-  REG(GPT_1_BASE | GPTIMER_CTL) = GPTIMER_CTL_TAEN;
+  REG(GPT_1_BASE | GPTIMER_TAILR) = 0x190;
+  REG(GPT_1_BASE | GPTIMER_TAMATCHR) = 0xC8;
+  REG(GPT_1_BASE | GPTIMER_CTL) |= GPTIMER_CTL_TAEN;
+
+  // Reroute GPT_1 PWM output to PB1
+  ioc_set_sel(GPIO_B_NUM, 1, IOC_PXX_SEL_GPT1_ICP1);
+  ioc_set_over(GPIO_B_NUM, 1, IOC_OVERRIDE_OE);
+  GPIO_PERIPHERAL_CONTROL(GPIO_B_BASE, 0x02);
+
+/*
   leds_on(LEDS_PERIODIC);
 
-  /*
   counter = 0;
   broadcast_open(&bc, BROADCAST_CHANNEL, &bc_rx);
 
@@ -187,8 +192,8 @@ PROCESS_THREAD(cc2538_demo_process, ev, data)
     } else if(ev == serial_line_event_message) {
       leds_toggle(LEDS_SERIAL_IN);
     }
-  }*/
-
+  }
+*/
   PROCESS_END();
 }
 /*---------------------------------------------------------------------------*/
