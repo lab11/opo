@@ -1,4 +1,0 @@
-Removed Pin From Net: NetName=FLASH_PWR_GATE Pin=U3-36
-Added Pin To Net: NetName=FLASH_PWR_GATE Pin=U3-3
-Added Pin To Net: NetName=RADIO_SFD Pin=U3-27
-Added Pin To Net: NetName=INTEGRATOR Pin=U3-36

@@ -1,4 +1,0 @@
-Removed Pin From Net: NetName=AMP1_OUT Pin=J2-1
-Change Component Description : Designator=U13 Old Description=0.5 ? SPDT/2:1 Mux in SC70 New Description=0.5 ? SPDT/2:1 Mux in SC70
-Change Component Description : Designator=B1 Old Description=Ultra Low Profile 0404 Balun   50? to 200? Balanced New Description=Ultra Low Profile 0404 Balun   50? to 200? Balanced
-Added Pin To Net: NetName=AMP3_OUT Pin=J2-1

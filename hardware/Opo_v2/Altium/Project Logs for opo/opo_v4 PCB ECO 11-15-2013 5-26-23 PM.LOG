@@ -1,7 +1,0 @@
-Removed Pin From Net: NetName=DS2411_EN Pin=U3-51
-Removed Pin From Net: NetName=NetU3_18 Pin=U17-1
-Removed Pin From Net: NetName=GND Pin=U17-3
-Removed Pin From Net: NetName=VCC3.3 Pin=U17-5
-Removed Member From Class: ClassName=U_ultrasonic_tx Member=U17
-Added Pin To Net: NetName=DS2411_EN Pin=U3-50
-Added Pin To Net: NetName=NetU3_18 Pin=U16-3

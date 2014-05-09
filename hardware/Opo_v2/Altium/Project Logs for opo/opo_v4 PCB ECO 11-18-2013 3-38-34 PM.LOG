@@ -1,6 +1,0 @@
-Removed Pin From Net: NetName=SCLK0 Pin=U1-4
-Removed Pin From Net: NetName=MOSI0 Pin=U1-6
-Added Pin To Net: NetName=SCLK0_RADIO Pin=U1-4
-Added Pin To Net: NetName=MOSI0_RADIO Pin=U1-6
-Change Net Name : Old Net Name=MOSI0_RADIO New Net Name=MOSI0_MUX
-Change Net Name : Old Net Name=SCLK0_RADIO New Net Name=SCLK0_MUX
