@@ -24,7 +24,7 @@ typedef nx_struct opo_flash_gatd_store_msg {
 } oflash_gatd_msg_t;
 
 enum {
-    OPO_FLASH_STORE = 30
+    OPO_FLASH_STORE = 10
 };
 
 #endif
