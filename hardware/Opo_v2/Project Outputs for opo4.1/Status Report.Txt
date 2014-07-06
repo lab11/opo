@@ -1,0 +1,10 @@
+Output: Bill of Materials
+Type  : BOM
+From  : Variant [[No Variations]] of Project [opo4.1.PrjPcb]
+   Generated File[Bill of Materials-opo4.1.xls]
+
+
+Files Generated   : 1
+Documents Printed : 0
+
+Finished Output Generation At 6:01:47 PM On 2/18/2014
