@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<TComponentSet id="0" CurrentRevColumnWidth="100" NameColumnWidth="300" NextRevColumnWidth="100">
+  <VaultGUID>B7D15EC3-160A-466F-A46C-7801FE6295A7</VaultGUID>
+  <VaultName>Altium Content Vault</VaultName>
+  <RequiredParameters>
+    <TRequiredParameter id="1" ColumnWidth="100">
+      <HRID>Case-EIA</HRID>
+      <Visible>true</Visible>
+    </TRequiredParameter>
+    <TRequiredParameter id="2" ColumnWidth="100">
+      <HRID>Case-Metric</HRID>
+      <Visible>true</Visible>
+    </TRequiredParameter>
+    <TRequiredParameter id="3" ColumnWidth="100">
+      <HRID>Comment</HRID>
+      <Visible>true</Visible>
+    </TRequiredParameter>
+    <TRequiredParameter id="4" ColumnWidth="100">
+      <HRID>Description</HRID>
+      <Visible>true</Visible>
+    </TRequiredParameter>
+    <TRequiredParameter id="5" ColumnWidth="100">
+      <HRID>Power</HRID>
+      <Visible>true</Visible>
+    </TRequiredParameter>
+    <TRequiredParameter id="6" ColumnWidth="100">
+      <HRID>Technology</HRID>
+      <Visible>true</Visible>
+    </TRequiredParameter>
+    <TRequiredParameter id="7" ColumnWidth="100">
+      <HRID>Tolerance</HRID>
+      <Visible>true</Visible>
+    </TRequiredParameter>
+    <TRequiredParameter id="8" ColumnWidth="100">
+      <HRID>Value</HRID>
+      <Visible>true</Visible>
+    </TRequiredParameter>
+  </RequiredParameters>
+  <RequiredModels>
+    <TRequiredModel id="9" ColumnWidth="100">
+      <HRID>PCBLIB</HRID>
+      <Visible>true</Visible>
+      <ModelKind>PCBLIB</ModelKind>
+    </TRequiredModel>
+    <TRequiredModel id="10" ColumnWidth="100">
+      <HRID>PCBLIB 1</HRID>
+      <Visible>true</Visible>
+      <ModelKind>PCBLIB</ModelKind>
+    </TRequiredModel>
+    <TRequiredModel id="11" ColumnWidth="100">
+      <HRID>PCBLIB 2</HRID>
+      <Visible>true</Visible>
+      <ModelKind>PCBLIB</ModelKind>
+    </TRequiredModel>
+    <TRequiredModel id="12" ColumnWidth="100">
+      <HRID>SCHLIB</HRID>
+      <Visible>true</Visible>
+      <ModelKind>SCHLIB</ModelKind>
+    </TRequiredModel>
+  </RequiredModels>
+  <ModelLinks>
+    <TModelLink id="13">
+      <HRID>PCC-1001-00010-1</HRID>
+      <VaultGUID>B7D15EC3-160A-466F-A46C-7801FE6295A7</VaultGUID>
+      <ItemGUID>A8793F59-388F-4D01-B96B-39E785D9FDC9</ItemGUID>
+      <ModelKind>PCBLIB</ModelKind>
+      <RevisionGUID>9C63C77C-A5AA-4771-B2B7-3B7BE44CEA84</RevisionGUID>
+    </TModelLink>
+    <TModelLink id="14">
+      <HRID>PCC-1001-00011-1</HRID>
+      <VaultGUID>B7D15EC3-160A-466F-A46C-7801FE6295A7</VaultGUID>
+      <ItemGUID>1CA5A214-E9B2-4E68-8CD7-FA9873AE9992</ItemGUID>
+      <ModelKind>PCBLIB</ModelKind>
+      <RevisionGUID>2D2356D8-422E-42CD-AD3E-4B28DEA404F4</RevisionGUID>
+    </TModelLink>
+    <TModelLink id="15">
+      <HRID>PCC-1001-00012-1</HRID>
+      <VaultGUID>B7D15EC3-160A-466F-A46C-7801FE6295A7</VaultGUID>
+      <ItemGUID>71F30069-ACA7-4462-A850-B0B470D81093</ItemGUID>
+      <ModelKind>PCBLIB</ModelKind>
+      <RevisionGUID>4C8109C3-6E67-4F01-A8EB-2F074A05017A</RevisionGUID>
+    </TModelLink>
+    <TModelLink id="16">
+      <HRID>SYM-1001-00001-2</HRID>
+      <VaultGUID>B7D15EC3-160A-466F-A46C-7801FE6295A7</VaultGUID>
+      <ItemGUID>37BA077E-3966-4C4A-AA71-81533124EB16</ItemGUID>
+      <ModelKind>SCHLIB</ModelKind>
+      <RevisionGUID>524388C9-88E7-4FAF-BAFD-C2747B77DE3D</RevisionGUID>
+    </TModelLink>
+  </ModelLinks>
+  <PartChoiceListLinks StateIndex="2">
+    <ComponentSet href="#0"/>
+  </PartChoiceListLinks>
+  <TopGroup id="17" StateIndex="2" Collapsed="false">
+    <GUID>BD088007-090F-4235-8395-5E3100BF0011</GUID>
+    <Parameters/>
+    <ModelChoices/>
+    <ComponentSet href="#0"/>
+    <Groups/>
+    <ComponentDefinitions>
+      <TComponentDefinition StateIndex="2">
+        <HRID>CMP-1013-00002</HRID>
+        <GUID>A062D207-335A-4864-A43C-AAD83C54C7D6</GUID>
+        <ParentGroup href="#17"/>
+        <Parameters>
+          <TParameter>
+            <RequiredParameter href="#3"/>
+            <Value>1R 5% 0805(2012)</Value>
+          </TParameter>
+          <TParameter>
+            <RequiredParameter href="#4"/>
+            <Value>1R 0.125W 5% 0805 (2012 Metric)  SMD</Value>
+          </TParameter>
+          <TParameter>
+            <RequiredParameter href="#5"/>
+            <Value>0.125 W</Value>
+          </TParameter>
+          <TParameter>
+            <RequiredParameter href="#7"/>
+            <Value>5 %</Value>
+          </TParameter>
+          <TParameter>
+            <RequiredParameter href="#8"/>
+            <Value>1.00 Ohm</Value>
+          </TParameter>
+          <TParameter>
+            <RequiredParameter href="#1"/>
+            <Value>0805</Value>
+          </TParameter>
+          <TParameter>
+            <RequiredParameter href="#6"/>
+            <Value>SMT</Value>
+          </TParameter>
+          <TParameter>
+            <RequiredParameter href="#2"/>
+            <Value>2012</Value>
+          </TParameter>
+        </Parameters>
+        <ModelChoices>
+          <TModelChoice>
+            <RequiredModel href="#9"/>
+            <ModelLink href="#13"/>
+          </TModelChoice>
+          <TModelChoice>
+            <RequiredModel href="#12"/>
+            <ModelLink href="#16"/>
+          </TModelChoice>
+          <TModelChoice>
+            <RequiredModel href="#10"/>
+            <ModelLink href="#15"/>
+          </TModelChoice>
+          <TModelChoice>
+            <RequiredModel href="#11"/>
+            <ModelLink href="#14"/>
+          </TModelChoice>
+        </ModelChoices>
+        <ItemHRID>CMP-1013-00002</ItemHRID>
+        <RevisionGUID>AABCD58E-AB07-4B64-9D0F-ECC4732928F4</RevisionGUID>
+        <RevisionId>1</RevisionId>
+      </TComponentDefinition>
+    </ComponentDefinitions>
+  </TopGroup>
+  <ShowReleaseState>false</ShowReleaseState>
+</TComponentSet>

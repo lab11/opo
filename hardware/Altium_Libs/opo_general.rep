@@ -1,0 +1,47 @@
+CSV text has been written to file : opo_general.csv
+
+Library Component Count : 40
+
+Name                Description
+----------------------------------------------------------------------------------------------------
+
+ABS05               32768 Hz SMD Low profile crystal
+ABS06-107-32.768KHZ-T32.768 0805 SMD crystal
+ADG849              0.5 ? SPDT/2:1 Mux in SC70
+ADP162              IC REG LDO 3.3V 0.15A TSOT23-5
+ADXL362             Micropower, 3-Axis, ±2 g/±4 g/±8 g  Digital Output MEMS Accelerometer
+AS1976              IC COMPARATOR PUSH/PULL SOT23-5
+BD2425N50200AHF     Ultra Low Profile 0404 Balun   50? to 200? Balanced
+BM02B-GHS-TBT       GH housing, 1.25 mm pitch, 2 positions
+CC2420              2.4 GHz IEEE 802.15.4 / ZigBee-ready RF Transceiver
+DMG1013UW           P-CHANNEL ENHANCEMENT MODE MOSFET
+DS2411              Silicon Serial Number with VCC Input
+Ground Antenna      2.4GHz Surface Mount Device (SMD) On Ground Antenna, 50 Ohms
+IC_FT232RQ          FT232R USB UART
+ISL60002            IC VREF SERIES PREC SOT-23-3
+MAX1555             3 Dual-Input USB/AC Adapter 1-Cell Li+  Battery Chargers
+MIC861              IC OPAMP 400KHZ 2.7V ULT LP SC70
+MIC863              Dual Ultra Low Power Op Amp in SOT23-8
+MSP430F1611         MIXED SIGNAL MICROCONTROLLER
+Micro USB           CONN USB MICRO B RECPT SMT R/A
+NLX2G14             IC INVERTER DUAL SCHMTRIG ULLGA6
+NX3L4684            IC ANALOG SWITCH SPDT 10XQFN
+RV-4162-C7          Real Time Clock Module with I2C Bus
+SHT25               SHT25
+SM02B-SRSS-TB       CONN HEADER SH 2POS SIDE 1MM TIN
+SN74AUP1G08         IC SNGL 2IN POS-AND GATE SC70-5
+SST25VF032B         32 Mbit SPI Serial Flash
+SST25VF064C         64 Mbit SPI Serial Dual I/O Flash
+Si7021              Temperature and Humidity Sensor
+TS3A24159           DUAL-CHANNEL 2:1 MULTIPLEXER/DEMULTIPLEXER
+TS881               Rail-to-rail 1.1 V nanopower comparator
+TS882               Ultra Low Power Dual Comparator
+TSX-3225            3.2x2.5mm 16MHz SMD crystal
+TXC 7B              5 x 3.2 mm SMD SEAM CRYSTAL 7B SERIES
+TestPoint           TEST POINT PC MINI .040"D YELLOW
+Tranducer           Air Ultrasounic Ceramic Transducers
+ZXM61P03            30V P-CHANNEL ENHANCEMENT MODE MOSFET
+cc2538              cc2538 MCU/802.15.4 radio
+cc2538_Balun        Johanson CC253X Balun
+nrf8001             nrf8001 Bluetooth SPI module
+nrf8001_balun       nrf8001 chip balun
