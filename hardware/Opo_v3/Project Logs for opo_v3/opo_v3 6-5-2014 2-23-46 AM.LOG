@@ -1,0 +1,6 @@
+Added Component: Designator=U?(DFN6-Si7021)
+Added Pin To Net: NetName=I2C_SDA Pin=U?-1
+Added Pin To Net: NetName=GND Pin=U?-2
+Added Pin To Net: NetName=VCC3.3 Pin=U?-5
+Added Pin To Net: NetName=I2C_SCL Pin=U?-6
+Added Member To Class: ClassName=accero_humid_rtc Member=Component U? Si7021

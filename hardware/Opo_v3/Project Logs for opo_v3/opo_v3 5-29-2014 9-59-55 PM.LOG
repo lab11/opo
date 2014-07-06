@@ -1,0 +1,5 @@
+Change Component Description : Designator=U6 Old Description=0.5 ? SPDT/2:1 Mux in SC70 New Description=0.5 ? SPDT/2:1 Mux in SC70
+Added Pin To Net: NetName=BLUETOOTH_RDYN Pin=U14-16
+Added Net: Name=BLUETOOTH_RDYN
+Added Pin To Net: NetName=BLUETOOTH_REQN Pin=U14-12
+Added Net: Name=BLUETOOTH_REQN

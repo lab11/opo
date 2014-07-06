@@ -1,0 +1,3 @@
+Change Net Name : Old Net Name=NetU12_16 New Net Name=ROM_UART_RXD
+Change Net Name : Old Net Name=NetU12_17 New Net Name=ROM_UART_TXD
+Change Net Name : Old Net Name=NetU12_18 New Net Name=ROM_CONTROL

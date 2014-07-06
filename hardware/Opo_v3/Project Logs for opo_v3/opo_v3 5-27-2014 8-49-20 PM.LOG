@@ -1,0 +1,3 @@
+Removed Pin From Net: NetName=COMP2_OUT Pin=U12-11
+Removed Pin From Net: NetName=NetU6_5 Pin=U12-12
+Added Pin To Net: NetName=COMP2_OUT Pin=U12-12

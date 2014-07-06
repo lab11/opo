@@ -1,0 +1,6 @@
+Removed Pin From Net: NetName=RF_SWITCH_1 Pin=U12-27
+Removed Pin From Net: NetName=RF_SWITCH_1 Pin=U?-2
+Removed Pin From Net: NetName=RF_SWITCH_2 Pin=U?-5
+Added Pin To Net: NetName=RF_SWITCH_2 Pin=U12-27
+Added Pin To Net: NetName=RF_SWITCH_2 Pin=U?-2
+Added Pin To Net: NetName=RF_SWITCH_1 Pin=U?-5

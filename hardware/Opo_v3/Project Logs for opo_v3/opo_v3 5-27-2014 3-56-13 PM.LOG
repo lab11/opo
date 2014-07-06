@@ -1,0 +1,3 @@
+Change Component Description : Designator=U6 Old Description=0.5 ? SPDT/2:1 Mux in SC70 New Description=0.5 ? SPDT/2:1 Mux in SC70
+Added Pin To Net: NetName=VREF Pin=C18-1
+Added Pin To Net: NetName=VREF Pin=U5-6

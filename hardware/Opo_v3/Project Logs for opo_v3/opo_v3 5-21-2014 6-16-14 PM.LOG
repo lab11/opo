@@ -1,0 +1,18 @@
+Removed Pin From Net: NetName=NetU11_1 Pin=U13-1
+Removed Pin From Net: NetName=GND Pin=U13-2
+Removed Pin From Net: NetName=NetU12_38 Pin=U13-3
+Removed Pin From Net: NetName=NetU12_37 Pin=U13-4
+Removed Pin From Net: NetName=GND Pin=U13-5
+Removed Pin From Net: NetName=GND Pin=U13-6
+Removed Member From Class: ClassName=mcu Member=U13
+Added Component: Designator=B2(Chip Balun)
+Added Pin To Net: NetName=NetU11_1 Pin=B2-1
+Added Pin To Net: NetName=GND Pin=B2-2
+Added Pin To Net: NetName=NetU12_38 Pin=B2-3
+Added Pin To Net: NetName=NetU12_37 Pin=B2-4
+Added Pin To Net: NetName=GND Pin=B2-5
+Added Pin To Net: NetName=GND Pin=B2-6
+Change Net Name : Old Net Name=NetU11_1 New Net Name=NetB2_1
+Change Net Name : Old Net Name=NetU12_37 New Net Name=NetB2_4
+Change Net Name : Old Net Name=NetU12_38 New Net Name=NetB2_3
+Added Member To Class: ClassName=mcu Member=Component B2 BALUN

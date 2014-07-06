@@ -1,0 +1,4 @@
+Removed Pin From Net: NetName=BLE_MISO Pin=U12-48
+Added Pin To Net: NetName=BLE_RDYN Pin=U12-48
+Added Pin To Net: NetName=BLE_MISO Pin=U12-49
+Added Pin To Net: NetName=BLE_MOSI Pin=U12-50

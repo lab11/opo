@@ -1,0 +1,36 @@
+Added Component: Designator=C19(0402)
+Added Component: Designator=C20(0402)
+Added Component: Designator=C43(0402)
+Added Component: Designator=C44(0402)
+Added Component: Designator=C45(0402)
+Added Component: Designator=C46(0402)
+Added Component: Designator=C47(0402)
+Added Component: Designator=C48(0402)
+Added Component: Designator=C49(0402)
+Added Pin To Net: NetName=VCC3.3 Pin=C19-1
+Added Pin To Net: NetName=GND Pin=C19-2
+Added Pin To Net: NetName=VCC3.3 Pin=C20-1
+Added Pin To Net: NetName=GND Pin=C20-2
+Added Pin To Net: NetName=VCC3.3 Pin=C43-1
+Added Pin To Net: NetName=GND Pin=C43-2
+Added Pin To Net: NetName=VCC3.3 Pin=C44-1
+Added Pin To Net: NetName=GND Pin=C44-2
+Added Pin To Net: NetName=VCC3.3 Pin=C45-1
+Added Pin To Net: NetName=GND Pin=C45-2
+Added Pin To Net: NetName=VCC3.3 Pin=C46-1
+Added Pin To Net: NetName=GND Pin=C46-2
+Added Pin To Net: NetName=VCC3.3 Pin=C47-1
+Added Pin To Net: NetName=GND Pin=C47-2
+Added Pin To Net: NetName=VCC3.3 Pin=C48-1
+Added Pin To Net: NetName=GND Pin=C48-2
+Added Pin To Net: NetName=VCC3.3 Pin=C49-1
+Added Pin To Net: NetName=GND Pin=C49-2
+Added Member To Class: ClassName=mcu Member=Component C19 Ceramic capacitor
+Added Member To Class: ClassName=mcu Member=Component C20 Ceramic capacitor
+Added Member To Class: ClassName=mcu Member=Component C43 Ceramic capacitor
+Added Member To Class: ClassName=mcu Member=Component C44 Ceramic capacitor
+Added Member To Class: ClassName=mcu Member=Component C45 Ceramic capacitor
+Added Member To Class: ClassName=mcu Member=Component C46 Ceramic capacitor
+Added Member To Class: ClassName=mcu Member=Component C47 Ceramic capacitor
+Added Member To Class: ClassName=mcu Member=Component C48 Ceramic capacitor
+Added Member To Class: ClassName=mcu Member=Component C49 220pF 0402 ceramic cap

@@ -1,0 +1,4 @@
+Removed Pin From Net: NetName=COMP1_OUT Pin=U12-6
+Added Pin To Net: NetName=COMP1_OUT Pin=U12-54
+Change Net Name : Old Net Name=SCL New Net Name=I2C_SCL
+Change Net Name : Old Net Name=SDA New Net Name=I2C_SDA

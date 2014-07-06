@@ -1,0 +1,11 @@
+Removed Pin From Net: NetName=NetR18_2 Pin=U16-32
+Added Component: Designator=Q2(SC70-3)
+Added Component: Designator=R23(0402)
+Added Pin To Net: NetName=NetR18_2 Pin=Q2-3
+Added Pin To Net: NetName=GND Pin=R23-2
+Change Net Name : Old Net Name=NetR18_2 New Net Name=NetQ2_3
+Added Pin To Net: NetName=ROM_RESET Pin=Q2-2
+Added Pin To Net: NetName=ROM_RESET Pin=U16-32
+Added Net: Name=ROM_RESET
+Added Member To Class: ClassName=mcu Member=Component Q2 Si1300BDL
+Added Member To Class: ClassName=mcu Member=Component R23 Chip resistor

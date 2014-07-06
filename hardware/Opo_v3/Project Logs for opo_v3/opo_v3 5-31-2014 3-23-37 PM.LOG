@@ -1,0 +1,3 @@
+Removed Pin From Net: NetName=VCC3.3-USB Pin=Q2-1
+Removed Pin From Net: NetName=VCC3.3-USB Pin=R23-1
+Added Pin To Net: NetName=VCC3.3-USB Pin=D2-1

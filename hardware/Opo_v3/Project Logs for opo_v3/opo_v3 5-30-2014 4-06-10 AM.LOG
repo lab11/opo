@@ -1,0 +1,7 @@
+Removed Pin From Net: NetName=INTEGRATOR Pin=U12-5
+Removed Pin From Net: NetName=COMP1_OUT Pin=U12-6
+Removed Pin From Net: NetName=COMP2_OUT Pin=U12-7
+Added Pin To Net: NetName=FLASH_PWR Pin=U12-5
+Added Pin To Net: NetName=INTEGRATOR Pin=U12-6
+Added Pin To Net: NetName=COMP1_OUT Pin=U12-7
+Added Pin To Net: NetName=COMP2_OUT Pin=U12-8

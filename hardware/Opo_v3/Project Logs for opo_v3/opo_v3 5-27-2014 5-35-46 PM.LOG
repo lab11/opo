@@ -1,0 +1,10 @@
+Removed Pin From Net: NetName=GND Pin=U7-1
+Removed Pin From Net: NetName=TX_1 Pin=U7-4
+Removed Pin From Net: NetName=TX_2 Pin=U7-6
+Removed Pin From Net: NetName=OP1_NEGIN Pin=U7-9
+Added Pin To Net: NetName=TX_1 Pin=U7-1
+Added Pin To Net: NetName=OP1_NEGIN Pin=U7-4
+Added Pin To Net: NetName=GND Pin=U7-6
+Added Pin To Net: NetName=TX_2 Pin=U7-9
+Change Net Name : Old Net Name=OP1_NEGIN New Net Name=NetC7_1
+Added Member To Class: ClassName=ultrasonic_tx Member=Component UT1 400EP250
