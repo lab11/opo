@@ -1,4 +1,5 @@
 #ifndef NRF8001_H
+#include "lib/sensors.h"
 #define NRF8001_H
 
 // System Command Op Codes
@@ -54,5 +55,21 @@
 #define DATA_ACK_EVENT 0x8B
 #define DATA_RECEIVED_EVENT 0x8C
 #define PIPE_ERROR_EVENT 0x8D
+
+
+// NRF event packet
+typedef struct{
+	uint8_t event;
+	uint8_t length;
+	uint8_t packet[30];
+} nrf8001_event_packet ;
+
+typedef struct{
+	uint8_t length;
+	uint8_t command;
+	uint8_t packet[30];
+} nrf8001_command_packet;
+
+extern const struct sensors_sensor nrf8001_event;
 
 #endif
