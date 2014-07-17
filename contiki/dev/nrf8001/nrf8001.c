@@ -9,15 +9,14 @@
 #define NRF8001_RDYN_PORT_BASE GPIO_PORT_TO_BASE(NRF8001_RDYN_PORT)
 #define NRF8001_RDYN_PIN_MASK GPIO_PIN_MASK(NRF8001_RDYN_PIN)
 
-
 nrf8001_event_packet *ep;
 nrf8001_command_packet cmd;
 
-inline void REQN_SET() {
+static inline void REQN_SET() {
 	SPI_CS_SET(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
 }
 
-inline void REQN_CLR() {
+static inline void REQN_CLR() {
 	SPI_CS_CLR(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
 }
 
@@ -46,14 +45,9 @@ static void nrf8001_cmd_callback() {
 }
 
 
-
-// Initialize nrf8001 hardware
-void nrf8001_init(nrf8001_event_packet *p) {
-	ep = p;
-	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, SSI_CR0_SPH, 8);
-	spi_cs_init(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
-
-    // Configure rdyn pin
+// Function to configure RDYN pin for event callbacks
+// parameters are ignored. only exist to meet SENSORS_SENSOR spec
+static int config_event_callback(int type, int value) {
 	GPIO_SOFTWARE_CONTROL(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
 	GPIO_SET_INPUT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
 	GPIO_DETECT_EDGE(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
@@ -63,8 +57,22 @@ void nrf8001_init(nrf8001_event_packet *p) {
 	ioc_set_over(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN, IOC_OVERRIDE_PUE);
 	nvic_interrupt_enable(NRF8001_RDYN_PORT);
 	gpio_register_callback(nrf8001_event_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+}
 
+// Initialize nrf8001 hardware
+void nrf8001_init(nrf8001_event_packet *p) {
+	uint8_t rdyn_boot = 1;
+	ep = p;
+	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, SSI_CR0_SPH, 8);
+	spi_cs_init(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
+    config_event_callback(0,0);
 	REQN_SET();
+	rdyn_boot = GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+
+	// Check to see if we've missed the device started event
+	if (rdyn_boot == 0) {
+		nrf8001_event_callback();
+	}	
 }
 
 // Enter Direct Test Mode. See Bluetooth Core Spec v4.0, Vol 6, Part F
@@ -92,3 +100,5 @@ void nrf8001_echo(uint8_t packet_length, uint8_t *packet) {
 	}
 	REQN_SET();
 }
+
+SENSORS_SENSOR(nrf8001_event, NRF8001_SENSOR, NULL, config_event_callback, NULL);
