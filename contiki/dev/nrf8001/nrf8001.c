@@ -23,6 +23,15 @@ static uint8_t reverse_bits(uint8_t b) {
 	return br;
 }
 
+static void reverse_cmd() {
+	int i = 0;
+	for(i=0;i<cmd.length;i++) {
+		cmd.packet[i] = reverse_bits(cmd.packet[i]);
+	}
+	cmd.length = reverse_bits(cmd.length);
+	cmd.command = reverse_bits(cmd.command);
+}
+
 static inline void REQN_SET() {
 	SPI_CS_SET(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
 }
@@ -30,6 +39,8 @@ static inline void REQN_SET() {
 static inline void REQN_CLR() {
 	SPI_CS_CLR(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
 }
+
+
 
 static void nrf8001_event_callback() {
 	uint8_t debug = 0;
@@ -41,7 +52,7 @@ static void nrf8001_event_callback() {
 	ep.length = reverse_bits(ep.length);
 	SPI_READ(ep.event);
 	ep.event = reverse_bits(ep.event);
-	for(i=0; i < ep.length; i++) {
+	for(i=0; i < ep.length-1; i++) {
 		SPI_READ(ep.packet[i]);
 	}
 	REQN_SET();
@@ -53,12 +64,14 @@ static void nrf8001_event_callback() {
 
 static void nrf8001_cmd_callback() {
 	int i = 0;
+	uint8_t plength = reverse_bits(cmd.length) - 1;
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_WRITE(cmd.length);
 	SPI_WRITE(cmd.command);
-	for(i=0;i < cmd.length-1;i++) {
+	for(i=0;i < plength;i++) {
 		SPI_WRITE(cmd.packet[i]);
 	}
+	gpio_register_callback(nrf8001_event_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_SET();
 }
 
@@ -102,6 +115,7 @@ void nrf8001_test(uint8_t test_type) {
 	cmd.length = 2;
 	cmd.command = TEST;
 	cmd.packet[0] = test_type;
+	reverse_cmd();
 	gpio_register_callback(nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }
@@ -111,13 +125,14 @@ void nrf8001_test(uint8_t test_type) {
 // Max packet length of 30. Max 29 data bytes
 void nrf8001_echo(uint8_t packet_length, uint8_t *packet) {
 	int i = 0;
-	REQN_CLR();
-	SPI_WRITE(packet_length);
-	SPI_WRITE(ECHO);
-	for(i=0; i < packet_length; i++) {
-		SPI_WRITE(packet[i]);
+	cmd.length = packet_length + 1;
+	cmd.command = ECHO;
+	for(i=0;i<packet_length;i++) {
+		cmd.packet[i] = packet[i];
 	}
-	REQN_SET();
+	reverse_cmd();
+	gpio_register_callback(nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	REQN_CLR();
 }
 
 void spi_write_test() {
