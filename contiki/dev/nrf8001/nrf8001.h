@@ -75,5 +75,7 @@ extern const struct sensors_sensor nrf8001_event;
 
 void nrf8001_init();
 void nrf8001_enable();
+void nrf8001_test(uint8_t test_type);
+void nrf8001_echo(uint8_t packet_length, uint8_t *packet);
 nrf8001_event_packet nrf8001_get_event();
 #endif
