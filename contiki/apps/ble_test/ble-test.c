@@ -22,15 +22,22 @@ PROCESS_THREAD(ble_test, ev, data) {
 		if(ev == sensors_event) {
 			uint8_t i = 0;
 			if(data == &nrf8001_event) {
-				leds_on(LEDS_GREEN);
-				ep = nrf8001_get_event();
-				printf("Length: %h\n", ep.length);
-				printf("Event: %h\n", ep.event);
-				for(i=0;i<ep.length-1;i++) {
-					printf("Packet %u: %h", ep.packet[i]);
-				}
 				if(ep.event == 0x81) {
-					leds_on(LEDS_RED);
+					uint8_t p[10];
+					for(i=0;i<10;i++) {
+						p[i] = i;
+					}
+					if(ep.packet[0] == 0x02) {
+						leds_on(LEDS_GREEN);
+						nrf8001_test(0x02);
+					}
+					else if(ep.packet[0] == 0x01) {
+						leds_on(LEDS_RED);
+						nrf8001_echo(10, &p);
+					}
+				}
+				else if (ep.event == 0x82) {
+					leds_on(LEDS_YELLOW);
 				}
 			}
 		}
