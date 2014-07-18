@@ -5,12 +5,23 @@
 #include "dev/ssi.h"
 #include "dev/gpio.h"
 #include "dev/ioc.h"
+#include "dev/leds.h"
 
 #define NRF8001_RDYN_PORT_BASE GPIO_PORT_TO_BASE(NRF8001_RDYN_PORT)
 #define NRF8001_RDYN_PIN_MASK GPIO_PIN_MASK(NRF8001_RDYN_PIN)
 
-nrf8001_event_packet *ep;
+
 nrf8001_command_packet cmd;
+nrf8001_event_packet ep;
+
+// Algorithm from Bit Twiddling hacks
+// https://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith32Bits
+// Neccessary
+static uint8_t reverse_bits(uint8_t b) {
+	uint8_t br = 0;
+	br = ((b * 0x0802LU & 0x22110LU) | (b * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
+	return br;
+}
 
 static inline void REQN_SET() {
 	SPI_CS_SET(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
@@ -23,19 +34,26 @@ static inline void REQN_CLR() {
 static void nrf8001_event_callback() {
 	uint8_t debug = 0;
 	uint8_t i = 0;
+	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	REQN_CLR();
 	SPI_READ(debug);
-	SPI_READ(ep->length);
-	SPI_READ(ep->event);
-	for(i=0; i < ep->length; i++) {
-		SPI_READ(ep->packet[i]);
+	SPI_READ(ep.length);
+	ep.length = reverse_bits(ep.length);
+	SPI_READ(ep.event);
+	ep.event = reverse_bits(ep.event);
+	for(i=0; i < ep.length; i++) {
+		SPI_READ(ep.packet[i]);
 	}
 	REQN_SET();
+	for(i=0; i<ep.length;i++) {
+		ep.packet[i] = reverse_bits(ep.packet[i]);
+	}
 	sensors_changed(&nrf8001_event);
 }
 
 static void nrf8001_cmd_callback() {
 	int i = 0;
+	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_WRITE(cmd.length);
 	SPI_WRITE(cmd.command);
 	for(i=0;i < cmd.length-1;i++) {
@@ -60,19 +78,20 @@ static int config_event_callback(int type, int value) {
 }
 
 // Initialize nrf8001 hardware
-void nrf8001_init(nrf8001_event_packet *p) {
-	uint8_t rdyn_boot = 1;
-	ep = p;
-	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, SSI_CR0_SPH, 8);
+void nrf8001_init() {
 	spi_cs_init(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
-    config_event_callback(0,0);
+	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	REQN_SET();
-	rdyn_boot = GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+}
 
-	// Check to see if we've missed the device started event
-	if (rdyn_boot == 0) {
-		nrf8001_event_callback();
-	}	
+// Enable nrf8001 functionality.
+void nrf8001_enable() {
+	uint8_t rdyn_state = 1;
+	config_event_callback(0,0);
+	rdyn_state = GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+	if (rdyn_state == 0) {
+			nrf8001_event_callback();
+	}
 }
 
 // Enter Direct Test Mode. See Bluetooth Core Spec v4.0, Vol 6, Part F
@@ -101,4 +120,19 @@ void nrf8001_echo(uint8_t packet_length, uint8_t *packet) {
 	REQN_SET();
 }
 
+void spi_write_test() {
+	spi_cs_init(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
+	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
+	spi_enable();
+	SPI_CS_CLR(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
+	SPI_WRITE(8);
+	SPI_CS_SET(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
+}
+
+// Event accessor function
+nrf8001_event_packet nrf8001_get_event() {
+	return ep;
+}
+
+SENSORS(&nrf8001_event);
 SENSORS_SENSOR(nrf8001_event, NRF8001_SENSOR, NULL, config_event_callback, NULL);

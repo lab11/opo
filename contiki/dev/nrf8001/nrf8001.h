@@ -73,6 +73,7 @@ typedef struct{
 #define NRF8001_SENSOR "NRF8001_SENSOR"
 extern const struct sensors_sensor nrf8001_event;
 
-void nrf8001_init(nrf8001_event_packet *p);
-
+void nrf8001_init();
+void nrf8001_enable();
+nrf8001_event_packet nrf8001_get_event();
 #endif
