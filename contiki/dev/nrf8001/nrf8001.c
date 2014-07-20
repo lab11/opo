@@ -6,30 +6,68 @@
 #include "dev/gpio.h"
 #include "dev/ioc.h"
 #include "dev/leds.h"
+#include <stdint.h>
+#include <string.h>
+#include <stdio.h>
 
 #define NRF8001_RDYN_PORT_BASE GPIO_PORT_TO_BASE(NRF8001_RDYN_PORT)
 #define NRF8001_RDYN_PIN_MASK GPIO_PIN_MASK(NRF8001_RDYN_PIN)
 
 
-nrf8001_command_packet cmd;
-nrf8001_event_packet ep;
+static nrf8001_command_packet nrf8001_cmd = {0};
+static nrf8001_event_packet nrf8001_ep = {0};
+
+static const uint8_t reverse_table[] = {
+        0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
+        0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
+        0x08, 0x88, 0x48, 0xc8, 0x28, 0xa8, 0x68, 0xe8,
+        0x18, 0x98, 0x58, 0xd8, 0x38, 0xb8, 0x78, 0xf8,
+        0x04, 0x84, 0x44, 0xc4, 0x24, 0xa4, 0x64, 0xe4,
+        0x14, 0x94, 0x54, 0xd4, 0x34, 0xb4, 0x74, 0xf4,
+        0x0c, 0x8c, 0x4c, 0xcc, 0x2c, 0xac, 0x6c, 0xec,
+        0x1c, 0x9c, 0x5c, 0xdc, 0x3c, 0xbc, 0x7c, 0xfc,
+        0x02, 0x82, 0x42, 0xc2, 0x22, 0xa2, 0x62, 0xe2,
+        0x12, 0x92, 0x52, 0xd2, 0x32, 0xb2, 0x72, 0xf2,
+        0x0a, 0x8a, 0x4a, 0xca, 0x2a, 0xaa, 0x6a, 0xea,
+        0x1a, 0x9a, 0x5a, 0xda, 0x3a, 0xba, 0x7a, 0xfa,
+        0x06, 0x86, 0x46, 0xc6, 0x26, 0xa6, 0x66, 0xe6,
+        0x16, 0x96, 0x56, 0xd6, 0x36, 0xb6, 0x76, 0xf6,
+        0x0e, 0x8e, 0x4e, 0xce, 0x2e, 0xae, 0x6e, 0xee,
+        0x1e, 0x9e, 0x5e, 0xde, 0x3e, 0xbe, 0x7e, 0xfe,
+        0x01, 0x81, 0x41, 0xc1, 0x21, 0xa1, 0x61, 0xe1,
+        0x11, 0x91, 0x51, 0xd1, 0x31, 0xb1, 0x71, 0xf1,
+        0x09, 0x89, 0x49, 0xc9, 0x29, 0xa9, 0x69, 0xe9,
+        0x19, 0x99, 0x59, 0xd9, 0x39, 0xb9, 0x79, 0xf9,
+        0x05, 0x85, 0x45, 0xc5, 0x25, 0xa5, 0x65, 0xe5,
+        0x15, 0x95, 0x55, 0xd5, 0x35, 0xb5, 0x75, 0xf5,
+        0x0d, 0x8d, 0x4d, 0xcd, 0x2d, 0xad, 0x6d, 0xed,
+        0x1d, 0x9d, 0x5d, 0xdd, 0x3d, 0xbd, 0x7d, 0xfd,
+        0x03, 0x83, 0x43, 0xc3, 0x23, 0xa3, 0x63, 0xe3,
+        0x13, 0x93, 0x53, 0xd3, 0x33, 0xb3, 0x73, 0xf3,
+        0x0b, 0x8b, 0x4b, 0xcb, 0x2b, 0xab, 0x6b, 0xeb,
+        0x1b, 0x9b, 0x5b, 0xdb, 0x3b, 0xbb, 0x7b, 0xfb,
+        0x07, 0x87, 0x47, 0xc7, 0x27, 0xa7, 0x67, 0xe7,
+        0x17, 0x97, 0x57, 0xd7, 0x37, 0xb7, 0x77, 0xf7,
+        0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
+        0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff,
+    };
 
 // Algorithm from Bit Twiddling hacks
 // https://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith32Bits
 // Neccessary
-static uint8_t reverse_bits(uint8_t b) {
+static inline uint8_t reverse_bits(uint8_t b) {
 	uint8_t br = 0;
 	br = ((b * 0x0802LU & 0x22110LU) | (b * 0x8020LU & 0x88440LU)) * 0x10101LU >> 16;
 	return br;
 }
 
-static void reverse_cmd() {
+static inline void reverse_nrf8001_cmd() {
 	int i = 0;
-	for(i=0;i<cmd.length;i++) {
-		cmd.packet[i] = reverse_bits(cmd.packet[i]);
+	for(i=0;i<nrf8001_cmd.length;i++) {
+		nrf8001_cmd.packet[i] = reverse_table[nrf8001_cmd.packet[i]];
 	}
-	cmd.length = reverse_bits(cmd.length);
-	cmd.command = reverse_bits(cmd.command);
+	nrf8001_cmd.length = reverse_table[nrf8001_cmd.length];
+	nrf8001_cmd.command = reverse_table[nrf8001_cmd.command];
 }
 
 static inline void REQN_SET() {
@@ -40,36 +78,42 @@ static inline void REQN_CLR() {
 	SPI_CS_CLR(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
 }
 
-
-
 static void nrf8001_event_callback() {
 	uint8_t debug = 0;
 	uint8_t i = 0;
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	REQN_CLR();
 	SPI_READ(debug);
-	SPI_READ(ep.length);
-	ep.length = reverse_bits(ep.length);
-	SPI_READ(ep.event);
-	ep.event = reverse_bits(ep.event);
-	for(i=0; i < ep.length-1; i++) {
-		SPI_READ(ep.packet[i]);
+	SPI_READ(nrf8001_ep.length);
+	SPI_READ(nrf8001_ep.event);
+	nrf8001_ep.length = reverse_table[nrf8001_ep.length];
+	for(i=0; i < nrf8001_ep.length-1; i++) {
+		SPI_READ(nrf8001_ep.packet[i]);
 	}
 	REQN_SET();
-	for(i=0; i<ep.length;i++) {
-		ep.packet[i] = reverse_bits(ep.packet[i]);
+	nrf8001_ep.event = reverse_table[nrf8001_ep.event];
+	for(i=0; i < nrf8001_ep.length-1;i++) {
+		nrf8001_ep.packet[i] = reverse_table[nrf8001_ep.packet[i]];
 	}
+
+
+	printf("Event: %d\n", nrf8001_ep.event);
+	printf("Length: %d\n", nrf8001_ep.length);
+	for(i=0;i<nrf8001_ep.length-1;i++) {
+		printf("Data %u: %x\n", i, nrf8001_ep.packet[i]);
+	}
+
 	sensors_changed(&nrf8001_event);
 }
 
-static void nrf8001_cmd_callback() {
+static void nrf8001_nrf8001_cmd_callback() {
 	int i = 0;
-	uint8_t plength = reverse_bits(cmd.length) - 1;
+	uint8_t plength = reverse_table[nrf8001_cmd.length] - 1;
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
-	SPI_WRITE(cmd.length);
-	SPI_WRITE(cmd.command);
+	SPI_WRITE(nrf8001_cmd.length);
+	SPI_WRITE(nrf8001_cmd.command);
 	for(i=0;i < plength;i++) {
-		SPI_WRITE(cmd.packet[i]);
+		SPI_WRITE(nrf8001_cmd.packet[i]);
 	}
 	gpio_register_callback(nrf8001_event_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_SET();
@@ -85,7 +129,7 @@ static int config_event_callback(int type, int value) {
 	GPIO_TRIGGER_SINGLE_EDGE(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
 	GPIO_DETECT_FALLING(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
 	GPIO_ENABLE_INTERRUPT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
-	ioc_set_over(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN, IOC_OVERRIDE_PUE);
+	ioc_set_over(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN, IOC_OVERRIDE_DIS);
 	nvic_interrupt_enable(NRF8001_RDYN_PORT);
 	gpio_register_callback(nrf8001_event_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 }
@@ -112,11 +156,11 @@ void nrf8001_enable() {
 // Test type 0x02 = Enable DTM over ACI
 // Test type 0x03 = Exit DTM
 void nrf8001_test(uint8_t test_type) {
-	cmd.length = 2;
-	cmd.command = TEST;
-	cmd.packet[0] = test_type;
-	reverse_cmd();
-	gpio_register_callback(nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	nrf8001_cmd.length = 2;
+	nrf8001_cmd.command = TEST;
+	nrf8001_cmd.packet[0] = test_type;
+	reverse_nrf8001_cmd();
+	gpio_register_callback(nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }
 
@@ -125,13 +169,13 @@ void nrf8001_test(uint8_t test_type) {
 // Max packet length of 30. Max 29 data bytes
 void nrf8001_echo(uint8_t packet_length, uint8_t *packet) {
 	int i = 0;
-	cmd.length = packet_length + 1;
-	cmd.command = ECHO;
+	nrf8001_cmd.length = packet_length + 1;
+	nrf8001_cmd.command = ECHO;
 	for(i=0;i<packet_length;i++) {
-		cmd.packet[i] = packet[i];
+		nrf8001_cmd.packet[i] = packet[i];
 	}
-	reverse_cmd();
-	gpio_register_callback(nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	reverse_nrf8001_cmd();
+	gpio_register_callback(nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }
 
@@ -146,7 +190,14 @@ void spi_write_test() {
 
 // Event accessor function
 nrf8001_event_packet nrf8001_get_event() {
-	return ep;
+	nrf8001_event_packet r;
+	uint8_t i = 0;
+	r.length = nrf8001_ep.length;
+	r.event = nrf8001_ep.event;
+	for(i=0;i<30;i++) {
+		r.packet[i] = nrf8001_ep.packet[i];
+	}
+	return r;
 }
 
 SENSORS(&nrf8001_event);
