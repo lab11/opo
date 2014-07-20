@@ -59,8 +59,8 @@
 
 // NRF event packet
 typedef struct{
-	uint8_t event;
 	uint8_t length;
+	uint8_t event;
 	uint8_t packet[30];
 } nrf8001_event_packet ;
 
