@@ -32,6 +32,7 @@
 #include "reg.h"
 #include "ieee-addr.h"
 #include "lpm.h"
+#include "spi-arch.h"
 #include "spi.h"
 #include "fm25l04b.h"
 #include "nrf8001.h"
