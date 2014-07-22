@@ -6,9 +6,9 @@
 #include "dev/gpio.h"
 #include "dev/ioc.h"
 #include "dev/leds.h"
-#include <stdint.h>
+//#include <stdint.h>
 #include <string.h>
-#include <stdio.h>
+//#include <stdio.h>
 
 #define NRF8001_RDYN_PORT_BASE GPIO_PORT_TO_BASE(NRF8001_RDYN_PORT)
 #define NRF8001_RDYN_PIN_MASK GPIO_PIN_MASK(NRF8001_RDYN_PIN)
@@ -81,28 +81,41 @@ static inline void REQN_CLR() {
 static void nrf8001_event_callback() {
 	uint8_t debug = 0;
 	uint8_t i = 0;
+	nrf8001_ep.length = 0;
+	nrf8001_ep.event = 0;
+	for(i=0;i<30;i++) {
+		nrf8001_ep.packet[i] = 0;
+	}
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
+	SPI_FLUSH();
 	REQN_CLR();
 	SPI_READ(debug);
 	SPI_READ(nrf8001_ep.length);
-	SPI_READ(nrf8001_ep.event);
-	nrf8001_ep.length = reverse_table[nrf8001_ep.length];
-	for(i=0; i < nrf8001_ep.length-1; i++) {
-		SPI_READ(nrf8001_ep.packet[i]);
+	if(nrf8001_ep.length > 0) {
+		SPI_READ(nrf8001_ep.event);
+		nrf8001_ep.length = reverse_table[nrf8001_ep.length];
+		for(i=0; i < nrf8001_ep.length-1; i++) {
+			SPI_READ(nrf8001_ep.packet[i]);
+		}
+		nrf8001_ep.event = reverse_table[nrf8001_ep.event];
+		for(i=0; i < nrf8001_ep.length-1;i++) {
+			nrf8001_ep.packet[i] = reverse_table[nrf8001_ep.packet[i]];
+		}
+	}
+	while(1) {
+		if(!(REG(SSI0_BASE + SSI_SR) & SSI_SR_BSY)) {
+			break;
+		}
 	}
 	REQN_SET();
-	nrf8001_ep.event = reverse_table[nrf8001_ep.event];
-	for(i=0; i < nrf8001_ep.length-1;i++) {
-		nrf8001_ep.packet[i] = reverse_table[nrf8001_ep.packet[i]];
-	}
 
-
+/*
 	printf("Event: %d\n", nrf8001_ep.event);
 	printf("Length: %d\n", nrf8001_ep.length);
 	for(i=0;i<nrf8001_ep.length-1;i++) {
 		printf("Data %u: %x\n", i, nrf8001_ep.packet[i]);
 	}
-
+*/
 	sensors_changed(&nrf8001_event);
 }
 
@@ -110,6 +123,7 @@ static void nrf8001_nrf8001_cmd_callback() {
 	int i = 0;
 	uint8_t plength = reverse_table[nrf8001_cmd.length] - 1;
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
+	SPI_FLUSH();
 	SPI_WRITE(nrf8001_cmd.length);
 	SPI_WRITE(nrf8001_cmd.command);
 	for(i=0;i < plength;i++) {
@@ -196,6 +210,11 @@ nrf8001_event_packet nrf8001_get_event() {
 	r.event = nrf8001_ep.event;
 	for(i=0;i<30;i++) {
 		r.packet[i] = nrf8001_ep.packet[i];
+	}
+	nrf8001_ep.length = 0;
+	nrf8001_ep.event = 0;
+	for(i=0;i<30;i++) {
+		nrf8001_ep.packet[i] = 0;
 	}
 	return r;
 }
