@@ -70,7 +70,6 @@
 #include "dev/leds.h"
 #include "dev/uart.h"
 #include "dev/button-sensor.h"
-#include "dev/adc-sensor.h"
 #include "dev/watchdog.h"
 #include "dev/serial-line.h"
 #include "dev/sys-ctrl.h"
