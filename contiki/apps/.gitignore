@@ -4,3 +4,4 @@
 *.hex
 *.opo3
 *.a
+obj_*
