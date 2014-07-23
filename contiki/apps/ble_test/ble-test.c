@@ -12,7 +12,9 @@ AUTOSTART_PROCESSES(&ble_test);
 /*---------------------s------------------------------------------------------*/
 
 nrf8001_event_packet ep = {0};
-
+nrf8001_setup_msg_t setup[NB_SETUP_MESSAGES] = SETUP_MESSAGES_CONTENT;
+int msg_count = 0;
+uint8_t test = 0;
 // Function to delay startup until we pull a pin high
 static void config_delay_interrupt() {
 	GPIO_SOFTWARE_CONTROL(DELAY_INT_PORT_BASE, DELAY_INT_PIN_MASK);
@@ -41,16 +43,28 @@ PROCESS_THREAD(ble_test, ev, data) {
 						p[i] = i;
 					}
 					if(ep.packet[0] == 0x02) {
-						leds_on(LEDS_RED);
-						nrf8001_test(0x02);
+						if(msg_count < NB_SETUP_MESSAGES) {
+							nrf8001_setup(setup[msg_count++]);
+						}
 					}
-					else if(ep.packet[0] == 0x01) {
-						leds_on(LEDS_YELLOW);
-						nrf8001_echo(10, &p);
+					else if(ep.packet[0] == 0x03) {
+						if(test > 0) {
+							leds_on(LEDS_YELLOW);
+							leds_on(LEDS_RED);
+						}
+						test++;
+						nrf8001_connect(0, 32);
 					}
 				}
-				else if (ep.event == 0x82) {
-					leds_on(LEDS_GREEN);
+				else if (ep.event == 0x84) {
+					if(ep.packet[0] == 0x06) {
+						if(ep.packet[1] == 0x01) {
+							if(msg_count < NB_SETUP_MESSAGES) {
+								leds_on(LEDS_GREEN);
+								nrf8001_setup(setup[msg_count++]);
+							}
+						}
+					}
 				}
 			}
 		}
