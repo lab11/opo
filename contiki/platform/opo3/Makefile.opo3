@@ -20,7 +20,7 @@ CLEAN += *.opo3
 
 ### Unless the example dictates otherwise, build with code size optimisations
 ifndef SMALL
-  SMALL = 1
+  SMALL = 0
 endif
 
 ### Define the CPU directory
