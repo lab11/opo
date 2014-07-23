@@ -171,7 +171,7 @@ void nrf8001_enable() {
 // Test type 0x03 = Exit DTM
 void nrf8001_test(uint8_t test_type) {
 	nrf8001_cmd.length = 2;
-	nrf8001_cmd.command = TEST;
+	nrf8001_cmd.command = NRF8001_TEST;
 	nrf8001_cmd.packet[0] = test_type;
 	reverse_nrf8001_cmd();
 	gpio_register_callback(nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
@@ -184,7 +184,7 @@ void nrf8001_test(uint8_t test_type) {
 void nrf8001_echo(uint8_t packet_length, uint8_t *packet) {
 	int i = 0;
 	nrf8001_cmd.length = packet_length + 1;
-	nrf8001_cmd.command = ECHO;
+	nrf8001_cmd.command = NRF8001_ECHO;
 	for(i=0;i<packet_length;i++) {
 		nrf8001_cmd.packet[i] = packet[i];
 	}
@@ -192,6 +192,32 @@ void nrf8001_echo(uint8_t packet_length, uint8_t *packet) {
 	gpio_register_callback(nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }
+
+void nrf8001_setup(nrf8001_setup_msg_t packet) {
+	int i = 0;
+	nrf8001_cmd.length = packet.payload[0];
+	nrf8001_cmd.command = NRF8001_SETUP;
+	for(i=2;i < packet.payload[0]+1;i++) {
+		nrf8001_cmd.packet[i-2] = packet.payload[i];
+	}
+	reverse_nrf8001_cmd();
+	gpio_register_callback(nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	REQN_CLR();
+}
+
+void nrf8001_connect(uint16_t timeout, uint16_t ad_interval) {
+	nrf8001_cmd.length = 5;
+	nrf8001_cmd.command = NRF8001_CONNECT;
+	nrf8001_cmd.packet[0] = timeout & 0x00ff;
+	nrf8001_cmd.packet[1] = timeout >> 8;
+	nrf8001_cmd.packet[2] = ad_interval & 0x00ff;
+	nrf8001_cmd.packet[3] = ad_interval >> 8;
+	reverse_nrf8001_cmd();
+	gpio_register_callback(nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	REQN_CLR();
+}
+
+
 
 void spi_write_test() {
 	spi_cs_init(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
