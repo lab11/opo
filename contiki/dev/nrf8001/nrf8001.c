@@ -133,6 +133,12 @@ static void nrf8001_nrf8001_cmd_callback() {
 	REQN_SET();
 }
 
+static inline void set_command() {
+	reverse_nrf8001_cmd();
+	gpio_register_callback(nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	REQN_CLR();
+}
+
 
 // Function to configure RDYN pin for event callbacks
 // parameters are ignored. only exist to meet SENSORS_SENSOR spec
@@ -217,15 +223,170 @@ void nrf8001_connect(uint16_t timeout, uint16_t ad_interval) {
 	REQN_CLR();
 }
 
+void nrf8001_bond(uint16_t timeout, uint16_t ad_interval) {
+	nrf8001_cmd.length = 5;
+	nrf8001_cmd.command = NRF8001_BOND;
+	nrf8001_cmd.packet[0] = timeout & 0x00ff;
+	nrf8001_cmd.packet[1] = timeout >> 8;
+	nrf8001_cmd.packet[2] = ad_interval & 0x00ff;
+	nrf8001_cmd.packet[3] = ad_interval >> 8;
+	reverse_nrf8001_cmd();
+	gpio_register_callback(nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	REQN_CLR();
+}
+
+void nrf8001_sleep() {
+	nrf8001_cmd.length = 1;
+	nrf8001_cmd.command = NRF8001_SLEEP;
+	set_command();
+}
+
+void nrf8001_wakeup() {
+	nrf8001_cmd.length = 1;
+	nrf8001_cmd.command = NRF8001_WAKEUP;
+	set_command();
+}
+
+void nrf8001_read_dynamice_data() {
+	nrf8001_cmd.length = 1;
+	nrf8001_cmd.command = NRF8001_READ_DYNAMIC_DATA;
+	set_command();
+}
+
+void nrf8001_write_dynamic_data() {
+	nrf8001_cmd.length = 1;
+	nrf8001_cmd.command = NRF8001_WRITE_DYNAMIC_DATA;
+	set_command();
+}
+
+void nrf8001_get_battery_level() {
+	nrf8001_cmd.length = 1;
+	nrf8001_cmd.command = NRF8001_GET_BATTERY_LEVEL;
+	set_command();
+}
+
+void nrf8001_get_temperature() {
+	nrf8001_cmd.length = 1;
+	nrf8001_cmd.command = NRF8001_GET_TEMPERATURE;
+	set_command();
+}
+
+void nrf8001_radio_reset() {
+	nrf8001_cmd.length = 1;
+	nrf8001_cmd.command = NRF8001_RADIO_RESET;
+	set_command();
+}
 
 
-void spi_write_test() {
-	spi_cs_init(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
-	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
-	spi_enable();
-	SPI_CS_CLR(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
-	SPI_WRITE(8);
-	SPI_CS_SET(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
+// Disconnect from peer device
+// Reason == 0x01: Remote user terminated connection
+// Reason == 0x02: Unacceptable connection timing
+void nrf8001_disconnect(uint8_t reason) {
+	nrf8001_cmd.length = 2;
+	nrf8001_cmd.command = NRF8001_DISCONNECT;
+	nrf8001_cmd.packet[0] = reason;
+	set_command();
+}
+
+void nrf8001_set_tx_power(uint8_t tx_pwr) {
+	nrf8001_cmd.length = 2;
+	nrf8001_cmd.command = NRF8001_SET_TX_POWER;
+	nrf8001_cmd.packet[0] = tx_pwr;
+	set_command();
+}
+
+void nrf8001_change_timing_request(uint16_t interval_min,
+								   uint16_t interval_max,
+								   uint16_t slave_latency,
+								   uint16_t timeout) {
+	nrf8001_cmd.length = 9;
+	nrf8001_cmd.command = NRF8001_CHANGE_TIMING_REQUEST;
+	nrf8001_cmd.packet[0] = interval_min & 0x00ff;
+	nrf8001_cmd.packet[1] = interval_min >> 8;
+	nrf8001_cmd.packet[2] = interval_max & 0x00ff;
+	nrf8001_cmd.packet[3] = interval_max >> 8;
+	nrf8001_cmd.packet[4] = slave_latency & 0x00ff;
+	nrf8001_cmd.packet[5] = slave_latency >> 8;
+	nrf8001_cmd.packet[6] = timeout & 0x00ff;
+	nrf8001_cmd.packet[7] = timeout >> 8;
+	set_command();
+}
+
+void nrf8001_open_remote_pipes(uint8_t pipe) {
+	nrf8001_cmd.length = 2;
+	nrf8001_cmd.command = NRF8001_OPEN_REMOTE_PIPE;
+	nrf8001_cmd.packet[0] = pipe;
+	set_command();
+}
+
+void nrf8001_set_app_latency(uint8_t latency_enable, uint16_t latency) {
+	nrf8001_cmd.length = 4;
+	nrf8001_cmd.command = NRF8001_SET_APPLICATION_LATENCY;
+	nrf8001_cmd.packet[0] = latency_enable;
+	nrf8001_cmd.packet[1] = latency & 0x00ff;
+	nrf8001_cmd.packet[2] = latency >> 8;
+	set_command();
+}
+
+void nrf8001_set_key(uint8_t key[6]) {
+	uint8_t i = 0;
+	nrf8001_cmd.length = 8;
+	nrf8001_cmd.command = NRF8001_SET_KEY;
+	nrf8001_cmd.packet[0] = 0x01;
+	for(i=0; i < 6;i++) {
+		nrf8001_cmd.packet[i+1] = key[i];
+	}
+	set_command();
+}
+
+void nrf8001_open_adv_pipe(uint8_t pipe[8]) {
+	uint8_t i = 0;
+	nrf8001_cmd.length = 9;
+	nrf8001_cmd.command = NRF8001_OPEN_ADV_PIPE;
+	for(i=0; i < 8;i++) {
+		nrf8001_cmd.packet[i] = pipe[i];
+	}
+	set_command();
+}
+
+void nrf8001_broadcast(uint16_t timeout, uint16_t adv_interval) {
+	nrf8001_cmd.length = 5;
+	nrf8001_cmd.command = NRF8001_BROADCAST;
+	nrf8001_cmd.packet[0] = timeout & 0x00ff;
+	nrf8001_cmd.packet[1] = timeout >> 8;
+	nrf8001_cmd.packet[2] = adv_interval & 0x00ff;
+	nrf8001_cmd.packet[3] = adv_interval >> 8;
+	set_command();
+}
+
+void nrf8001_bond_security_request() {
+	nrf8001_cmd.length = 1;
+	nrf8001_cmd.command = NRF8001_BOND_SECURITY_REQUEST;
+	set_command();
+}
+
+void nrf8001_directed_connect() {
+	nrf8001_cmd.length = 1;
+	nrf8001_cmd.command = NRF8001_DIRECTED_CONNECT;
+	set_command();
+}
+
+void nrf8001_close_remote_pipe(uint8_t pipe) {
+	nrf8001_cmd.length = 2;
+	nrf8001_cmd.command = NRF8001_CLOSE_REMOTE_PIPE;
+	nrf8001_cmd.packet[0] = pipe;
+	set_command();
+}
+
+void nrf8001_set_local_data(uint8_t pipe, uint8_t packet_length, uint8_t *packet) {
+	uint8_t i = 0;
+	nrf8001_cmd.length = packet_length + 1;
+	nrf8001_cmd.command = NRF8001_SET_LOCAL_DATA;
+	nrf8001_cmd.packet[0] = pipe;
+	for(i=0;i<packet_length;i++) {
+		nrf8001_cmd.packet[i+1] = packet[i];
+	}
+	set_command();
 }
 
 // Event accessor function

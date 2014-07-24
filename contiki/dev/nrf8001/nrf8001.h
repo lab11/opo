@@ -85,6 +85,11 @@ void nrf8001_test(uint8_t test_type);
 void nrf8001_echo(uint8_t packet_length, uint8_t *packet);
 void nrf8001_setup(nrf8001_setup_msg_t packet);
 void nrf8001_conneect(uint16_t timeout, uint16_t advertising);
+void nrf8001_sleep();
+void nrf8001_change_timing_request(uint16_t interval_min,
+								   uint16_t interval_max,
+								   uint16_t slave_latency,
+								   uint16_t timeout);
 nrf8001_event_packet nrf8001_get_event();
 
 #endif
