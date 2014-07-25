@@ -361,7 +361,7 @@ void nrf8001_broadcast(uint16_t timeout, uint16_t adv_interval) {
 
 void nrf8001_bond_security_request() {
 	nrf8001_cmd.length = 1;
-	nrf8001_cmd.command = NRF8001_BOND_SECURITY_REQUEST;
+	nrf8001_cmd.command = NRF8001_BOND_SEC_REQUEST;
 	set_command();
 }
 
@@ -388,6 +388,40 @@ void nrf8001_set_local_data(uint8_t pipe, uint8_t packet_length, uint8_t *packet
 	}
 	set_command();
 }
+
+void nrf8001_send_data(uint8_t pipe, uint8_t packet_length, uint8_t *packet) {
+	uint8_t i = 0;
+	nrf8001_cmd.length = packet_length + 1;
+	nrf8001_cmd.command = NRF8001_SEND_DATA;
+	for(i=0;i<packet_length;i++) {
+		nrf8001_cmd.packet[i+1] = packet[i];
+	}
+	set_command();
+}
+
+void nrf8001_send_data_ack(uint8_t pipe) {
+	nrf8001_cmd.length = 2;
+	nrf8001_cmd.command = NRF8001_SEND_DATA_ACK;
+	nrf8001_cmd.packet[0] = pipe;
+	set_command();
+}
+
+void nrf8001_request_data(uint8_t pipe) {
+	nrf8001_cmd.length = 2;
+	nrf8001_cmd.command = NRF8001_REQUEST_DATA;
+	nrf8001_cmd.packet[0] = pipe;
+	set_command();
+}
+
+void nrf8001_send_data_nack(uint8_t pipe, uint8_t error_code) {
+	nrf8001_cmd.length = 3;
+	nrf8001_cmd.command = NRF8001_SEND_DATA_NACK;
+	nrf8001_cmd.packet[0] = pipe;
+	nrf8001_cmd.packet[1] = error_code;
+	set_command();
+}
+
+
 
 // Event accessor function
 nrf8001_event_packet nrf8001_get_event() {

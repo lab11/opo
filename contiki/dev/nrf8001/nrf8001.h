@@ -56,6 +56,8 @@
 #define NRF8001_DATA_RECEIVED_EVENT 0x8C
 #define NRF8001_PIPE_ERROR_EVENT 0x8D
 
+#define NRF8001_PARAMETER_BOUND_ERROR 0xFF;
+
 
 // NRF event packet
 typedef struct{
