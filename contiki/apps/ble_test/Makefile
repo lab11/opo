@@ -4,5 +4,7 @@ CONTIKI_PROJECT = ble-test
 all: $(CONTIKI_PROJECT)
 TARGETDIRS += ../../platform
 
+SMALL = 0
+
 CONTIKI = /home/wwhuang/Dropbox/git/contiki
 include $(CONTIKI)/Makefile.include
