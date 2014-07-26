@@ -16,6 +16,8 @@
 
 static nrf8001_command_packet nrf8001_cmd = {0};
 static nrf8001_event_packet nrf8001_ep = {0};
+static nrf8001_setup_msg_t setup_msgs[NRF8001_MAX_SETUP_MESSAGES] = NRF8001_SETUP_MESSAGES_CONTENT;
+static uint8_t setup_counter = 0;
 
 static const uint8_t reverse_table[] = {
         0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
@@ -109,14 +111,21 @@ static void nrf8001_event_callback() {
 	}
 	REQN_SET();
 
-/*
-	printf("Event: %d\n", nrf8001_ep.event);
-	printf("Length: %d\n", nrf8001_ep.length);
-	for(i=0;i<nrf8001_ep.length-1;i++) {
-		printf("Data %u: %x\n", i, nrf8001_ep.packet[i]);
+	// Handle continuation cases for user. E.g, multiple setup commands
+	if(nrf8001_ep.event == NRF8001_COMMAND_RESPONSE_EVENT) {
+		uint8_t cmd_op_code = nrf8001_ep.packet[0];
+		uint8_t cmd_status = nrf8001_ep.packet[1];
+		if(cmd_status == ACI_STATUS_TRANSACTION_CONTINUE) {
+			if(cmd_op_code == NRF8001_SETUP) {
+				nrf8001_setup();
+			}
+		}
+		else {
+			sensors_changed(&nrf8001_event);
+		}
+	} else {
+		sensors_changed(&nrf8001_event);
 	}
-*/
-	sensors_changed(&nrf8001_event);
 }
 
 static void nrf8001_nrf8001_cmd_callback() {
@@ -152,6 +161,7 @@ static int config_event_callback(int type, int value) {
 	ioc_set_over(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN, IOC_OVERRIDE_DIS);
 	nvic_interrupt_enable(NRF8001_RDYN_PORT);
 	gpio_register_callback(nrf8001_event_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	return 0;
 }
 
 // Initialize nrf8001 hardware
@@ -199,14 +209,17 @@ void nrf8001_echo(uint8_t packet_length, uint8_t *packet) {
 	REQN_CLR();
 }
 
-void nrf8001_setup(nrf8001_setup_msg_t packet) {
+void nrf8001_setup() {
 	int i = 0;
-	nrf8001_cmd.length = packet.payload[0];
+	nrf8001_cmd.length = setup_msgs[setup_counter].payload[0];
 	nrf8001_cmd.command = NRF8001_SETUP;
-	for(i=2;i < packet.payload[0]+1;i++) {
-		nrf8001_cmd.packet[i-2] = packet.payload[i];
+	for(i=2;i < setup_msgs[setup_counter].payload[0]+1;i++) {
+		nrf8001_cmd.packet[i-2] = setup_msgs[setup_counter].payload[i];
 	}
 	reverse_nrf8001_cmd();
+	if(setup_counter+1 < NRF8001_MAX_SETUP_MESSAGES) {
+		setup_counter++;
+	}
 	gpio_register_callback(nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }

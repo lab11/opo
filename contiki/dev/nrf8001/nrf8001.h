@@ -1,5 +1,6 @@
 #ifndef NRF8001_H
 #include "lib/sensors.h"
+#include "nrf8001_setup.h"
 #define NRF8001_H
 
 // System Command Op Codes
@@ -56,7 +57,22 @@
 #define NRF8001_DATA_RECEIVED_EVENT 0x8C
 #define NRF8001_PIPE_ERROR_EVENT 0x8D
 
-#define NRF8001_PARAMETER_BOUND_ERROR 0xFF;
+// Error checking
+#define NRF8001_PARAMETER_BOUND_ERROR 0xFF
+
+// ACI Status codes
+#define ACI_STATUS_TRANSACTION_CONTINUE 0x01
+
+// Connected packet breakdown
+#define NRF8001_ADDRESS_TYPE 0x00
+#define NRF8001_PEER_ADDRESS_START 0x01
+#define NRF8001_PEER_ADDRESS_STOP 0x06
+
+// BlE connection address types
+#define NRF8001_PUBLIC_ADDRESS 0x01
+#define NRF8001_RANDOM_STATIC_ADDRESS 0x02
+#define NRF8001_RANDOM_RESOLVABLE_PRIVATE_ADDRESS  0x03
+#define NRF8001_RANDOM_UNRESOLVABLE_PRIVATE_ADDRESS 0x04
 
 
 // NRF event packet
@@ -85,7 +101,7 @@ void nrf8001_init();
 void nrf8001_enable();
 void nrf8001_test(uint8_t test_type);
 void nrf8001_echo(uint8_t packet_length, uint8_t *packet);
-void nrf8001_setup(nrf8001_setup_msg_t packet);
+void nrf8001_setup();
 void nrf8001_conneect(uint16_t timeout, uint16_t advertising);
 void nrf8001_sleep();
 void nrf8001_change_timing_request(uint16_t interval_min,
