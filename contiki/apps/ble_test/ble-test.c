@@ -33,24 +33,22 @@ PROCESS_THREAD(ble_test, ev, data) {
 	while(1) {
 		PROCESS_YIELD();
 		if(ev == sensors_event) {
-			uint8_t i = 0;
-			ep = nrf8001_get_event();
 			if(data == &nrf8001_event) {
+				ep = nrf8001_get_event();
 				if(ep.event == 0x81) {
-					uint8_t p[10];
-					for(i=0;i<10;i++) {
-						p[i] = i;
-					}
 					if(ep.packet[0] == 0x02) {
 						nrf8001_setup();
 					}
 					else if(ep.packet[0] == 0x03) {
-						leds_on(LEDS_YELLOW);
 						leds_on(LEDS_RED);
-						nrf8001_connect(0, 32);
+						nrf8001_bond(180, 32);
 					}
 				}
+				if(ep.event == NRF8001_DISCONNECTED_EVENT) {
+					leds_on(LEDS_YELLOW);
+				}
 			}
+
 		}
 	}
 
