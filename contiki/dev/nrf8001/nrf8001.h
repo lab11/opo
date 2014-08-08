@@ -109,6 +109,7 @@ void nrf8001_change_timing_request(uint16_t interval_min,
 								   uint16_t interval_max,
 								   uint16_t slave_latency,
 								   uint16_t timeout);
+void nrf8001_send_data(uint8_t pipe, uint8_t packet_length, uint8_t *packet);
 nrf8001_event_packet nrf8001_get_event();
 
 #endif

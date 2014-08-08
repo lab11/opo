@@ -406,6 +406,7 @@ void nrf8001_send_data(uint8_t pipe, uint8_t packet_length, uint8_t *packet) {
 	uint8_t i = 0;
 	nrf8001_cmd.length = packet_length + 1;
 	nrf8001_cmd.command = NRF8001_SEND_DATA;
+	nrf8001_cmd.packet[0] = pipe;
 	for(i=0;i<packet_length;i++) {
 		nrf8001_cmd.packet[i+1] = packet[i];
 	}
