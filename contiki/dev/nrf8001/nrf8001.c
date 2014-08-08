@@ -65,7 +65,7 @@ static inline uint8_t reverse_bits(uint8_t b) {
 
 static inline void reverse_nrf8001_cmd() {
 	int i = 0;
-	for(i=0;i<nrf8001_cmd.length;i++) {
+	for(i=0;i<nrf8001_cmd.length-1;i++) {
 		nrf8001_cmd.packet[i] = reverse_table[nrf8001_cmd.packet[i]];
 	}
 	nrf8001_cmd.length = reverse_table[nrf8001_cmd.length];
