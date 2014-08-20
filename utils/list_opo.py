@@ -61,7 +61,7 @@ class stream_receiver (sioc.BaseNamespace):
 		#print(spkt)
 
 		try:
-			names[pkt['tx_id']] = pkt['name']
+			names[pkt['last_heard_id']] = pkt['full_name'].split(' ')[0]
 		except KeyError:
 			pass
 
@@ -74,19 +74,19 @@ class stream_receiver (sioc.BaseNamespace):
 		else:
 			sys.stdout.write(' '*120 + '\r')
 			if pkts[spkt] == 1:
-				dup_cnt[pkt['tx_id']] = 0
-				# rx_id --> tx_id
+				dup_cnt[pkt['last_heard_id']] = 0
+				# id --> last_heard_id
 				try:
 					print('{:1.2f}m {} --> {}'.format(pkt['range'],
-						names[pkt['rx_id']], names[pkt['tx_id']]))
+						names[pkt['id']], names[pkt['last_heard_id']]))
 				except KeyError:
 					print('{:1.2f}m {} --> {}'.format(pkt['range'],
-						pkt['rx_id'], pkt['tx_id']))
+						pkt['id'], pkt['last_heard_id']))
 			else:
 				try:
-					dup_cnt[pkt['tx_id']] += 1
+					dup_cnt[pkt['last_heard_id']] += 1
 				except KeyError:
-					dup_cnt[pkt['tx_id']] = 1
+					dup_cnt[pkt['last_heard_id']] = 1
 
 			ids = dup_cnt.keys()
 			ids.sort()
@@ -98,7 +98,7 @@ class stream_receiver (sioc.BaseNamespace):
 					t = '{}: {} '.format(names[i], dup_cnt[i])
 				except KeyError:
 					t = '{}: {} '.format(i, dup_cnt[i])
-				if i == pkt['tx_id']:
+				if i == pkt['last_heard_id']:
 					s += termcolor.colored(t, color='yellow', attrs=['bold'])
 				else:
 					s += t
