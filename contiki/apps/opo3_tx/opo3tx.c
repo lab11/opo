@@ -52,7 +52,11 @@ PROCESS_THREAD(tx_test, ev, data) {
 
   	// Outputting SFD signal for debugging
   	REG(RFCORE_XREG_RFC_OBS_CTRL0) = 0x0F;
-  	REG(CCTEST_OBSSEL2) - 0x80;
+  	REG(CCTEST_OBSSEL2) = 0x80;
+
+  	// Set up Opo Tx/Rx Control
+  	GPIO_SET_OUTPUT(GPIO_C_BASE, 0x01);
+  	GPIO_CLR_PIN(GPIO_C_BASE, 0x01);
 
 	etimer_set(&et, CLOCK_SECOND * 5);
 	while(1) {
