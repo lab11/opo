@@ -26,7 +26,7 @@ nrf8001_event_packet ep = {0};
 int msg_count = 0;
 uint8_t test = 0;
 static struct etimer et;
-bool stop_tx = false;
+uint tx_stage = 0;
 
 
 PROCESS_THREAD(tx_test, ev, data) {
@@ -63,17 +63,27 @@ PROCESS_THREAD(tx_test, ev, data) {
 		PROCESS_YIELD();
 		leds_toggle(LEDS_RED);
 		if (ev == PROCESS_EVENT_TIMER) {
-			if (stop_tx == false) {
+			if (tx_stage == 0) {
+				gpt_enable_event(1, GPTIMER_SUBTIMER_A);
+				tx_stage = 1;
+				etimer_set(&et, CLOCK_SECOND / 1000);
+			}
+			else if (tx_stage == 1) {
+				gpt_disable_event(1, GPTIMER_SUBTIMER_A);
+				tx_stage = 2;
+				etimer_set(&et, CLOCK_SECOND/1000 * 50);
+			}
+			if (tx_stage == 2) {
 				packetbuf_clear();
 				packetbuf_copyfrom((void *) test_data, 6);
 				NETSTACK_MAC.send(NULL, NULL);
-				stop_tx = true;
+				tx_stage = 3;
 				gpt_enable_event(1, GPTIMER_SUBTIMER_A);
 				etimer_set(&et, CLOCK_SECOND / 1000);
 			}
-			else if (stop_tx == true) {
+			else if (tx_stage == 3) {
 				gpt_disable_event(1, GPTIMER_SUBTIMER_A);
-				stop_tx = false;
+				tx_stage = 0;
 				etimer_set(&et, CLOCK_SECOND * 5);
 			}
 		}
