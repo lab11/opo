@@ -43,10 +43,6 @@
 #define NETSTACK_CONF_NETWORK	simple_network_driver
 #define CC2538_RF_CONF_CHANNEL 21
 
-#define PWM_PORT	GPIO_C_NUM
-#define PWM_PIN	0
-#define PWM_BASE	GPIO_C_BASE
-
 #endif /* PROJECT_CONF_H_ */
 
 /** @} */
