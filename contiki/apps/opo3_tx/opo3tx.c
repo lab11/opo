@@ -13,6 +13,7 @@
 #include <stdbool.h>
 #include "dev/rfcore-xreg.h"
 #include "dev/cctest.h"
+#include "sys/rtimer.h"
 
 /*---------------------------------------------------------------------------*/
 PROCESS(tx_test, "Opo3Tx");
@@ -26,6 +27,29 @@ int msg_count = 0;
 uint8_t test = 0;
 static struct etimer et;
 uint tx_stage = 0;
+static struct rtimer rt;
+static void stage_1(struct rtimer *t, void *ptr);
+static void stage_2(struct rtimer *t, void *ptr);
+static void stage_3(struct rtimer *t, void *ptr);
+
+static void stage_1(struct rtimer *t, void *ptr) {
+	gpt_disable_event(1, GPTIMER_SUBTIMER_A);
+	rtimer_set(&rt, RTIMER_NOW() + (RTIMER_ARCH_SECOND/1000 * 50), 1,
+	     	   &stage_2, NULL);
+}
+
+static void stage_2(struct rtimer *t, void *ptr) {
+	packetbuf_copyfrom((void *) test_data, 6);
+	NETSTACK_MAC.send(NULL, NULL);
+	gpt_enable_event(1, GPTIMER_SUBTIMER_A);
+	rtimer_set(&rt, RTIMER_NOW() + (RTIMER_ARCH_SECOND/1000), 1,
+	     	   &stage_3, NULL);
+}
+
+static void stage_3(struct rtimer *t, void *ptr) {
+	gpt_disable_event(1, GPTIMER_SUBTIMER_A);
+	etimer_set(&et, CLOCK_SECOND * 5);
+}
 
 
 PROCESS_THREAD(tx_test, ev, data) {
@@ -62,29 +86,9 @@ PROCESS_THREAD(tx_test, ev, data) {
 	while(1) {
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER) {
-			if (tx_stage == 0) {
-				gpt_enable_event(1, GPTIMER_SUBTIMER_A);
-				tx_stage = 1;
-				etimer_set(&et, 1);
-			}
-			else if (tx_stage == 1) {
-				gpt_disable_event(1, GPTIMER_SUBTIMER_A);
-				tx_stage = 0;
-				etimer_set(&et, CLOCK_SECOND * 2);
-			}
-			if (tx_stage == 2) {
-				packetbuf_clear();
-				packetbuf_copyfrom((void *) test_data, 6);
-				NETSTACK_MAC.send(NULL, NULL);
-				tx_stage = 3;
-				gpt_enable_event(1, GPTIMER_SUBTIMER_A);
-				etimer_set(&et, CLOCK_SECOND/1000);
-			}
-			else if (tx_stage == 3) {
-				gpt_disable_event(1, GPTIMER_SUBTIMER_A);
-				tx_stage = 0;
-				etimer_set(&et, CLOCK_SECOND * 5);
-			}
+			gpt_enable_event(1, GPTIMER_SUBTIMER_A);
+			rtimer_set(&rt, RTIMER_NOW() + RTIMER_ARCH_SECOND/1000, 1,
+     			       &stage_1, NULL);
 		}
 	}
 	PROCESS_END();
