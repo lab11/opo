@@ -30,24 +30,30 @@ uint tx_stage = 0;
 static struct rtimer rt;
 static void stage_1(struct rtimer *t, void *ptr);
 static void stage_2(struct rtimer *t, void *ptr);
-static void stage_3(struct rtimer *t, void *ptr);
+void sfd_callback();
+void txdone_callback();
+static void stage_4(struct rtimer *t, void *ptr);
 
 static void stage_1(struct rtimer *t, void *ptr) {
 	gpt_disable_event(1, GPTIMER_SUBTIMER_A);
-	rtimer_set(&rt, RTIMER_NOW() + (RTIMER_ARCH_SECOND/1000 * 50), 1,
-	     	   &stage_2, NULL);
+	tx_stage = 2;
+	etimer_set(&et, 40);
 }
 
-static void stage_2(struct rtimer *t, void *ptr) {
-	packetbuf_copyfrom((void *) test_data, 6);
-	NETSTACK_MAC.send(NULL, NULL);
+void sfd_callback() {
 	gpt_enable_event(1, GPTIMER_SUBTIMER_A);
-	rtimer_set(&rt, RTIMER_NOW() + (RTIMER_ARCH_SECOND/1000), 1,
-	     	   &stage_3, NULL);
 }
 
-static void stage_3(struct rtimer *t, void *ptr) {
+void txdone_callback() {
+	tx_stage = 3;
+	etimer_set(&et, 0);
+	//rtimer_set(&rt, RTIMER_NOW() + (RTIMER_ARCH_SECOND/1000), 1,
+	//     	   &stage_4, NULL);
+}
+
+static void stage_4(struct rtimer *t, void *ptr) {
 	gpt_disable_event(1, GPTIMER_SUBTIMER_A);
+	tx_stage = 0;
 	etimer_set(&et, CLOCK_SECOND * 5);
 }
 
@@ -82,13 +88,29 @@ PROCESS_THREAD(tx_test, ev, data) {
   	GPIO_SET_OUTPUT(GPIO_C_BASE, 0x01);
   	GPIO_CLR_PIN(GPIO_C_BASE, 0x01);
 
+  	SFD_HANDLER.set_callback(sfd_callback);
+  	RF_TXDONE_HANDLER.set_callback(txdone_callback);
+
 	etimer_set(&et, CLOCK_SECOND * 5);
 	while(1) {
 		PROCESS_YIELD();
 		if (ev == PROCESS_EVENT_TIMER) {
-			gpt_enable_event(1, GPTIMER_SUBTIMER_A);
-			rtimer_set(&rt, RTIMER_NOW() + RTIMER_ARCH_SECOND/1000, 1,
-     			       &stage_1, NULL);
+			if (tx_stage == 0) {
+				gpt_enable_event(1, GPTIMER_SUBTIMER_A);
+				rtimer_set(&rt, RTIMER_NOW() + RTIMER_ARCH_SECOND/1000, 1,
+	     			       &stage_1, NULL);
+			}
+			else if (tx_stage == 2) {
+				packetbuf_clear();
+				packetbuf_copyfrom((void *) test_data, 6);
+				NETSTACK_MAC.send(NULL, NULL);
+			}
+			else if (tx_stage == 3) {
+				gpt_disable_event(1, GPTIMER_SUBTIMER_A);
+				tx_stage = 0;
+				etimer_set(&et, CLOCK_SECOND * 5);
+			}
+
 		}
 	}
 	PROCESS_END();
