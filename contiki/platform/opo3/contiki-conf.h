@@ -10,6 +10,8 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "simple_sfd_handler.h"
+#include "simple_rf_txdone_handler.h"
 /*---------------------------------------------------------------------------*/
 /* Include Project Specific conf */
 #ifdef PROJECT_CONF_H
@@ -22,7 +24,7 @@
  * Those values are not meant to be modified by the user
  * @{
  */
-#define CLOCK_CONF_SECOND 128
+#define CLOCK_CONF_SECOND 1000
 
 /* Compiler configurations */
 #define CCIF
@@ -304,8 +306,18 @@ typedef uint32_t rtimer_clock_t;
 #endif
 
 #ifndef NETSTACK_CONF_RDC
-#define NETSTACK_CONF_RDC     contikimac_driver
+#define NETSTACK_CONF_RDC     nullrdc_driver
 #endif
+
+#ifndef NETSTACK_CONF_NETWORK
+#define NETSTACK_CONF_NETWORK simple_network_driver
+#endif
+
+#define SFD_INT_USED  1
+#define SFD_HANDLER   simple_sfd_handler
+
+#define RF_TXDONE_INT_USED  1
+#define RF_TXDONE_HANDLER simple_rf_txdone_handler
 
 /* Configure NullRDC for when it's selected */
 #define NULLRDC_802154_AUTOACK                  1
