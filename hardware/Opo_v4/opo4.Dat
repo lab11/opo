@@ -1,0 +1,47 @@
+Field=Comment~String~Comment~100|Field=Description~String~Description~100|Field=Designator~String~Designator~100|Field=Footprint~String~Footprint~100|Field=LibRef~String~LibRef~100|Field=Quantity~Integer~Quantity~100|ReportField=Currency~<none>|ReportField=ProductionQuantity~1|ReportField=ProjectFileName~opo4.PrjPCB|ReportField=ProjectFullPath~C:\Users\wwhuang\Dropbox\git\opo\hardware\Opo_v4\opo4.PrjPCB|ReportField=Title~Bill of Materials For Project [opo4.PrjPCB] (No PCB Document Selected)|ReportField=TotalQuantity~115|ReportField=ReportTime~12:45:15 PM|ReportField=ReportDate~9/23/2014|ReportField=ReportDateTime~9/23/2014 12:45:15 PM|ReportField=OutputName~Bill of Materials|ReportField=OutputType~BOM_PartType|ReportField=GeneratorName~BOM|ReportField=GeneratorDescription~Bill of Materials|ReportField=VariantName~None|ReportField=Address1~|ReportField=Address2~|ReportField=Address3~|ReportField=Address4~|ReportField=Application_BuildNumber~|ReportField=ApprovedBy~|ReportField=Author~|ReportField=CheckedBy~|ReportField=CompanyName~|ReportField=CurrentDate~9/23/2014|ReportField=CurrentTime~12:29:26 PM|ReportField=Date~|ReportField=DocumentFullPathAndName~C:\Users\wwhuang\Dropbox\git\opo\hardware\Opo_v4\bluetooth.SchDoc|ReportField=DocumentName~bluetooth.SchDoc|ReportField=DocumentNumber~|ReportField=DrawnBy~|ReportField=Engineer~|ReportField=ImagePath~|ReportField=ModifiedDate~9/22/2014|ReportField=Organization~|ReportField=ProjectName~opo4.PrjPCB|ReportField=Revision~|ReportField=Rule~|ReportField=SheetNumber~|ReportField=SheetTotal~|ReportField=Time~|ReportField=Title~|ReportField=DataSourceFileName~opo4.PrjPCB|ReportField=DataSourceFullPath~C:\Users\wwhuang\Dropbox\git\opo\hardware\Opo_v4\opo4.PrjPCB
+Ground Antenna|Molex 2.4 GHz SMD On-Ground Antenna|ANT1|SMD Ground Antenna|Molex Antenna|1
+2450BM14A0002|nrf8001 chip balun|B1|2450BM14A0002|nrf8001_balun|1
+BALUN|Johanson CC253X Balun|B2|Chip Balun|cc2538_Balun|1
+PRT-08612|2-pin JST-PH 2mm Battery Connector|BC1|JST PH 2PIN|JST-PH-2mm-2Pin|1
+15pF 0402 ceramic cap|15pF, 2%, NP0, 0402|C1, C3|0402|C_15p_0402_ceramic|2
+Ceramic capacitor|Ceramic capacitor, 1 uF, 0402 package, Ceramic capacitor, 1000 pF, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 1 uF, 0402 package, Ceramic capacitor, 1 uF, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 1 uF, 0402 package, Ceramic capacitor, 1000 pF, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 1 uF, 0402 package, Ceramic capacitor, 1 uF, 0402 package, Ceramic capacitor, 1 uF, 0402 package, Ceramic capacitor, 1 uF, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 10 uF, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 10 uF, 0402 package, Ceramic capacitor, 1 uF, 0402 package, Ceramic capacitor, 47 pF, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 47 pF, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 10 uF, 0402 package, Ceramic capacitor, 1000 pF, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 10 uF, 0402 package, Ceramic capacitor, 0.1u, 0402 package, Ceramic capacitor, 0402, 39 pF, 5%, C0G, NP0, RF suitable, Ceramic capacitor, 0402, 39 pF, 5%, C0G, NP0, RF suitable, Ceramic capacitor, 0402, 39 pF, 5%, C0G, NP0, RF suitable|C2, C4, C6, C9, C10, C11, C12, C13, C14, C15, C16, C17, C18, C21, C23, C24, C26, C28, C30, C31, C32, C33, C35, C36, C37, C38, C39, C40, C41, C42, C43, C44, C45, C46, C47, C48, C49, C50, C51, C52, C53, C54, C55, C56, C57, C58|0402|C_1u_0402_ceramic, C_1000p_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_1u_0402_ceramic, C_1u_0402_ceramic, C_0.1u_0402_ceramic, C_1u_0402_ceramic, C_1000p_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_1u_0402_ceramic, C_1u_0402_ceramic, C_1u_0402_ceramic, C_1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_10u_0402_ceramic, C_0.1u_0402_ceramic, C_10u_0402_ceramic, C_1u_0402_ceramic, C_47p_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_47p_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_10u_0402_ceramic, C_1000p_0402_ceramic, C_0.1u_0402_ceramic, C_0.1u_0402_ceramic, C_10u_0402_ceramic, C_0.1u_0402_ceramic, C_39pf_0402_ceramic, C_39pf_0402_ceramic, C_39pf_0402_ceramic|46
+4.7uF|4.7 uF 10% 0402 6.3V X5R ceramic cap|C5|0402|C_4.7u_0402_ceramic|1
+33nF|33nF 10% 0402 16V X7R ceramic cap|C7|0402|C_0.033uF_0402_ceramic|1
+2.2nF|2.2nF 10% 50V X7R ceramic cap|C8|0402|C_2.2n_0402_ceramic|1
+220pF 0402 ceramic cap|220pF 5% 50 V C0G NP0 0402 ceramic cap|C19|0402|C_220pf_0402_ceramic|1
+13pf 0402 Cap|13pf, 50V, 2%, c0G, NP0, 0402, ceramic|C20, C22|0402|C_13p_0402|2
+Ceramic capacitor|Ceramic capacitor, 10 uF, 0603 package|C25, C27, C29|0603|C_10u_0603_ceramic|3
+Tantalum capacitor|Tantalum capacitor, 4.7 uF, 0603 package|C34|0603 - Polar Marking|C_4.7u_0603_tantalum|1
+LED, Green|LED, Green,  0402|D1|0402 - DIODE|D_LED_GREEN_0402|1
+Schottky diode|Schottky diode 30 V 0.1 A 0603|D2|0603 - DIODE|D_SCHOTTKY_30V_0.1A_0603|1
+Tri Color LED|LED, RGB, 0404|D3|0404|D_LED_RGB_0404|1
+Ferrite Bead|Ferrite Bead, 150 mA, 0402 package|FB1|0402|FB_150mA_0402|1
+micro USB-B|CONN USB MICRO B RECPT SMT R/A|J1|Micro USB-B|Micro USB|1
+15nH chip inductor|15 nH, 5%, 460mOhm, 2.3Ghz, 0402 chip inductor|L1|0402|L_15nH_0402|1
+10uH chip inductor|10uH, 10%, 32MHz, 468 mOhm, 0603, chip inductor|L2|0603|L_10u_0603|1
+DMG1013UW|P-CHANNEL ENHANCEMENT MODE MOSFET|Q1|SC70-3|DMG1013UW|1
+Si1300BDL|MOSFET N-CH D-S 20V SC-70-3|Q2|SC70-3|Si1300BDL|1
+22k 0402 resistor|22k 1% .063W 0402 resistor|R1|0402|R_22k_0402|1
+56k 0402 Res|56 kOhm, 1%, .0603 W, 0402|R2|0402|R_56K_0402|1
+2.2 Ohm 0402 Res|2.2 Ohm, 1%, .063W, 0402|R3|0402|R_2.2_0402|1
+Chip resistor|Chip resistor, 100K, 0402 package, Chip resistor, 100K, 0402 package, Chip resistor, 100K, 0402 package, Chip resistor, 1K, 0402 package, Chip resistor, 1M, 0402 package, Chip resistor, 1M, 0402 package, Chip resistor, 100K, 0402 package, Chip resistor, 100K, 0402 package, Chip resistor, 1M, 0402 package, Chip resistor, 100K, 0402 package, Chip resistor, 1.24M, 0402 package, Chip resistor, 37.4K, 0402 package, Chip resistor, 27K, 0402 package, Chip resistor, 422K, 0402 package, Chip resistor, 270K, 0402 package, Chip resistor, 1.24M, 0402 package, Chip resistor, 37.4K, 0402 package, Chip resistor, 270K, 0402 package|R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15, R16, R17, R18, R19, R20, R21|0402|R_100K_0402, R_100K_0402, R_100K_0402, R_1K_0402, R_1M_0402, R_1M_0402, R_100K_0402, R_100K_0402, R_1M_0402, R_100K_0402, R_1.24M_0402, R_37.4K_0402, R_27K_0402, R_422K_0402, R_270K_0402, R_1.24M_0402, R_37.4K_0402, R_270K_0402|18
+Chip Resistor|40.2 Ohm 0201 1% Chip Resistor, 60.4 Ohm, .05W, 1% 0201 Chip Resistor, 240 Ohm, 1%, .05W, 0201 Chip Resistor|R22, R23, R24|0201|R_40.2_0201, R_60.4_0201, R_240_0201|3
+nrf8001|nrf8001 Bluetooth SPI module|U1|QFN50P500X500X90_HS-33N|nrf8001|1
+MASWSS0115|Rf Switch|U2|SC70-6|MASWSS0115|1
+cc2538|cc2538 MCU/802.15.4 radio|U3|QFN50P800X800X100_HS-57N|cc2538|1
+NC7S14P5X|Single Inverter|U4|SC70-5|NC7S14P5X|1
+SST25VF064C|64 Mbit SPI Serial Dual I/O Flash|U5|WSON|SST25VF064C|1
+ISL60002|IC VREF SERIES PREC SOT-23-3|U6|SOT23-3N|ISL60002|1
+ADP162|Ultralow Quiescent Current,  150 mA, CMOS Linear Regulators|U7|TSOT23-5|ADP162|1
+MAX1555|3 Dual-Input USB/AC Adapter 1-Cell Li+  Battery Chargers|U8|SOT23-5|MAX1555|1
+FT232RQ|FT232R USB UART|U9|QFN-32|IC_FT232RQ|1
+ADXL362|Micropower, 3-Axis, ±2 g/±4 g/±8 g  Digital Output MEMS Accelerometer|U10|LGA_CC-16-4|ADXL362|1
+MIC863|Dual Ultra Low Power Op Amp in SOT23-8|U11|TSOP65P280X145-8N|MIC863|1
+MIC861|IC OPAMP 400KHZ 2.7V ULT LP SC70|U12|SC70-5|MIC861|1
+TS881|Rail-to-rail 1.1 V nanopower comparator|U13, U14|SC70-5|TS881|2
+NX3L4684|IC ANALOG SWITCH SPDT 10XQFN|U15|QFN50P155X200X13-10N|NX3L4684|1
+NLX2G14|Dual Schmitt-Trigger  Inverter|U16|ULLGA6|NLX2G14|1
+400EP250|Air Ultrasounic Ceramic Transducers|UT1|Transducer recepticle|Tranducer|1
+16MHz Crystal|3.2x2.5mm 16MHz SMD crystal|X1|TSX-3225|TSX-3225|1
+32 MHz Crystal|32MHz, 10ppm, 10pF, 60 Ohm|X2|FA-128|X_32M_FA-128|1
+RV-4162-C7|Real Time Clock Module with I2C Bus|Y1|RV4162|RV-4162-C7|1
