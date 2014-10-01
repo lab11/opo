@@ -81,50 +81,63 @@ static inline void REQN_CLR() {
 }
 
 static void nrf8001_event_callback() {
-	uint8_t debug = 0;
-	uint8_t i = 0;
-	nrf8001_ep.length = 0;
-	nrf8001_ep.event = 0;
-	for(i=0;i<30;i++) {
-		nrf8001_ep.packet[i] = 0;
-	}
-	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
-	SPI_FLUSH();
-	REQN_CLR();
-	SPI_READ(debug);
-	SPI_READ(nrf8001_ep.length);
-	if(nrf8001_ep.length > 0) {
-		SPI_READ(nrf8001_ep.event);
-		nrf8001_ep.length = reverse_table[nrf8001_ep.length];
-		for(i=0; i < nrf8001_ep.length-1; i++) {
-			SPI_READ(nrf8001_ep.packet[i]);
+	uint8_t rdyn_state = 1;
+	rdyn_state = GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+	if(rdyn_state == 0) {
+		uint8_t debug = 0;
+		uint8_t i = 0;
+		nrf8001_ep.length = 0;
+		nrf8001_ep.event = 0;
+		for(i=0;i<30;i++) {
+			nrf8001_ep.packet[i] = 0;
 		}
-		nrf8001_ep.event = reverse_table[nrf8001_ep.event];
-		for(i=0; i < nrf8001_ep.length-1;i++) {
-			nrf8001_ep.packet[i] = reverse_table[nrf8001_ep.packet[i]];
-		}
-	}
-	while(1) {
-		if(!(REG(SSI0_BASE + SSI_SR) & SSI_SR_BSY)) {
-			break;
-		}
-	}
-	REQN_SET();
-
-	// Handle continuation cases for user. E.g, multiple setup commands
-	if(nrf8001_ep.event == NRF8001_COMMAND_RESPONSE_EVENT) {
-		uint8_t cmd_op_code = nrf8001_ep.packet[0];
-		uint8_t cmd_status = nrf8001_ep.packet[1];
-		if(cmd_status == ACI_STATUS_TRANSACTION_CONTINUE) {
-			if(cmd_op_code == NRF8001_SETUP) {
-				nrf8001_setup();
+		spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
+		SPI_FLUSH();
+		REQN_CLR();
+		SPI_READ(debug);
+		SPI_READ(nrf8001_ep.length);
+		if(nrf8001_ep.length > 0) {
+			SPI_READ(nrf8001_ep.event);
+			nrf8001_ep.length = reverse_table[nrf8001_ep.length];
+			for(i=0; i < nrf8001_ep.length-1; i++) {
+				SPI_READ(nrf8001_ep.packet[i]);
+			}
+			nrf8001_ep.event = reverse_table[nrf8001_ep.event];
+			for(i=0; i < nrf8001_ep.length-1;i++) {
+				nrf8001_ep.packet[i] = reverse_table[nrf8001_ep.packet[i]];
 			}
 		}
-		else {
+		while(1) {
+			if(!(REG(SSI0_BASE + SSI_SR) & SSI_SR_BSY)) {
+				break;
+			}
+		}
+		REQN_SET();
+
+		// Handle continuation cases for user. E.g, multiple setup commands
+		if(nrf8001_ep.event == NRF8001_COMMAND_RESPONSE_EVENT) {
+			uint8_t cmd_op_code = nrf8001_ep.packet[0];
+			uint8_t cmd_status = nrf8001_ep.packet[1];
+			if(cmd_status == ACI_STATUS_TRANSACTION_CONTINUE) {
+				if(cmd_op_code == NRF8001_SETUP) {
+					nrf8001_setup();
+				}
+			}
+			else if(cmd_status == ACI_STATUS_TRANSACTION_COMPLETE) {
+				leds_on(LEDS_GREEN);
+				//sensors_changed(&nrf8001_event);
+			}
+		} else {
+			if(nrf8001_ep.event == NRF8001_DEVICE_STARTED_EVENT) {
+				if(nrf8001_ep.packet[0] == 0x03) {
+					leds_on(LEDS_YELLOW);
+					//nrf8001_connect(0, 32);
+				}
+			}
 			sensors_changed(&nrf8001_event);
 		}
 	} else {
-		sensors_changed(&nrf8001_event);
+
 	}
 }
 
@@ -173,6 +186,7 @@ void nrf8001_init() {
 
 // Enable nrf8001 functionality.
 void nrf8001_enable() {
+	//leds_on(LEDS_YELLOW);
 	uint8_t rdyn_state = 1;
 	config_event_callback(0,0);
 	rdyn_state = GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
@@ -404,7 +418,7 @@ void nrf8001_set_local_data(uint8_t pipe, uint8_t packet_length, uint8_t *packet
 
 void nrf8001_send_data(uint8_t pipe, uint8_t packet_length, uint8_t *packet) {
 	uint8_t i = 0;
-	nrf8001_cmd.length = packet_length + 1;
+	nrf8001_cmd.length = packet_length + 2;
 	nrf8001_cmd.command = NRF8001_SEND_DATA;
 	nrf8001_cmd.packet[0] = pipe;
 	for(i=0;i<packet_length;i++) {

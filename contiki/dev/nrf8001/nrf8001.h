@@ -62,6 +62,7 @@
 
 // ACI Status codes
 #define ACI_STATUS_TRANSACTION_CONTINUE 0x01
+#define ACI_STATUS_TRANSACTION_COMPLETE 0x02
 
 // Connected packet breakdown
 #define NRF8001_ADDRESS_TYPE 0x00
