@@ -1,0 +1,21 @@
+#include "contiki.h"
+#include "board.h"
+#include "dev/gpio.h"
+#include "rf_switch.h"
+
+
+void rf_switch_init() {
+	GPIO_SOFTWARE_CONTROL(RADIO_SELECT_PORT_BASE, RADIO_SELECT_PIN_MASK);
+	GPIO_SET_OUTPUT(RADIO_SELECT_PORT_BASE, RADIO_SELECT_PIN_MASK);
+	GPIO_CLR_PIN(RADIO_SELECT_PORT_BASE, RADIO_SELECT_PIN_MASK);
+}
+
+void ble_ant_enable() {
+	GPIO_CLR_PIN(RADIO_SELECT_PORT_BASE, RADIO_SELECT_PIN_MASK);
+}
+
+void cc2538_ant_enable() {
+	GPIO_SET_PIN(RADIO_SELECT_PORT_BASE, RADIO_SELECT_PIN_MASK);
+}
+
+
