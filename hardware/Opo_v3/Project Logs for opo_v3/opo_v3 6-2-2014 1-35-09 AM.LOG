@@ -1,9 +1,0 @@
-Added Component: Designator=U?(SC70-5)
-Added Pin To Net: NetName=GND Pin=U?-3
-Added Pin To Net: NetName=VCC3.3 Pin=U?-4
-Added Pin To Net: NetName=CC2538_UBAL Pin=U12-27
-Added Pin To Net: NetName=CC2538_UBAL Pin=U?-2
-Added Net: Name=CC2538_UBAL
-Added Pin To Net: NetName=NRF8001_UBAL Pin=U?-5
-Added Net: Name=NRF8001_UBAL
-Added Member To Class: ClassName=mcu Member=Component U? NC7S14P5X

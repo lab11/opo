@@ -1,6 +1,0 @@
-Added Component: Designator=U10(DFN6-Si7021)
-Added Pin To Net: NetName=SDA Pin=U10-1
-Added Pin To Net: NetName=GND Pin=U10-2
-Added Pin To Net: NetName=VCC3.3 Pin=U10-5
-Added Pin To Net: NetName=SCL Pin=U10-6
-Added Member To Class: ClassName=accero_humid_rtc Member=Component U10 Si7021

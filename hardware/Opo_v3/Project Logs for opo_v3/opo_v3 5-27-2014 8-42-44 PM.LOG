@@ -1,4 +1,0 @@
-Removed Pin From Net: NetName=NetU6_1 Pin=U12-13
-Change Net Name : Old Net Name=NetU7_2 New Net Name=TXRX_SELECT
-Added Pin To Net: NetName=NetU12_13 Pin=U12-13
-Added Net: Name=NetU12_13

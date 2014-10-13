@@ -1,7 +1,0 @@
-Change Net Name : Old Net Name=NetU9_4 New Net Name=SPI_CLK
-Change Net Name : Old Net Name=NetU9_6 New Net Name=SPI_MOSI
-Change Net Name : Old Net Name=NetU9_7 New Net Name=SPI_MISO
-Change Net Name : Old Net Name=NetU9_8 New Net Name=ACCER_CS
-Change Net Name : Old Net Name=NetU9_9 New Net Name=ACCER_INT2
-Change Net Name : Old Net Name=NetU9_11 New Net Name=ACCER_INT1
-Added Member To Class: ClassName=ultrasonic_tx Member=Component UT1 400EP250

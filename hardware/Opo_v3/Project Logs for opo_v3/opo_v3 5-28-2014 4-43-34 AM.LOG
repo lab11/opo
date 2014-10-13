@@ -1,6 +1,0 @@
-Added Pin To Net: NetName=FLASH_SCK Pin=U13-6
-Added Net: Name=FLASH_SCK
-Added Pin To Net: NetName=FLASH_SI Pin=U13-5
-Added Net: Name=FLASH_SI
-Added Pin To Net: NetName=FLASH_SO Pin=U13-2
-Added Net: Name=FLASH_SO

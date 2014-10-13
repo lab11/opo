@@ -1,5 +1,0 @@
-Removed Pin From Net: NetName=I2C_SDA Pin=Y1-1
-Removed Pin From Net: NetName=GND Pin=Y1-3
-Removed Pin From Net: NetName=VCC3.3 Pin=Y1-5
-Removed Pin From Net: NetName=I2C_SCL Pin=Y1-8
-Removed Member From Class: ClassName=accero_humid_rtc Member=Y1

@@ -1,5 +1,0 @@
-Removed Pin From Net: NetName=VCC3.3 Pin=U6-2
-Removed Pin From Net: NetName=GND Pin=U6-3
-Removed Pin From Net: NetName=AMP3_OUT Pin=U6-4
-Removed Pin From Net: NetName=GND Pin=U6-6
-Removed Member From Class: ClassName=ultrasonic_rx Member=U6

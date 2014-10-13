@@ -1,4 +1,0 @@
-Removed Pin From Net: NetName=FLASH_CS Pin=U12-53
-Removed Pin From Net: NetName=FLASH_PWR Pin=U12-54
-Added Pin To Net: NetName=BLE_ACTIVE Pin=U12-53
-Added Pin To Net: NetName=FLASH_CS Pin=U12-54

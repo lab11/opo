@@ -1,4 +1,0 @@
-Added Component: Designator=BC?(JST PH 2PIN)
-Added Pin To Net: NetName=VBAT Pin=BC?-1
-Added Pin To Net: NetName=GND Pin=BC?-2
-Added Member To Class: ClassName=power Member=Component BC? PRT-08612

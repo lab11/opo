@@ -1,8 +1,0 @@
-Added Pin To Net: NetName=SPI_MISO Pin=U12-49
-Added Pin To Net: NetName=SPI_MOSI Pin=U12-50
-Added Pin To Net: NetName=SPI_MISO Pin=U13-2
-Added Pin To Net: NetName=SPI_MOSI Pin=U13-5
-Added Pin To Net: NetName=BLE_SCK Pin=U13-6
-Added Pin To Net: NetName=SPI_MOSI Pin=U14-13
-Added Pin To Net: NetName=SPI_MISO Pin=U14-14
-Change Net Name : Old Net Name=BLE_SCK New Net Name=SPI_SCK

@@ -1,8 +1,0 @@
-Added Component: Designator=R21(0402)
-Added Component: Designator=R22(0402)
-Added Pin To Net: NetName=VCC_FLASH Pin=R21-1
-Added Pin To Net: NetName=FLASH_HOLD Pin=R21-2
-Added Pin To Net: NetName=VCC_FLASH Pin=R22-1
-Added Pin To Net: NetName=FLASH_WP Pin=R22-2
-Added Member To Class: ClassName=mcu Member=Component R21 Chip resistor
-Added Member To Class: ClassName=mcu Member=Component R22 Chip resistor
