@@ -41,6 +41,8 @@
 #include "flash-cca.h"
 #include "sys-ctrl.h"
 #include "uart.h"
+#include "gptimer.h"
+
 
 #include <stdint.h>
 /*---------------------------------------------------------------------------*/
@@ -62,6 +64,15 @@ void cc2538_rf_rx_tx_isr(void);
 void cc2538_rf_err_isr(void);
 void udma_isr(void);
 void udma_err_isr(void);
+
+void gpt_0_a_isr(void);
+void gpt_0_b_isr(void);
+void gpt_1_a_isr(void);
+void gpt_1_b_isr(void);
+void gpt_2_a_isr(void);
+void gpt_2_b_isr(void);
+void gpt_3_a_isr(void);
+void gpt_3_b_isr(void);
 
 /* Boot Loader Backdoor selection */
 #if FLASH_CCA_CONF_BOOTLDR_BACKDOOR
@@ -156,12 +167,12 @@ void(*const vectors[])(void) =
   0,                          /* 32 Reserved */
   0,                          /* 33 Reserved */
   default_handler,            /* 34 Watchdog timer, timer 0 */
-  default_handler,            /* 35 Timer 0 subtimer A */
-  default_handler,            /* 36 Timer 0 subtimer B */
-  default_handler,            /* 37 Timer 1 subtimer A */
-  default_handler,            /* 38 Timer 1 subtimer B */
-  default_handler,            /* 39 Timer 2 subtimer A */
-  default_handler,            /* 40 Timer 2 subtimer B */
+  gpt_0_a_isr,            /* 35 Timer 0 subtimer A */
+  gpt_0_b_isr,            /* 36 Timer 0 subtimer B */
+  gpt_1_a_isr,            /* 37 Timer 1 subtimer A */
+  gpt_1_b_isr,            /* 38 Timer 1 subtimer B */
+  gpt_2_a_isr,            /* 39 Timer 2 subtimer A */
+  gpt_2_b_isr,            /* 40 Timer 2 subtimer B */
   default_handler,            /* 41 Analog Comparator 0 */
   default_handler,            /* 42 RFCore Rx/Tx (Alternate) */
   default_handler,            /* 43 RFCore Error (Alternate) */
@@ -172,8 +183,8 @@ void(*const vectors[])(void) =
   default_handler,            /* 48 SM Timer (Alternate) */
   default_handler,            /* 49 MacTimer (Alternate) */
   default_handler,            /* 50 SSI1 Rx and Tx */
-  default_handler,            /* 51 Timer 3 subtimer A */
-  default_handler,            /* 52 Timer 3 subtimer B */
+  gpt_3_a_isr,            /* 51 Timer 3 subtimer A */
+  gpt_3_b_isr,            /* 52 Timer 3 subtimer B */
   0,                          /* 53 Reserved */
   0,                          /* 54 Reserved */
   0,                          /* 55 Reserved */

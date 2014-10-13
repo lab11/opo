@@ -58,15 +58,9 @@
 #include "dev/gpio.h"
 #include "dev/nvic.h"
 /*---------------------------------------------------------------------------*/
-/** \name SmartRF LED configuration
+/** \name LED configuration
  *
- * LEDs on the SmartRF06 (EB and BB) are connected as follows:
- * - LED1 (Red)    -> PC0
- * - LED2 (Yellow) -> PC1
- * - LED3 (Green)  -> PC2
- * - LED4 (Orange) -> PC3
  *
- * LED1 shares the same pin with the USB pullup
  * @{
  */
 /*---------------------------------------------------------------------------*/
@@ -77,41 +71,23 @@
 #undef LEDS_RED
 #undef LEDS_CONF_ALL
 
-#define LEDS_YELLOW    2 /**< LED2 (Yellow) -> PC1 */
-#define LEDS_GREEN     4 /**< LED3 (Green)  -> PC2 */
-#define LEDS_ORANGE    8 /**< LED4 (Orange) -> PC3 */
+ /* No actual leds on board Using
 
-#if USB_SERIAL_CONF_ENABLE
-#define LEDS_CONF_ALL 14
-#define LEDS_RED LEDS_ORANGE
-#else
-#define LEDS_CONF_ALL 15
-#define LEDS_RED       1 /**< LED1 (Red)    -> PC0 */
-#endif
+ */
+
+#define LEDS_YELLOW    128 /**< LED2 (Yellow) -> PC1 */
+#define LEDS_GREEN     64 /**< LED3 (Green)  -> PC2 */
+#define LEDS_ORANGE    32 /**< LED4 (Orange) -> PC3 */
+
+#define LEDS_CONF_ALL 224
 
 /* Notify various examples that we have LEDs */
-#define PLATFORM_HAS_LEDS        1
-/** @} */
-/*---------------------------------------------------------------------------*/
-/** \name USB configuration
- *
- * The USB pullup is driven by PC0 and is shared with LED1
- */
-#define USB_PULLUP_PORT          GPIO_C_NUM
-#define USB_PULLUP_PIN           0
+#define PLATFORM_HAS_LEDS        0
 /** @} */
 /*---------------------------------------------------------------------------*/
 /** \name UART configuration
  *
- * On the SmartRF06EB, the UART (XDS back channel) is connected to the
- * following ports/pins
- * - RX:  PA0
- * - TX:  PA1
- * - CTS: PB0 (Can only be used with UART1)
- * - RTS: PD3 (Can only be used with UART1)
- *
- * We configure the port to use UART0. To use UART1, replace UART0_* with
- * UART1_* below.
+ * UART 0 configuration. This is how the bsl programs the board
  * @{
  */
 #define UART0_RX_PORT            GPIO_A_NUM
@@ -119,26 +95,8 @@
 
 #define UART0_TX_PORT            GPIO_A_NUM
 #define UART0_TX_PIN             1
-// unused uart1
-#define UART1_CTS_PORT           GPIO_C_NUM
-#define UART1_CTS_PIN            1
 
-#define UART1_RTS_PORT           GPIO_C_NUM
-#define UART1_RTS_PIN            2
-/** @} */
-/*---------------------------------------------------------------------------*/
-/**
- * \name FM25L04B configuration
- *
- * These values configure which CC2538 pins to use for the FRAM chip.
- * @{
- */
-#define FM25L04B_HOLD_N_PORT_NUM GPIO_D_NUM
-#define FM25L04B_HOLD_N_PIN      0
-#define FM25L04B_WP_N_PORT_NUM   GPIO_D_NUM
-#define FM25L04B_WP_N_PIN        2
-#define FM25L04B_CS_N_PORT_NUM   GPIO_D_NUM
-#define FM25L04B_CS_N_PIN        1
+
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**
@@ -153,7 +111,74 @@
 #define ADC_ALS_PWR_PORT         GPIO_A_NUM /**< ALS power GPIO control port */
 #define ADC_ALS_PWR_PIN          7 /**< ALS power GPIO control pin */
 #define ADC_ALS_OUT_PIN          6 /**< ALS output ADC input pin on port A */
+
 /** @} */
+/*---------------------------------------------------------------------------*/
+/** \name Pin configs
+ *
+ * Opo4 pin configurations
+ * @{
+ */
+// Software control pin masks
+#define OPO_SFC_A_MASK	0xF8
+#define OPO_SFC_B_MASK	0x97
+#define OPO_SFC_C_MASK	0xF2
+#define OPO_SFC_D_MASK	0xFF
+
+// TX_RX sel pin info
+#define OPO_TX_RX_SEL_PORT_BASE    GPIO_C_BASE
+#define OPO_TX_RX_SEL_PIN_MASK	   0x02
+
+// Integrator pin info
+#define OPO_INT_PORT_BASE	GPIO_C_BASE
+#define OPO_INT_PORT_NUM	GPIO_C_NUM
+#define OPO_INT_PIN_MASK	0x80
+#define OPO_INT_PIN_NUM		7
+#define OPO_GPT_INT_PIN		23
+
+// COMP1 pin info
+#define OPO_COMP1_PORT_BASE	GPIO_C_BASE
+#define OPO_COMP1_PORT_NUM	GPIO_C_NUM
+#define OPO_COMP1_PIN_MASK	0x40
+#define OPO_COMP1_PIN_NUM	6
+#define OPO_GPT_COMP1_PIN	22
+
+// COMP2 pin info
+#define OPO_COMP2_PORT_BASE	GPIO_C_BASE
+#define OPO_COMP2_PORT_NUM	GPIO_C_NUM
+#define OPO_COMP2_PIN_MASK	0x20
+#define OPO_COMP2_PIN_NUM	5
+#define OPO_GPT_COMP2_PIN	21
+
+// TX PWM Pins
+#define OPO_PWM_PORT_BASE	GPIO_C_BASE
+#define OPO_PWM_PORT_NUM	GPIO_C_NUM
+#define OPO_PWM_PIN_MASK	0x01
+#define OPO_PWM_PIN_NUM	    0
+
+#define GPIO_A_OUTPUT_MASK 0xF8
+#define GPIO_A_INPUT_MASK  0x00
+#define GPIO_A_CLR_MASK    0xF8
+#define GPIO_A_SET_MASK    0x00
+
+#define GPIO_B_OUTPUT_MASK 0x13
+#define GPIO_B_INPUT_MASK  0x84
+#define GPIO_B_CLR_MASK	   0x00
+#define GPIO_B_SET_MASK    0x13
+
+#define GPIO_C_OUTPUT_MASK 0x03
+#define GPIO_C_INPUT_MASK  0xe0
+#define GPIO_C_CLR_MASK    0x03
+#define GPIO_C_SET_MASK    0x00
+
+#define GPIO_D_OUTPUT_MASK 0xff
+#define GPIO_D_INPUT_MASK  0x00
+#define GPIO_D_CLR_MASK    0xff
+#define GPIO_D_SET_MASK    0x00
+
+#define OPO_INT_NVIC       NVIC_INT_GPIO_PORT_C
+
+
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**
@@ -163,15 +188,22 @@
  * nrf8001.
  * @{
  */
-// RF2.8 on dk board
-#define NRF8001_RDYN_PORT       GPIO_D_NUM // RF 2.8 on Dev Board
-#define NRF8001_RDYN_PIN        4
-#define NRF8001_RDYN_VECTOR     NVIC_INT_GPIO_PORT_D
 
-// RF 2.10 on dk board
-#define NRF8001_REQN_PORT 		GPIO_D_NUM // RF2.14 on Dev Board
-#define NRF8001_REQN_PIN		1
-#define NRF8001_REQN_VECTOR 	NVIC_INT_GPIO_PORT_D
+#define RADIO_SELECT_PORT		GPIO_D_NUM
+#define RADIO_SELECT_PIN		2
+#define RADIO_SELECT_VECTOR		NVIC_INT_GPIO_PORT_D
+
+#define NRF8001_RDYN_PORT       GPIO_B_NUM
+#define NRF8001_RDYN_PIN        7
+#define NRF8001_RDYN_VECTOR     NVIC_INT_GPIO_PORT_B
+
+#define NRF8001_REQN_PORT 		GPIO_B_NUM
+#define NRF8001_REQN_PIN		4
+#define NRF8001_REQN_VECTOR 	NVIC_INT_GPIO_PORT_B
+
+ #define NRF8001_ACTIVE_PORT	GPIO_B_NUM
+ #define NRF8001_ACTIVE_PIN		2
+ #define NRF8001_ACTIVE_VECTOR	NVIC_INT_GPIO_PORT_B
 /** @} */
 
 /*---------------------------------------------------------------------------*/
@@ -181,12 +213,12 @@
  * These values configure which CC2538 pins to use for the SPI lines.
  * @{
  */
-#define SPI_CLK_PORT             GPIO_C_NUM // RF1.10 on Dev Board
-#define SPI_CLK_PIN              6
-#define SPI_MOSI_PORT            GPIO_C_NUM // RF1.12 on Dev Board
-#define SPI_MOSI_PIN             7
-#define SPI_MISO_PORT            GPIO_B_NUM // RF1.5 on Dev Board
-#define SPI_MISO_PIN             1
+#define SPI_CLK_PORT             GPIO_B_NUM
+#define SPI_CLK_PIN              3
+#define SPI_MOSI_PORT            GPIO_B_NUM
+#define SPI_MOSI_PIN             5
+#define SPI_MISO_PORT            GPIO_B_NUM
+#define SPI_MISO_PIN             6
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**

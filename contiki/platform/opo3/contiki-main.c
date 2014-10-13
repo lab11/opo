@@ -34,8 +34,9 @@
 #include "lpm.h"
 #include "spi-arch.h"
 #include "spi.h"
-#include "fm25l04b.h"
 #include "nrf8001.h"
+#include "rf_switch.h"
+#include "simple_sfd_handler.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -99,14 +100,35 @@ main(void)
   rtimer_init();
   gpio_init();
 
-  leds_init();
+  // Set up GPIO pins. Gotta stop that current leakage yo
+  GPIO_SET_OUTPUT(GPIO_A_BASE, GPIO_A_OUTPUT_MASK);
+  GPIO_SET_INPUT(GPIO_A_BASE, GPIO_A_INPUT_MASK);
+  GPIO_CLR_PIN(GPIO_A_BASE, GPIO_A_CLR_MASK);
+  GPIO_SET_PIN(GPIO_A_BASE, GPIO_A_SET_MASK);
+
+  GPIO_SET_OUTPUT(GPIO_B_BASE, GPIO_B_OUTPUT_MASK);
+  GPIO_SET_INPUT(GPIO_B_BASE, GPIO_B_INPUT_MASK);
+  GPIO_CLR_PIN(GPIO_B_BASE, GPIO_B_CLR_MASK);
+  GPIO_SET_PIN(GPIO_B_BASE, GPIO_B_SET_MASK);
+
+  GPIO_SET_OUTPUT(GPIO_C_BASE, GPIO_C_OUTPUT_MASK);
+  GPIO_SET_INPUT(GPIO_C_BASE, GPIO_C_INPUT_MASK);
+  GPIO_CLR_PIN(GPIO_C_BASE, GPIO_C_CLR_MASK);
+  GPIO_SET_PIN(GPIO_C_BASE, GPIO_C_SET_MASK);
+
+  GPIO_SET_OUTPUT(GPIO_D_BASE, GPIO_D_OUTPUT_MASK);
+  GPIO_SET_INPUT(GPIO_D_BASE, GPIO_D_INPUT_MASK);
+  GPIO_CLR_PIN(GPIO_D_BASE, GPIO_D_CLR_MASK);
+  GPIO_SET_PIN(GPIO_D_BASE, GPIO_D_SET_MASK);
+
+  //leds_init();
 
   process_init();
 
   watchdog_init();
   spi_init();
-  //fm25l04b_init();
   nrf8001_init();
+  rf_switch_init();
 
   /*
    * Character I/O Initialization.

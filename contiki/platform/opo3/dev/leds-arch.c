@@ -51,6 +51,9 @@ void
 leds_arch_init(void)
 {
   GPIO_SET_OUTPUT(GPIO_C_BASE, LEDS_GPIO_PIN_MASK);
+  GPIO_CLR_PIN(GPIO_C_BASE, LEDS_YELLOW);
+  GPIO_CLR_PIN(GPIO_C_BASE, LEDS_GREEN);
+  GPIO_CLR_PIN(GPIO_C_BASE, LEDS_ORANGE);
 }
 /*---------------------------------------------------------------------------*/
 unsigned char
