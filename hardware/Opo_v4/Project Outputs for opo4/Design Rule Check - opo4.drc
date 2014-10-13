@@ -1,0 +1,89 @@
+Protel Design System Design Rule Check
+PCB File : C:\Users\wwhuang\Dropbox\git\opo\hardware\Opo_v4\opo4.PcbDoc
+Date     : 9/24/2014
+Time     : 2:12:24 AM
+
+Processing Rule : Net Antennae (Tolerance=0mil) (All)
+Rule Violations :0
+
+Processing Rule : Silk primitive without silk layer
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (-155.512mil,-664.087mil)(155.512mil,-664.087mil)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (155.512mil,-664.087mil)(155.512mil,-465.268mil)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (-155.512mil,-664.087mil)(-155.512mil,-466.252mil)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "micro USB-B" (-134.5mil,-858.5mil)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "Ferrite Bead" (-204.5mil,-694.216mil)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "Ceramic capacitor" (-265.5mil,-697.5mil)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "FT232RQ" (-328.5mil,-719.5mil)  Bottom Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "SST25VF064C" (589.5mil,-737.5mil)  Bottom Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "Chip resistor" (634.5mil,-637.5mil)  Bottom Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "Ceramic capacitor" (-1032.5mil,-738.5mil)  Bottom Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Text "Tantalum capacitor" (-257.5mil,-720.5mil)  Bottom Overlay
+Rule Violations :11
+
+Processing Rule : Silk To Solder Mask (Clearance=10mil) (Disabled)(IsPad),(All)
+Rule Violations :0
+
+Processing Rule : Minimum Solder Mask Sliver (Gap=10mil) (Disabled)(All),(All)
+Rule Violations :0
+
+Processing Rule : Hole To Hole Clearance (Gap=10mil) (All),(All)
+Rule Violations :0
+
+Processing Rule : Height Constraint (Min=0mil) (Max=1000mil) (Prefered=500mil) (All)
+Rule Violations :0
+
+Processing Rule : Hole Size Constraint (Min=1mil) (Max=100mil) (All)
+Rule Violations :0
+
+Processing Rule : Hole Size Constraint (Min=1mil) (Max=100mil) (All)
+Rule Violations :0
+
+Processing Rule : Hole Size Constraint (Min=8mil) (Max=251mil) (All)
+Rule Violations :0
+
+Processing Rule : Component Clearance Constraint ( Horizontal Gap = 10mil, Vertical Gap = 10mil ) (All),(All) 
+Rule Violations :0
+
+Processing Rule : Minimum Annular Ring (Minimum=7mil) (All)
+Rule Violations :0
+
+Processing Rule : Un-Routed Net Constraint ( (All) )
+Rule Violations :0
+
+Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
+Rule Violations :0
+
+Processing Rule : Power Plane Connect Rule(Relief Connect )(Expansion=10mil) (Conductor Width=8mil) (Air Gap=10mil) (Entries=4) (All)
+Rule Violations :0
+
+Processing Rule : Width Constraint (Min=6mil) (Max=100mil) (Preferred=10mil) (All)
+Rule Violations :0
+
+Processing Rule : Clearance Constraint (Gap=6mil) (All),(All)
+   Violation between Pad U16-2(150mil,-340.764mil)  Top Layer and 
+                     Pad U16-1(134.252mil,-339.976mil)  Top Layer
+   Violation between Track (103.5mil,-370.728mil)(134.252mil,-339.976mil)  Top Layer and 
+                     Pad U16-2(150mil,-340.764mil)  Top Layer
+   Violation between Pad U16-3(165.748mil,-340.764mil)  Top Layer and 
+                     Pad U16-2(150mil,-340.764mil)  Top Layer
+   Violation between Pad U16-5(150mil,-311.236mil)  Top Layer and 
+                     Pad U16-4(165.748mil,-311.236mil)  Top Layer
+   Violation between Track (150mil,-311.236mil)(150mil,-284mil)  Top Layer and 
+                     Pad U16-4(165.748mil,-311.236mil)  Top Layer
+   Violation between Pad U16-6(134.252mil,-311.236mil)  Top Layer and 
+                     Pad U16-5(150mil,-311.236mil)  Top Layer
+   Violation between Track (121.764mil,-311.236mil)(134.252mil,-311.236mil)  Top Layer and 
+                     Pad U16-5(150mil,-311.236mil)  Top Layer
+   Violation between Track (165.748mil,-311.236mil)(171.265mil,-311.236mil)  Top Layer and 
+                     Pad U16-5(150mil,-311.236mil)  Top Layer
+   Violation between Track (150mil,-311.236mil)(150mil,-284mil)  Top Layer and 
+                     Pad U16-6(134.252mil,-311.236mil)  Top Layer
+   Violation between Track (150mil,-311.236mil)(150mil,-284mil)  Top Layer and 
+                     Track (165.748mil,-311.236mil)(171.265mil,-311.236mil)  Top Layer
+   Violation between Track (121.764mil,-311.236mil)(134.252mil,-311.236mil)  Top Layer and 
+                     Track (150mil,-311.236mil)(150mil,-284mil)  Top Layer
+Rule Violations :11
+
+
+Violations Detected : 22
+Time Elapsed        : 00:00:01
