@@ -1,5 +1,4 @@
-#ifndef NRF8001_H
-#include "lib/sensors.h"
+  #ifndef NRF8001_H
 #include "nrf8001_setup.h"
 #define NRF8001_H
 
@@ -94,16 +93,14 @@ typedef struct {
 	uint8_t payload[0x30];
 } nrf8001_setup_msg_t;
 
-
-#define NRF8001_SENSOR "NRF8001_SENSOR"
-extern const struct sensors_sensor nrf8001_event;
+typedef void (* nrf8001_callback_t)(uint8_t event, uint8_t payload_length, uint8_t payload[30]);
 
 void nrf8001_init();
 void nrf8001_enable();
 void nrf8001_test(uint8_t test_type);
 void nrf8001_echo(uint8_t packet_length, uint8_t *packet);
 void nrf8001_setup();
-void nrf8001_conneect(uint16_t timeout, uint16_t advertising);
+void nrf8001_connect(uint16_t timeout, uint16_t advertising);
 void nrf8001_bond(uint16_t timeout, uint16_t advertising);
 void nrf8001_sleep();
 void nrf8001_change_timing_request(uint16_t interval_min,
