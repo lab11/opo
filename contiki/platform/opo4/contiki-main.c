@@ -37,6 +37,7 @@
 #include "nrf8001.h"
 #include "rf_switch.h"
 #include "simple_sfd_handler.h"
+//#include "lib/sensors.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -165,7 +166,7 @@ main(void)
   process_start(&tcpip_process, NULL);
 #endif /* UIP_CONF_IPV6 */
 
-  process_start(&sensors_process, NULL);
+  //process_start(&sensors_process, NULL);
 
   energest_init();
   ENERGEST_ON(ENERGEST_TYPE_CPU);
