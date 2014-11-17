@@ -35,6 +35,7 @@ static struct etimer met;
 opo_rmsg_t mmsg;
 
 void opotx_callback() {
+	leds_toggle(LEDS_BLUE);
 	process_poll(&tx_test);
 }
 
