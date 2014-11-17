@@ -152,13 +152,13 @@ PROCESS_THREAD(opo_rx, ev, data) {
 static void rf_txdone_callback() {
 	if(opo_state == OPO_TX) {
 		opo_tx_stage = 3;
+		process_poll(&opo_tx);
 	}
 }
 
 // Callback for SFD trigger. 
 static void tx_sfd_callback() {
 	if(opo_state == OPO_TX) {
-		opo_rx_state = OPO_RX_RANGING;
 		gpt_enable_event(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER);
 	}
 }
@@ -193,7 +193,6 @@ PROCESS_THREAD(opo_tx, ev, data) {
 			}
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_TIMER);
 			if (opo_tx_stage == 3) {
-				NETSTACK_MAC.off(0);
 				gpt_disable_event(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER);
 				opo_tx_stage = 0;
 				opo_state = OPO_IDLE;
