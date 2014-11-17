@@ -10,13 +10,10 @@
 #include <string.h>
 //#include <stdio.h>
 
-#define NRF8001_RDYN_PORT_BASE GPIO_PORT_TO_BASE(NRF8001_RDYN_PORT)
-#define NRF8001_RDYN_PIN_MASK GPIO_PIN_MASK(NRF8001_RDYN_PIN)
-
 
 static nrf8001_command_packet nrf8001_cmd = {0};
 static nrf8001_event_packet nrf8001_ep = {0};
-static nrf8001_setup_msg_t setup_msgs[NRF8001_MAX_SETUP_MESSAGES] = NRF8001_SETUP_MESSAGES_CONTENT;
+static nrf8001_setup_msg_t setup_msgs[NB_SETUP_MESSAGES] = SETUP_MESSAGES_CONTENT;
 static uint8_t setup_counter = 0;
 
 static const uint8_t reverse_table[] = {
@@ -119,18 +116,18 @@ static void nrf8001_event_callback() {
 			uint8_t cmd_op_code = nrf8001_ep.packet[0];
 			uint8_t cmd_status = nrf8001_ep.packet[1];
 			if(cmd_status == ACI_STATUS_TRANSACTION_CONTINUE) {
+				
 				if(cmd_op_code == NRF8001_SETUP) {
 					nrf8001_setup();
 				}
 			}
 			else if(cmd_status == ACI_STATUS_TRANSACTION_COMPLETE) {
-				leds_on(LEDS_GREEN);
+				//leds_on(LEDS_GREEN);
 				//sensors_changed(&nrf8001_event);
 			}
 		} else {
 			if(nrf8001_ep.event == NRF8001_DEVICE_STARTED_EVENT) {
 				if(nrf8001_ep.packet[0] == 0x03) {
-					leds_on(LEDS_YELLOW);
 					//nrf8001_connect(0, 32);
 				}
 			}
@@ -181,6 +178,9 @@ static int config_event_callback(int type, int value) {
 void nrf8001_init() {
 	spi_cs_init(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
+
+	GPIO_SET_INPUT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+	ioc_set_over(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN, IOC_OVERRIDE_DIS);
 	REQN_SET();
 }
 
@@ -231,7 +231,7 @@ void nrf8001_setup() {
 		nrf8001_cmd.packet[i-2] = setup_msgs[setup_counter].payload[i];
 	}
 	reverse_nrf8001_cmd();
-	if(setup_counter+1 < NRF8001_MAX_SETUP_MESSAGES) {
+	if(setup_counter+1 < NB_SETUP_MESSAGES) {
 		setup_counter++;
 	}
 	gpio_register_callback(nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);

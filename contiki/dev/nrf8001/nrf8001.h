@@ -103,7 +103,7 @@ void nrf8001_enable();
 void nrf8001_test(uint8_t test_type);
 void nrf8001_echo(uint8_t packet_length, uint8_t *packet);
 void nrf8001_setup();
-void nrf8001_conneect(uint16_t timeout, uint16_t advertising);
+void nrf8001_connect(uint16_t timeout, uint16_t ad_interval);
 void nrf8001_bond(uint16_t timeout, uint16_t advertising);
 void nrf8001_sleep();
 void nrf8001_change_timing_request(uint16_t interval_min,
