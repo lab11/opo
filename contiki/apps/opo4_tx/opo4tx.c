@@ -15,6 +15,7 @@
 #include "dev/cctest.h"
 #include "dev/leds.h"
 #include "sys/rtimer.h"
+#include "opo_helper.h"
 
 /*---------------------------------------------------------------------------*/
 PROCESS(tx_test, "Opo4Tx");
@@ -31,6 +32,7 @@ static struct etimer et;
 uint tx_stage = 0;
 void sfd_callback();
 void txdone_callback();
+uint8_t blah;
 
 void sfd_callback() {
 	gpt_enable_event(1, GPTIMER_SUBTIMER_A);
@@ -39,6 +41,10 @@ void sfd_callback() {
 void txdone_callback() {
 	tx_stage = 3;
 	process_poll(&tx_test);
+}
+
+void rfrx_callback() {
+	blah = 1;
 }
 
 PROCESS_THREAD(tx_test_timer_setter, ev, data) {
@@ -57,25 +63,15 @@ PROCESS_THREAD(tx_test, ev, data) {
 	// Setting all the radio shit up.
 	packetbuf_clear();
 	packetbuf_copyfrom((void *) test_data, 6);
-	ble_ant_enable();
+	cc2538_ant_enable();
 
-	//Setting the PWM stuff up on GPTIMER_1, SUBTIMER_A
-	ungate_gpt(1);
-	gpt_set_16_bit_timer(1);
-	gpt_set_mode(GPTIMER_1, GPTIMER_SUBTIMER_A, GPTIMER_PERIODIC_MODE);
-	gpt_set_alternate_mode(GPTIMER_1, GPTIMER_SUBTIMER_A, GPTIMER_ALTERNATE_MODE_PWM);
-	gpt_set_interval_value(GPTIMER_1, GPTIMER_SUBTIMER_A, 0x190);
-	gpt_set_match_value(1, GPTIMER_SUBTIMER_A, 0xC8);
-	ioc_set_sel(OPO_PWM_PORT_NUM, OPO_PWM_PIN_NUM, IOC_PXX_SEL_GPT1_ICP1);
-  	ioc_set_over(OPO_PWM_PORT_NUM, OPO_PWM_PIN_NUM, IOC_OVERRIDE_OE);
-  	GPIO_PERIPHERAL_CONTROL(OPO_PWM_PORT_BASE, OPO_PWM_PIN_MASK);
+	opo_init();
 
-  	// Set up Opo Tx/Rx Control to TX
-  	GPIO_SET_OUTPUT(OPO_TX_RX_SEL_PORT_BASE, OPO_TX_RX_SEL_PIN_MASK);
-  	GPIO_SET_PIN(OPO_TX_RX_SEL_PORT_BASE, OPO_TX_RX_SEL_PIN_MASK);
+  	enable_opo_ul_tx(); // Set up Opo Tx/Rx Control to TX
 
   	SFD_HANDLER.set_callback(sfd_callback);
   	RF_TXDONE_HANDLER.set_callback(txdone_callback);
+  	simple_network_set_callback(rfrx_callback);
 
 	etimer_set(&et, CLOCK_SECOND * 5);
 	while(1) {
@@ -102,8 +98,6 @@ PROCESS_THREAD(tx_test, ev, data) {
 			else if (tx_stage == 3) {
 				NETSTACK_MAC.off(0);
 				leds_toggle(LEDS_GREEN);
-				//leds_toggle(LEDS_BLUE);
-				//leds_toggle(LEDS_GREEN);
 				gpt_disable_event(GPTIMER_1, GPTIMER_SUBTIMER_A);
 				tx_stage = 0;
 				etimer_set(&et, CLOCK_SECOND * 5);
