@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdint.h>
 
 #ifndef OPO_H
 
@@ -6,10 +7,8 @@
 
 #define OPO_PREAMBLE		38041
 
-typedef void (* opo_rx_callback_t)(bool success, uint32_t ul_rf_dt, uint32_t ul_dt, opo_rxmsg_t rxmsg)
-;
 typedef struct opo_ranging_message {
-	uint16_t preamble = OPO_PREAMBLE;
+	uint16_t preamble;
 	uint16_t tx_id;
 	uint8_t  time_confidence; // 0 = false time. 1 = believe it's true time
 	uint8_t  tx_full_time[8];
@@ -27,15 +26,17 @@ typedef struct opo_ranging_recived_info {
     uint32_t tx_reset_counter;
 } opo_rxmsg_t;
 
+typedef void (* opo_rx_callback_t)(bool success, uint32_t ul_rf_dt, uint32_t ul_dt, opo_rxmsg_t rxmsg);
+
 void setup_40kh_pwm(); // sets up pwm for transmit
 void setup_comp1_timer();
 void setup_comp2_timer(); // synced with comp1 timer
 void setup_integrator_timer();
 uint8_t enable_opo_rx();
-uint8_t opo_tx(opo_rmsg_t *msg);
+uint8_t perform_opo_tx(opo_rmsg_t *msg);
 void disable_opo_rx();
-void register_opo_rx_callback(void *callback);
-void register_opo_tx_callback(void *callback);
+void register_opo_rx_callback(opo_rx_callback_t mcallback);
+void register_opo_tx_callback(void *mcallback);
 void opo_init();
 
 #endif

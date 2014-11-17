@@ -9,6 +9,7 @@
 #include "rf_switch.h"
 #include <stdio.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include "dev/rfcore-xreg.h"
 #include "dev/cctest.h"
 #include "simple_sfd_handler.h"
@@ -21,8 +22,8 @@
 PROCESS(opo_rx, "OpoRx");
 PROCESS(opo_tx, "OpoTx");
 
-enum opo_state = {OPO_RX, OPO_TX, OPO_IDLE}; // Higher level opo state
-enum opo_rx_state = {OPO_RX_IDLE, OPO_RX_WOKEN, OPO_RX_RANGING}; // Current state in RX
+enum {OPO_RX, OPO_TX, OPO_IDLE} opo_state = OPO_IDLE; // Higher level opo state
+enum {OPO_RX_IDLE, OPO_RX_WOKEN, OPO_RX_RANGING} opo_rx_state = OPO_RX_IDLE; // Current state in RX
 uint8_t opo_tx_stage = 0;
 uint32_t ul_rf_dt = 0; // RF/UL TDoA for ranging
 uint32_t ul_dt = 0; //UL TD for angle. Currently unused
@@ -47,10 +48,10 @@ static struct etimer tx_et;
 // Opo RX shit
 
 // Callback for when we receive an ultrasonic wake us
-static void wake_up_callback(uint8_t port, uint8_t pin) {
+static void wakeup_callback(uint8_t port, uint8_t pin) {
 	GPIO_DISABLE_INTERRUPT(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
 	GPIO_CLEAR_INTERRUPT(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
-	if(opo_state = OPO_IDLE && opo_rx_state == OPO_RX_IDLE) {
+	if(opo_state == OPO_IDLE && opo_rx_state == OPO_RX_IDLE) {
 		opo_state = OPO_RX;
 		opo_rx_state = OPO_RX_WOKEN;
 		GPIO_PERIPHERAL_CONTROL(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
@@ -73,10 +74,12 @@ static void rf_rx_callback() {
 		if(packet_length == sizeof(opo_rmsg_t)) {
 			opo_rmsg_t *m = packetbuf_dataptr();
 			if(m->preamble == OPO_PREAMBLE) {
+				uint8_t i = 0;
 				rf_received = true;
 				rxmsg.tx_id = m->tx_id;
 				rxmsg.time_confidence = m->time_confidence;
-				rxmsg.tx_full_time[8] = m->tx_full_time;
+				for(i=0; i < 8; i ++)
+					rxmsg.tx_full_time[i] = m->tx_full_time[i];
 	    		rxmsg.tx_reset_counter = m->tx_reset_counter;
 			}
 		}
@@ -90,19 +93,19 @@ static void rf_rx_callback() {
 }
 
 // Allows us to keep time across timer overflows
-static void overflow_compensate(uint8_t timer,
-								uint8_t subtimer,
-								uint8_t function,
-								uint32_t gpt_time) {
+static void overflow_callback(uint8_t timer,
+							  uint8_t subtimer,
+							  uint8_t function,
+							  uint32_t gpt_time) {
 	ul_rf_dt += 65535;
 	gpt_clear_interrupt(OPO_COMP1_GPTIMER, OPO_COMP1_OFINT);
 }
 
 // callback for our UL ranging pulse
-static void ul_cap(uint8_t timer,
-				   uint8_t subtimer,
-				   uint8_t function,
-				   uint32_t gpt_time) {
+static void ul_cap_callback(uint8_t timer,
+				            uint8_t subtimer,
+				            uint8_t function,
+				            uint32_t gpt_time) {
 	ul_received = true;
 	ul_rf_dt += gpt_time;
 
@@ -147,7 +150,7 @@ PROCESS_THREAD(opo_rx, ev, data) {
 /* ************************************************************************** */
 // Opo TX Callbacks and Processes
 static void rf_txdone_callback() {
-	if(opo_stage == OPO_TX) {
+	if(opo_state == OPO_TX) {
 		opo_tx_stage = 3;
 	}
 }
@@ -164,7 +167,7 @@ PROCESS_THREAD(opo_tx, ev, data) {
 	PROCESS_BEGIN();
 
 	while(1) {
-		PROCESS_YIELD_UNTIL(ev == PROCESSE_EVENT_POLL);
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 			if(opo_tx_stage == 0) {
 				gpt_enable_event(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER);
 				opo_tx_stage = 1;
@@ -179,21 +182,21 @@ PROCESS_THREAD(opo_tx, ev, data) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_TIMER);
 			if (opo_tx_stage == 2) {
 				packetbuf_clear();
-				packetbuf_copyfrom((void *) test_data, 6);
+				packetbuf_copyfrom((void *) txmsg, sizeof(opo_rmsg_t));
 				cc2538_ant_enable();
 				NETSTACK_MAC.on();
 				NETSTACK_MAC.send(NULL, NULL);
 				
 				PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 					NETSTACK_MAC.off(0);
-					etimer_set(&et, CLOCK_SECOND/1000);
+					etimer_set(&tx_et, CLOCK_SECOND/1000);
 			}
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_TIMER);
 			if (opo_tx_stage == 3) {
 				NETSTACK_MAC.off(0);
 				gpt_disable_event(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER);
 				opo_tx_stage = 0;
-				opo_stage = OPO_IDLE;
+				opo_state = OPO_IDLE;
 				(*opo_tx_callback)();
 			}
 
@@ -261,7 +264,7 @@ void setup_integrator_timer() {
 static inline void setup_opo_rx() {
 	SFD_HANDLER.set_callback(rx_sfd_callback);
   	RF_TXDONE_HANDLER.set_callback(rf_txdone_callback);
-  	simple_network_set_callback(rfrx_callback);
+  	simple_network_set_callback(rf_rx_callback);
   	ul_rf_dt = 0;
 	ul_dt = 0;
 	ul_received = false;
@@ -283,6 +286,9 @@ void opo_init() {
 	setup_comp1_timer();
 	setup_comp2_timer();
 	setup_integrator_timer();
+	gpt_register_callback(ul_cap_callback, OPO_COMP1_GPTIMER, OPO_COMP1_GPSUBTIMER, GPTIMER_CAPTURE_EVENT);
+	gpt_register_callback(overflow_callback, OPO_COMP1_GPTIMER, OPO_COMP1_GPSUBTIMER, GPTIMER_TIMEOUT_EVENT);
+	gpio_register_callback(wakeup_callback, OPO_COMP1_PORT_NUM, OPO_COMP1_PIN_NUM);
 	process_start(&opo_rx, NULL);
 	process_start(&opo_tx, NULL);
 }
@@ -312,7 +318,7 @@ void register_opo_tx_callback(void *mcallback) {
 	opo_tx_callback_set = true;
 }
 
-uint8_t opo_tx(opo_rmsg_t *msg) {
+uint8_t perform_opo_tx(opo_rmsg_t *msg) {
 	if(opo_state == OPO_IDLE) {
 		opo_state = OPO_TX;
 		disable_opo_rx();
