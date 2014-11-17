@@ -45,8 +45,8 @@
 #define GAP_PPCP_SLAVE_LATENCY 2
 #define GAP_PPCP_CONN_TIMEOUT 0xffff /** Connection Supervision timeout multiplier as a multiple of 10msec, 0xFFFF means no specific value requested */
 
-#define NRF8001_MAX_SETUP_MESSAGES 20
-#define NRF8001_SETUP_MESSAGES_CONTENT {\
+#define NB_SETUP_MESSAGES 20
+#define SETUP_MESSAGES_CONTENT {\
     {0x00,\
         {\
             0x07,0x06,0x00,0x00,0x03,0x02,0x42,0x07,\

@@ -15,12 +15,11 @@
 #include "dev/cctest.h"
 #include "dev/leds.h"
 #include "sys/rtimer.h"
-#include "opo_helper.h"
+#include "opo.h"
 
 /*---------------------------------------------------------------------------*/
 PROCESS(tx_test, "Opo4Tx");
-PROCESS(tx_test_timer_setter, "Opo4TxTimerSetter");
-AUTOSTART_PROCESSES(&tx_test, &tx_test_timer_setter);
+AUTOSTART_PROCESSES(&tx_test);
 /*---------------------s------------------------------------------------------*/
 
 uint8_t open_pipes[64] = {0};
@@ -28,81 +27,33 @@ uint8_t test_data[6] = {65,65,65,65,65,65};
 nrf8001_event_packet ep = {0};
 int msg_count = 0;
 uint8_t test = 0;
-static struct etimer et;
 uint tx_stage = 0;
 void sfd_callback();
 void txdone_callback();
 uint8_t blah;
+static struct etimer met;
+opo_rmsg_t mmsg;
 
-void sfd_callback() {
-	gpt_enable_event(1, GPTIMER_SUBTIMER_A);
-}
-
-void txdone_callback() {
-	tx_stage = 3;
+void opotx_callback() {
 	process_poll(&tx_test);
 }
-
-void rfrx_callback() {
-	blah = 1;
-}
-
-PROCESS_THREAD(tx_test_timer_setter, ev, data) {
-	PROCESS_BEGIN();
-	while(1) {
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		etimer_set(&et, 1);
-	}
-	PROCESS_END();
-}
-
 
 PROCESS_THREAD(tx_test, ev, data) {
 	PROCESS_BEGIN();
 
-	// Setting all the radio shit up.
-	packetbuf_clear();
-	packetbuf_copyfrom((void *) test_data, 6);
-	cc2538_ant_enable();
-
 	opo_init();
+	register_opo_tx_callback(opotx_callback);
 
-  	enable_opo_ul_tx(); // Set up Opo Tx/Rx Control to TX
+	mmsg.preamble = OPO_PREAMBLE;
+	mmsg.tx_id = 3;
 
-  	SFD_HANDLER.set_callback(sfd_callback);
-  	RF_TXDONE_HANDLER.set_callback(txdone_callback);
-  	simple_network_set_callback(rfrx_callback);
-
-	etimer_set(&et, CLOCK_SECOND * 5);
+	etimer_set(&met, CLOCK_SECOND * 5);
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_TIMER);
-			if (tx_stage == 0) {
-				gpt_enable_event(GPTIMER_1, GPTIMER_SUBTIMER_A);
-				tx_stage = 1;
-				etimer_set(&et, CLOCK_SECOND/1000);
-			}
-			else if(tx_stage == 1) {
-				gpt_disable_event(GPTIMER_1, GPTIMER_SUBTIMER_A);
-				tx_stage = 2;
-				etimer_set(&et, CLOCK_SECOND/1000 * 70);
-			}
-			else if (tx_stage == 2) {
-				packetbuf_clear();
-				packetbuf_copyfrom((void *) test_data, 6);
-				SFD_HANDLER.set_callback(sfd_callback);
-				NETSTACK_MAC.on();
-				NETSTACK_MAC.send(NULL, NULL);
-				PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-				etimer_set(&et, CLOCK_SECOND/1000);
-			}
-			else if (tx_stage == 3) {
-				NETSTACK_MAC.off(0);
-				leds_toggle(LEDS_GREEN);
-				gpt_disable_event(GPTIMER_1, GPTIMER_SUBTIMER_A);
-				tx_stage = 0;
-				etimer_set(&et, CLOCK_SECOND * 5);
-			}
-
+		perform_opo_tx(&mmsg);
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+		etimer_set(&met, CLOCK_SECOND * 3);
 	}
+
 	PROCESS_END();
 }
