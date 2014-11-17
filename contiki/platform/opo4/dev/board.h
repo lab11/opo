@@ -50,6 +50,8 @@
 
 #include "dev/gpio.h"
 #include "dev/nvic.h"
+#include "dev/gptimer.h"
+#include "dev/ioc.h"
 /*---------------------------------------------------------------------------*/
 /** \name LED configuration
  *
@@ -154,6 +156,46 @@
 #define GPIO_D_SET_MASK    0x40
 
 #define OPO_INT_NVIC       NVIC_INT_GPIO_PORT_C
+#define OPO_COMP1_NVIC     NVIC_INT_GPIO_PORT_C
+
+#define I2C_SDA_PORT_NUM   GPIO_C_NUM
+#define I2C_SDA_PIN_NUM	   3
+
+#define I2C_SCL_PORT_NUM   GPIO_C_NUM
+#define I2C_SCL_PIN_NUM	   2
+
+#define SST25VF_CS_PORT_NUM					GPIO_B_NUM
+#define SST25VF_CS_PIN_NUM					1
+#define SST25VF_FLASH_POWER_PORT_BASE		GPIO_C_BASE
+#define SST25VF_FLASH_POWER_PIN_MASK		0x08
+
+/** @} */
+/*---------------------------------------------------------------------------*/
+/** \name Pin configs
+ *
+ * Opo4 tx and rx timer config
+ * @{
+ */
+#define OPO_PWM_GPTIMER			GPTIMER_1
+#define OPO_PWM_GPSUBTIMER		GPTIMER_SUBTIMER_A
+
+#define OPO_COMP1_GPTIMER		GPTIMER_2
+#define OPO_COMP1_SUBTIMER		GPTIMER_SUBTIMER_A
+#define OPO_COMP1_GPT_OCP		IOC_GPT2OCP1
+#define OPO_COMP1_GPT_BASE		GPTIMER_2_BASE
+#define OPO_COMP1_GPT_TV		GPTIMER_TAV
+#define OPO_COMP1_OFINT			GPTIMER_ICR_TATOCINT // overflow interrupt
+#define OPO_COMP1_CAPINT		GPTIMER_ICR_CAECINT  // capture interrupt
+
+#define OPO_COMP2_GPTIMER		GPTIMER_2
+#define OPO_COMP2_GPTIMER		GPTIMER_SUBTIMER_B
+#define OPO_COMP2_GPT_OCP		IOC_GPT2OCP2
+#define OPO_COMP2_GPT_BASE		GPTIMER_2_BASE
+#define OPO_COMP2_GPT_TV		GPTIMER_TBV
+
+#define OPO_INT_GPTIMER			GPTIMER_1
+#define OPO_INT_GPTIMER			GPTIMER_SUBTIMER_B
+#define OPO_INT_GPT_OCP			IOC_GPT1OCP2
 
 /** @} */
 /*---------------------------------------------------------------------------*/
@@ -188,16 +230,22 @@
 #define RADIO_SELECT_VECTOR		NVIC_INT_GPIO_PORT_D
 
 #define NRF8001_RDYN_PORT       GPIO_B_NUM
+#define NRF8001_RDYN_PORT_BASE	GPIO_B_BASE
 #define NRF8001_RDYN_PIN        7
+#define NRF8001_RDYN_PIN_MASK	0x80
 #define NRF8001_RDYN_VECTOR     NVIC_INT_GPIO_PORT_B
 
 #define NRF8001_REQN_PORT 		GPIO_B_NUM
+#define NRF8001_REQN_PORT_BASE	GPIO_B_BASE
 #define NRF8001_REQN_PIN		4
+#define NRF8001_REQN_PIN_MASK	0x10
 #define NRF8001_REQN_VECTOR 	NVIC_INT_GPIO_PORT_B
 
- #define NRF8001_ACTIVE_PORT	GPIO_B_NUM
- #define NRF8001_ACTIVE_PIN		2
- #define NRF8001_ACTIVE_VECTOR	NVIC_INT_GPIO_PORT_B
+#define NRF8001_ACTIVE_PORT		 GPIO_B_NUM
+#define NRF8001_ACTIVE_PORT_BASE GPIO_B_BASE
+#define NRF8001_ACTIVE_PIN		 2
+#define NRF8001_ACTIVE_PIN_MASK	 0x04
+#define NRF8001_ACTIVE_VECTOR	 NVIC_INT_GPIO_PORT_B
 /** @} */
 
 /*---------------------------------------------------------------------------*/
