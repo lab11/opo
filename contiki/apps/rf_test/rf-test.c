@@ -27,9 +27,14 @@ static struct etimer et;
 void rf_rx_handler() {
 	uint8_t *packet_ptr = packetbuf_dataptr();
 	uint16_t packet_length = packetbuf_datalen();
+	uint8_t *packet_hdr = packetbuf_hdrptr();
+	uint8_t hdr_length = packetbuf_hdrlen();
 	uint16_t i = 0;
 
 	printf("0x");
+	for(i=0;i<hdr_length;i++) {
+		printf("%x", packet_hdr[i]);
+	}
 
 	for(i=0; i < packet_length; i++) {
 		printf("%x", packet_ptr[i]);
@@ -40,7 +45,7 @@ void rf_rx_handler() {
 
 PROCESS_THREAD(rf_test, ev, data) {
 	PROCESS_BEGIN();
-	//packetbuf_clear();
+	packetbuf_clear();
 	//packetbuf_copyfrom((void *) test_data, 6);
 	simple_network_set_callback(&rf_rx_handler);
 	NETSTACK_MAC.on();
