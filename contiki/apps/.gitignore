@@ -6,3 +6,5 @@
 *.a
 obj_*
 opo3_fake_tx/
+*.opo4
+*.opo3dk
