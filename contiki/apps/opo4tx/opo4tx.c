@@ -22,15 +22,6 @@ PROCESS(tx_test, "Opo4Tx");
 AUTOSTART_PROCESSES(&tx_test);
 /*---------------------s------------------------------------------------------*/
 
-uint8_t open_pipes[64] = {0};
-uint8_t test_data[6] = {65,65,65,65,65,65};
-nrf8001_event_packet ep = {0};
-int msg_count = 0;
-uint8_t test = 0;
-uint tx_stage = 0;
-void sfd_callback();
-void txdone_callback();
-uint8_t blah;
 static struct etimer met;
 opo_rmsg_t mmsg;
 
@@ -44,6 +35,7 @@ PROCESS_THREAD(tx_test, ev, data) {
 
 	opo_init();
 	register_opo_tx_callback(opotx_callback);
+
 
 	mmsg.preamble = OPO_PREAMBLE;
 	mmsg.tx_id = 3;
