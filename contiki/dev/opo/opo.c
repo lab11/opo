@@ -35,6 +35,7 @@ bool rx_success = false;
 bool opo_rx_callback_set = false;
 opo_rx_callback_t opo_rx_callback;
 
+
 bool opo_tx_callback_set = false;
 void (*opo_tx_callback)();
 
@@ -42,7 +43,9 @@ opo_rxmsg_t rxmsg;
 opo_rmsg_t  *txmsg;
 
 static struct etimer rx_et;
+static struct rtimer rx_rt;
 static struct etimer tx_et;
+static struct rtimer tx_rt;
 
 /* ************************************************************************** */
 // Opo RX shit
@@ -55,6 +58,7 @@ static void wakeup_callback(uint8_t port, uint8_t pin) {
 		opo_state = OPO_RX;
 		opo_rx_state = OPO_RX_WOKEN;
 		GPIO_PERIPHERAL_CONTROL(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
+		//leds_toggle(LEDS_GREEN);
 		process_poll(&opo_rx);
 	}
 }
@@ -62,6 +66,7 @@ static void wakeup_callback(uint8_t port, uint8_t pin) {
 // Callback for SFD trigger. Time to aquire
 static void rx_sfd_callback() {
 	if(opo_state == OPO_RX && opo_rx_state == OPO_RX_WOKEN) {
+		//leds_on(LEDS_BLUE);
 		opo_rx_state = OPO_RX_RANGING;
 		REG(OPO_COMP1_GPT_BASE | OPO_COMP1_GPT_TV) = 0;
 		gpt_enable_event(OPO_COMP1_GPTIMER, OPO_COMP1_GPSUBTIMER);
@@ -106,29 +111,33 @@ static void ul_cap_callback(uint8_t timer,
 				            uint8_t subtimer,
 				            uint8_t function,
 				            uint32_t gpt_time) {
-	ul_received = true;
-	ul_rf_dt += gpt_time;
-
 	gpt_disable_event(OPO_COMP1_GPTIMER, OPO_COMP1_GPSUBTIMER);
 	gpt_clear_interrupt(OPO_COMP1_GPTIMER, OPO_COMP1_CAPINT);
-
-	if(rf_received == true) {
-		etimer_stop(&rx_et);
-		process_poll(&opo_rx);
+	if(opo_state == OPO_RX && opo_rx_state == OPO_RX_RANGING) {
+		ul_received = true;
+		ul_rf_dt += gpt_time;
+		if(rf_received == true) {
+			etimer_stop(&rx_et);
+			process_poll(&opo_rx);
+		}
 	}
 }
 
-
+static void rx_rt_callback(struct rtimer *t, void *ptr) {
+	process_poll(&opo_rx);
+}
 
 PROCESS_THREAD(opo_rx, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-			etimer_set(&rx_et, CLOCK_SECOND/1000 * 45); // Sleep until we can really expect the radio packet
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_TIMER);
+			rtimer_set(&rx_rt, RTIMER_NOW() + (RTIMER_SECOND/1000 * 20), 1, rx_rt_callback, NULL);
+			//etimer_set(&rx_et, CLOCK_SECOND/1000 * 45); // Sleep until we can really expect the radio packet
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 			cc2538_ant_enable();
+			packetbuf_clear();
 			NETSTACK_MAC.on(); // turn on ze radio
-			etimer_set(&rx_et, CLOCK_SECOND); // failsafe timer
+			etimer_set(&rx_et, (CLOCK_SECOND/1000) * 50); // failsafe timer
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_TIMER || ev == PROCESS_EVENT_POLL);
 			packetbuf_clear();
 			NETSTACK_MAC.off(0);
@@ -141,7 +150,11 @@ PROCESS_THREAD(opo_rx, ev, data) {
 			}
 			opo_state = OPO_IDLE;
 			opo_rx_state = OPO_RX_IDLE;
-			opo_rx_callback(rx_success, ul_rf_dt, ul_dt, rxmsg);
+			if(opo_rx_callback_set == true) {
+				opo_rxmsg_t rtest;
+				(*opo_rx_callback)(rx_success, ul_rf_dt, ul_dt, rtest);
+			}
+
 	}
 
 	PROCESS_END();
@@ -156,11 +169,15 @@ static void rf_txdone_callback() {
 	}
 }
 
-// Callback for SFD trigger. 
+// Callback for SFD trigger.
 static void tx_sfd_callback() {
 	if(opo_state == OPO_TX) {
 		gpt_enable_event(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER);
 	}
+}
+
+static void tx_rt_callback(struct rtimer *t, void *ptr) {
+	process_poll(&opo_tx);
 }
 
 PROCESS_THREAD(opo_tx, ev, data) {
@@ -171,27 +188,29 @@ PROCESS_THREAD(opo_tx, ev, data) {
 			if(opo_tx_stage == 0) {
 				gpt_enable_event(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER);
 				opo_tx_stage = 1;
-				etimer_set(&tx_et, CLOCK_SECOND/1000);
+				rtimer_set(&tx_rt, RTIMER_NOW() + (RTIMER_SECOND/1000 * 1), 1, tx_rt_callback, NULL);
 			}
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_TIMER);
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 			if(opo_tx_stage == 1) {
 				gpt_disable_event(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER);
 				opo_tx_stage = 2;
-				etimer_set(&tx_et, CLOCK_SECOND/1000 * 70);
+				//etimer_set(&tx_et, CLOCK_SECOND/1000 * 50);
+				rtimer_set(&tx_rt, RTIMER_NOW() + (RTIMER_SECOND/1000 * 50), 1, tx_rt_callback, NULL);
 			}
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_TIMER);
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 			if (opo_tx_stage == 2) {
 				packetbuf_clear();
 				packetbuf_copyfrom((void *) txmsg, sizeof(opo_rmsg_t));
 				cc2538_ant_enable();
 				NETSTACK_MAC.on();
 				NETSTACK_MAC.send(NULL, NULL);
-				
+
 				PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 					NETSTACK_MAC.off(0);
-					etimer_set(&tx_et, CLOCK_SECOND/1000);
+					//etimer_set(&tx_et, CLOCK_SECOND);
+					rtimer_set(&tx_rt, RTIMER_NOW() + (RTIMER_SECOND/1000 * 1), 1, tx_rt_callback, NULL);
 			}
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_TIMER);
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 			if (opo_tx_stage == 3) {
 				gpt_disable_event(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER);
 				opo_tx_stage = 0;
@@ -217,6 +236,8 @@ void enable_opo_ul_tx() {
 }
 
 void setup_40kh_pwm() {
+	ungate_gpt(OPO_PWM_GPTIMER);
+	gpt_set_16_bit_timer(OPO_PWM_GPTIMER);
 	gpt_set_mode(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER, GPTIMER_PERIODIC_MODE);
 	gpt_set_alternate_mode(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER, GPTIMER_ALTERNATE_MODE_PWM);
 	gpt_set_interval_value(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER, 0x190);
@@ -227,6 +248,8 @@ void setup_40kh_pwm() {
 }
 
 void setup_comp1_timer() {
+	ungate_gpt(OPO_COMP1_GPTIMER);
+	gpt_set_16_bit_timer(OPO_COMP1_GPTIMER);
 	gpt_set_mode(OPO_COMP1_GPTIMER, OPO_COMP1_GPSUBTIMER, GPTIMER_CAPTURE_MODE);
 	gpt_set_capture_mode(OPO_COMP1_GPTIMER, OPO_COMP1_GPSUBTIMER, GPTIMER_CAPTURE_MODE_EDGE_TIME);
 	gpt_set_alternate_mode(OPO_COMP1_GPTIMER, OPO_COMP1_GPSUBTIMER, GPTIMER_ALTERNATE_MODE_CAPTURE);
@@ -238,6 +261,8 @@ void setup_comp1_timer() {
 }
 
 void setup_comp2_timer() {
+	ungate_gpt(OPO_COMP2_GPTIMER);
+	gpt_set_16_bit_timer(OPO_COMP2_GPTIMER);
 	gpt_set_mode(OPO_COMP2_GPTIMER, OPO_COMP2_GPSUBTIMER, GPTIMER_CAPTURE_MODE);
 	gpt_set_capture_mode(OPO_COMP2_GPTIMER, OPO_COMP2_GPSUBTIMER, GPTIMER_CAPTURE_MODE_EDGE_TIME);
 	gpt_set_alternate_mode(OPO_COMP2_GPTIMER, OPO_COMP2_GPSUBTIMER, GPTIMER_ALTERNATE_MODE_CAPTURE);
@@ -249,6 +274,8 @@ void setup_comp2_timer() {
 }
 
 void setup_integrator_timer() {
+	ungate_gpt(OPO_INT_GPTIMER);
+	gpt_set_16_bit_timer(OPO_INT_GPTIMER);
 	gpt_set_mode(OPO_INT_GPTIMER, OPO_INT_GPSUBTIMER, GPTIMER_CAPTURE_MODE);
 	gpt_set_capture_mode(OPO_INT_GPTIMER, OPO_INT_GPSUBTIMER, GPTIMER_CAPTURE_MODE_EDGE_TIME);
 	gpt_set_alternate_mode(OPO_INT_GPTIMER, OPO_INT_GPSUBTIMER, GPTIMER_ALTERNATE_MODE_CAPTURE);
@@ -280,6 +307,26 @@ static inline void setup_opo_tx() {
   	enable_opo_ul_tx();
 }
 
+static void setup_opo_rx_pins() {
+	GPIO_SET_INPUT(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
+	ioc_set_over(OPO_COMP1_PORT_NUM, OPO_COMP1_PIN_NUM, IOC_OVERRIDE_DIS);
+	GPIO_DETECT_EDGE(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
+	GPIO_TRIGGER_SINGLE_EDGE(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
+	GPIO_DETECT_RISING(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
+
+	GPIO_SET_INPUT(OPO_INT_PORT_BASE, OPO_INT_PIN_MASK);
+	ioc_set_over(OPO_INT_PORT_NUM, OPO_INT_PIN_NUM, IOC_OVERRIDE_DIS);
+	GPIO_DETECT_EDGE(OPO_INT_PORT_BASE, OPO_INT_PIN_MASK);
+	GPIO_TRIGGER_SINGLE_EDGE(OPO_INT_PORT_BASE, OPO_INT_PIN_MASK);
+	GPIO_DETECT_RISING(OPO_INT_PORT_BASE, OPO_INT_PIN_MASK);
+
+  	GPIO_SET_INPUT(OPO_COMP2_PORT_BASE, OPO_COMP2_PIN_MASK);
+  	ioc_set_over(OPO_COMP2_PORT_NUM, OPO_COMP2_PIN_NUM, IOC_OVERRIDE_DIS);
+  	GPIO_DETECT_EDGE(OPO_COMP2_PORT_BASE, OPO_COMP2_PIN_MASK);
+	GPIO_TRIGGER_SINGLE_EDGE(OPO_COMP2_PORT_BASE, OPO_COMP2_PIN_MASK);
+	GPIO_DETECT_RISING(OPO_COMP2_PORT_BASE, OPO_COMP2_PIN_MASK);
+}
+
 void opo_init() {
 	setup_40kh_pwm(); // setup 40 khz pwm
 	setup_comp1_timer();
@@ -288,6 +335,9 @@ void opo_init() {
 	gpt_register_callback(ul_cap_callback, OPO_COMP1_GPTIMER, OPO_COMP1_GPSUBTIMER, GPTIMER_CAPTURE_EVENT);
 	gpt_register_callback(overflow_callback, OPO_COMP1_GPTIMER, OPO_COMP1_GPSUBTIMER, GPTIMER_TIMEOUT_EVENT);
 	gpio_register_callback(wakeup_callback, OPO_COMP1_PORT_NUM, OPO_COMP1_PIN_NUM);
+	setup_opo_rx_pins();
+	nvic_interrupt_enable(OPO_COMP1_NVIC);
+    nvic_interrupt_enable(OPO_COMP1_GPT_NVIC);
 	process_start(&opo_rx, NULL);
 	process_start(&opo_tx, NULL);
 }
@@ -325,6 +375,6 @@ uint8_t perform_opo_tx(opo_rmsg_t *msg) {
 		setup_opo_tx();
 		process_poll(&opo_tx);
 		return 1;
-	} 
+	}
 	return 0;
 }

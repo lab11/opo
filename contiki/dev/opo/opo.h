@@ -38,5 +38,7 @@ void disable_opo_rx();
 void register_opo_rx_callback(opo_rx_callback_t mcallback);
 void register_opo_tx_callback(void *mcallback);
 void opo_init();
+void enable_opo_ul_rx();
+void enable_opo_ul_tx();
 
 #endif
