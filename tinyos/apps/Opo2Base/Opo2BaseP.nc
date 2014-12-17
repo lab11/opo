@@ -1,7 +1,7 @@
 #include "Opo2Base.h"
 #include "printf.h"
 
-#define GATD_HOST "inductor.eecs.umich.edu"
+#define GATD_HOST "gatd.eecs.umich.edu"
 #define GATD_PORT 4001
 #define GATD_PROFILE_ID "4wbddZCSIj"
 #define b_id 1
