@@ -37,6 +37,7 @@
 #include "nrf8001.h"
 #include "rf_switch.h"
 #include "simple_sfd_handler.h"
+ #include "cloudcomm.h"
 //#include "lib/sensors.h"
 
 #include <stdint.h>
@@ -74,6 +75,16 @@ set_rf_params(void)
     NETSTACK_RADIO.set_value(RADIO_PARAM_CHANNEL, CC2538_RF_CHANNEL);
     NETSTACK_RADIO.set_object(RADIO_PARAM_64BIT_ADDR, ext_addr, 8);
 }
+
+static void disable_all_ioc_override() {
+  uint8_t portnum = 0;
+  uint8_t pinnum = 0;
+  for(portnum = 0; portnum < 4; portnum++) {
+      for(pinnum = 0; pinnum < 8; pinnum++) {
+          ioc_set_over(portnum, pinnum, IOC_OVERRIDE_DIS);
+      }
+  }
+}
 /*---------------------------------------------------------------------------*/
 /**
  * \brief Main routine for the cc2538dk platform
@@ -82,12 +93,6 @@ int
 main(void)
 {
 
-  nvic_init();
-  ioc_init();
-  sys_ctrl_init();
-  clock_init();
-  lpm_init();
-  rtimer_init();
   gpio_init();
 
   // Set up GPIO pins. Gotta stop that current leakage yo
@@ -112,6 +117,13 @@ main(void)
   GPIO_SET_PIN(GPIO_D_BASE, GPIO_D_SET_MASK);
 
 
+  nvic_init();
+  ioc_init();
+  sys_ctrl_init();
+  clock_init();
+  lpm_init();
+  rtimer_init();
+
   leds_init();
 
   process_init();
@@ -120,6 +132,11 @@ main(void)
   spi_init();
   nrf8001_init();
   rf_switch_init();
+  cloudcomm_init();
+
+  disable_all_ioc_override();
+  ioc_set_over(I2C_SDA_PORT_NUM, I2C_SDA_PIN_NUM, IOC_OVERRIDE_PUE);
+  ioc_set_over(I2C_SCL_PORT_NUM, I2C_SCL_PIN_NUM, IOC_OVERRIDE_PUE);
 
   /*
    * Character I/O Initialization.

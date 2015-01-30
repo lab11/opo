@@ -98,11 +98,6 @@
  * Opo4 pin configurations
  * @{
  */
-// Software control pin masks
-#define OPO_SFC_A_MASK	0xE8
-#define OPO_SFC_B_MASK	0x97
-#define OPO_SFC_C_MASK	0xFF
-#define OPO_SFC_D_MASK	0xE7
 
 // TX_RX sel pin info
 #define OPO_TX_RX_SEL_PORT_BASE    GPIO_A_BASE
@@ -137,37 +132,26 @@
 
 #define GPIO_A_OUTPUT_MASK 0x7a
 #define GPIO_A_INPUT_MASK  0x85
-#define GPIO_A_CLR_MASK    0x1a
+#define GPIO_A_CLR_MASK    0xff
 #define GPIO_A_SET_MASK    0x00
 
 #define GPIO_B_OUTPUT_MASK 0x3b
 #define GPIO_B_INPUT_MASK  0xc4
-#define GPIO_B_CLR_MASK	   0x28
-#define GPIO_B_SET_MASK    0x01
+#define GPIO_B_CLR_MASK	   0xec
+#define GPIO_B_SET_MASK    0x13
 
 #define GPIO_C_OUTPUT_MASK 0xfc
 #define GPIO_C_INPUT_MASK  0x03
-#define GPIO_C_CLR_MASK    0xa4
+#define GPIO_C_CLR_MASK    0xa7
 #define GPIO_C_SET_MASK    0x58
 
-#define GPIO_D_OUTPUT_MASK 0x7f
-#define GPIO_D_INPUT_MASK  0x80
-#define GPIO_D_CLR_MASK    0x3f
-#define GPIO_D_SET_MASK    0x40
+#define GPIO_D_OUTPUT_MASK 0xFF
+#define GPIO_D_INPUT_MASK  0x00
+#define GPIO_D_CLR_MASK    0x27
+#define GPIO_D_SET_MASK    0xD8
 
 #define OPO_INT_NVIC       NVIC_INT_GPIO_PORT_C
 #define OPO_COMP1_NVIC     NVIC_INT_GPIO_PORT_C
-
-#define I2C_SDA_PORT_NUM   GPIO_C_NUM
-#define I2C_SDA_PIN_NUM	   3
-
-#define I2C_SCL_PORT_NUM   GPIO_C_NUM
-#define I2C_SCL_PIN_NUM	   2
-
-#define SST25VF_CS_PORT_NUM					GPIO_B_NUM
-#define SST25VF_CS_PIN_NUM					1
-#define SST25VF_FLASH_POWER_PORT_BASE		GPIO_C_BASE
-#define SST25VF_FLASH_POWER_PIN_MASK		0x08
 
 /** @} */
 /*---------------------------------------------------------------------------*/
@@ -180,21 +164,22 @@
 #define OPO_PWM_GPSUBTIMER		GPTIMER_SUBTIMER_A
 
 #define OPO_COMP1_GPTIMER		GPTIMER_2
-#define OPO_COMP1_SUBTIMER		GPTIMER_SUBTIMER_A
+#define OPO_COMP1_GPSUBTIMER	GPTIMER_SUBTIMER_A
 #define OPO_COMP1_GPT_OCP		IOC_GPT2OCP1
 #define OPO_COMP1_GPT_BASE		GPTIMER_2_BASE
 #define OPO_COMP1_GPT_TV		GPTIMER_TAV
 #define OPO_COMP1_OFINT			GPTIMER_ICR_TATOCINT // overflow interrupt
 #define OPO_COMP1_CAPINT		GPTIMER_ICR_CAECINT  // capture interrupt
+#define OPO_COMP1_GPT_NVIC		NVIC_INT_GPTIMER_2A
 
 #define OPO_COMP2_GPTIMER		GPTIMER_2
-#define OPO_COMP2_GPTIMER		GPTIMER_SUBTIMER_B
+#define OPO_COMP2_GPSUBTIMER	GPTIMER_SUBTIMER_B
 #define OPO_COMP2_GPT_OCP		IOC_GPT2OCP2
 #define OPO_COMP2_GPT_BASE		GPTIMER_2_BASE
 #define OPO_COMP2_GPT_TV		GPTIMER_TBV
 
 #define OPO_INT_GPTIMER			GPTIMER_1
-#define OPO_INT_GPTIMER			GPTIMER_SUBTIMER_B
+#define OPO_INT_GPSUBTIMER		GPTIMER_SUBTIMER_B
 #define OPO_INT_GPT_OCP			IOC_GPT1OCP2
 
 /** @} */
@@ -222,30 +207,37 @@
  * @{
  */
 
-#define RADIO_SELECT_PORT_BASE  GPIO_D_BASE
-#define RADIO_SELECT_PIN_MASK   0x04
+#define RADIO_SELECT_PORT			GPIO_D_NUM
+#define RADIO_SELECT_PORT_BASE  	GPIO_D_BASE
+#define RADIO_SELECT_PIN			2
+#define RADIO_SELECT_PIN_MASK   	0x04
+#define RADIO_SELECT_VECTOR			NVIC_INT_GPIO_PORT_D
 
-#define RADIO_SELECT_PORT		GPIO_D_NUM
-#define RADIO_SELECT_PIN		2
-#define RADIO_SELECT_VECTOR		NVIC_INT_GPIO_PORT_D
+#define NRF8001_RDYN_PORT       	GPIO_B_NUM
+#define NRF8001_RDYN_PORT_BASE		GPIO_B_BASE
+#define NRF8001_RDYN_PIN        	7
+#define NRF8001_RDYN_PIN_MASK		0x80
+#define NRF8001_RDYN_VECTOR     	NVIC_INT_GPIO_PORT_B
 
-#define NRF8001_RDYN_PORT       GPIO_B_NUM
-#define NRF8001_RDYN_PORT_BASE	GPIO_B_BASE
-#define NRF8001_RDYN_PIN        7
-#define NRF8001_RDYN_PIN_MASK	0x80
-#define NRF8001_RDYN_VECTOR     NVIC_INT_GPIO_PORT_B
+#define NRF8001_REQN_PORT 			GPIO_B_NUM
+#define NRF8001_REQN_PORT_BASE		GPIO_B_BASE
+#define NRF8001_REQN_PIN			4
+#define NRF8001_REQN_PIN_MASK		0x10
+#define NRF8001_REQN_VECTOR 		NVIC_INT_GPIO_PORT_B
 
-#define NRF8001_REQN_PORT 		GPIO_B_NUM
-#define NRF8001_REQN_PORT_BASE	GPIO_B_BASE
-#define NRF8001_REQN_PIN		4
-#define NRF8001_REQN_PIN_MASK	0x10
-#define NRF8001_REQN_VECTOR 	NVIC_INT_GPIO_PORT_B
+#define NRF8001_ACTIVE_PORT		 	GPIO_B_NUM
+#define NRF8001_ACTIVE_PORT_BASE 	GPIO_B_BASE
+#define NRF8001_ACTIVE_PIN		 	2
+#define NRF8001_ACTIVE_PIN_MASK	 	0x04
+#define NRF8001_ACTIVE_VECTOR	 	NVIC_INT_GPIO_PORT_B
 
-#define NRF8001_ACTIVE_PORT		 GPIO_B_NUM
-#define NRF8001_ACTIVE_PORT_BASE GPIO_B_BASE
-#define NRF8001_ACTIVE_PIN		 2
-#define NRF8001_ACTIVE_PIN_MASK	 0x04
-#define NRF8001_ACTIVE_VECTOR	 NVIC_INT_GPIO_PORT_B
+#define NRF8001_RESET_PORT			GPIO_D_NUM
+#define NRF8001_RESET_PORT_BASE		GPIO_D_BASE
+#define NRF8001_RESET_PIN			6
+#define NRF8001_RESET_PIN_MASK		0x40
+#define NRF8001_RESET_VECTOR		NVIC_INT_GPIO_PORT_D
+
+
 /** @} */
 
 /*---------------------------------------------------------------------------*/
@@ -253,17 +245,18 @@
  * \name Flash Storage configuration
  *
  * These values configure which CC2538 pins are used to communicate with the
- * flash chip.
+ * SST25VF flash chip.
  * @{
  */
 
-#define FLASH_CS_PORT			GPIO_B_NUM
-#define FLASH_CS_PIN			1
-#define FLASH_CS_VECTOR			NVIC_INT_GPIO_PORT_B
+#define SST25VF_CS_PORT_NUM					GPIO_B_NUM
+#define SST25VF_CS_PIN_NUM					1
 
-#define FLASH_PWR_PORT       	GPIO_C_NUM
-#define FLASH_PWR_PIN        	3
-#define FLASH_PWR_VECTOR     	NVIC_INT_GPIO_PORT_C
+#define SST25VF_FLASH_POWER_PORT_BASE		GPIO_C_BASE
+#define SST25VF_FLASH_POWER_PIN_MASK		0x08
+
+#define SST25VF_FLASH_RESET_PORT_BASE		GPIO_D_BASE
+#define SST25VF_FLASH_RESET_PIN_MASK		0x02
 
 /** @} */
 
@@ -281,6 +274,12 @@
 #define SPI_MOSI_PIN             5
 #define SPI_MISO_PORT            GPIO_B_NUM
 #define SPI_MISO_PIN             6
+
+#define I2C_SDA_PORT_NUM   GPIO_D_NUM
+#define I2C_SDA_PIN_NUM	   4
+
+#define I2C_SCL_PORT_NUM   GPIO_D_NUM
+#define I2C_SCL_PIN_NUM	   3
 /** @} */
 /*---------------------------------------------------------------------------*/
 /**

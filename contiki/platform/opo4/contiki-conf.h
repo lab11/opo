@@ -24,7 +24,7 @@
  * Those values are not meant to be modified by the user
  * @{
  */
-#define CLOCK_CONF_SECOND 3000
+#define CLOCK_CONF_SECOND 1000
 
 /* Compiler configurations */
 #define CCIF
