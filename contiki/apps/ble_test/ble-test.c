@@ -1,7 +1,6 @@
 #include "ble-test.h"
 #include "nrf8001.h"
 #include "contiki.h"
-#include "dev/leds.h"
 #include "nrf8001.h"
 #include "dev/gpio.h"
 #include "dev/ioc.h"
@@ -17,6 +16,8 @@
 PROCESS(ble_test, "BleTest");
 PROCESS(ble_setup_process, "BleSetup");
 PROCESS(ble_connect_process, "BleSetup");
+PROCESS(ble_pipe_process, "BlePipe");
+PROCESS(ble_credit_process, "BleCredit");
 AUTOSTART_PROCESSES(&ble_test);
 /*---------------------s------------------------------------------------------*/
 
@@ -26,6 +27,8 @@ nrf8001_event_packet ep = {0};
 int msg_count = 0;
 //static struct etimer et;
 bool connected = false;
+bool time_set = false;
+bool tx_start = false;
 opo_ble_t test;
 
 static uint8_t get_byte_pos(uint8_t pos) {
@@ -38,7 +41,7 @@ static uint8_t get_byte_pos(uint8_t pos) {
 			return i;
 		}
 	}
-	return 0;	
+	return 0;
 }
 
 static uint8_t get_bit_pos(uint8_t pos) {
@@ -49,15 +52,13 @@ static uint8_t get_bit_pos(uint8_t pos) {
 static void device_started_callback(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	if(payload_length > 0) {
 		if(payload[0] == 0x02) {
-			//leds_on(LEDS_GREEN);
 			process_poll(&ble_setup_process);
 		}
 		else if(payload[0] == 0x03) {
-			//leds_on(LEDS_BLUE);
 			process_poll(&ble_connect_process);
 		}
 		else {
-			leds_on(LEDS_RED);
+			//leds_on(LEDS_RED);
 		}
 	}
 }
@@ -68,7 +69,7 @@ static void connected_handler(uint8_t event, uint8_t payload_length, uint8_t pay
 
 static void disconnected_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	connected = false;
-	process_poll(&ble_connect_process);	
+	process_poll(&ble_connect_process);
 }
 
 static void pipe_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
@@ -76,10 +77,14 @@ static void pipe_handler(uint8_t event, uint8_t payload_length, uint8_t payload[
 		uint8_t byte_pos = get_byte_pos(PIPE_OPOV4_OPODATA_TX);
 		uint8_t bit_pos = get_bit_pos(PIPE_OPOV4_OPODATA_TX);
 		if (payload[byte_pos] & bit_pos) {
-			leds_on(LEDS_BLUE);
-			nrf8001_send_data(PIPE_OPOV4_OPODATA_TX,
-							  sizeof(test),
-							  (uint8_t *) &test);			
+			if(time_set == true) {
+				nrf8001_send_data(PIPE_OPOV4_OPODATA_TX,
+						  		  sizeof(test),
+						          (uint8_t *) &test);
+			} else {
+				tx_start = true;
+			}
+
 		} else {
 			leds_on(LEDS_GREEN);
 		}
@@ -90,8 +95,34 @@ static void data_credit_handler(uint8_t event, uint8_t payload_length, uint8_t p
 	test.tx_id += 1;
 	if (test.tx_id < 50) {
 		nrf8001_send_data(PIPE_OPOV4_OPODATA_TX,
-					      sizeof(test),
+						  sizeof(test),
 						  (uint8_t *) &test);
+	}
+}
+
+static void data_received_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
+	uint8_t pipenum = payload[0];
+	if(pipenum == PIPE_OPOV4_UNIXTIME_RX || pipenum == PIPE_OPOV4_UNIXTIME_RX_ACK_AUTO) {
+		uint8_t i = 0;
+		if(payload_length == 5) {
+			leds_on(LEDS_GREEN);
+			for(i=1; i<payload_length; i++) {
+				test.m_full_time <<= 8;
+				test.m_full_time += payload[i];
+			}
+			time_set = true;
+			if(tx_start == true) {
+				nrf8001_send_data(PIPE_OPOV4_OPODATA_TX,
+						  		  sizeof(test),
+						          (uint8_t *) &test);
+			}
+		}
+		else if(payload_length > 5) {
+			leds_on(LEDS_BLUE);
+		}
+		else {
+			leds_on(LEDS_RED);
+		}
 	}
 }
 
@@ -120,6 +151,28 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 	PROCESS_END();
 }
 
+PROCESS_THREAD(ble_pipe_process, ev, data) {
+	PROCESS_BEGIN();
+	while(1) {
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+		nrf8001_send_data(PIPE_OPOV4_OPODATA_TX,
+						  sizeof(test),
+						  (uint8_t *) &test);
+	}
+	PROCESS_END();
+}
+
+PROCESS_THREAD(ble_credit_process, ev, data) {
+	PROCESS_BEGIN();
+	while(1) {
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+		nrf8001_send_data(PIPE_OPOV4_OPODATA_TX,
+						  sizeof(test),
+						  (uint8_t *) &test);
+	}
+	PROCESS_END();
+}
+
 PROCESS_THREAD(ble_test, ev, data) {
 	PROCESS_BEGIN();
 	SFD_HANDLER.set_callback(sfd_callback);
@@ -133,17 +186,21 @@ PROCESS_THREAD(ble_test, ev, data) {
     test.ultrasonic_rf_dt = 3000;
     test.ultrasonic_dt = 200;
     test.m_full_time = 45;
-   	test.tx_full_time = 69;
+    test.tx_full_time = 20;
     test.m_reset_counter = 10;
     test.tx_reset_counter = 11;
 
 	process_start(&ble_connect_process, NULL);
 	process_start(&ble_setup_process, NULL);
+	process_start(&ble_pipe_process, NULL);
+	process_start(&ble_connect_process, NULL);
 	nrf8001_register_callback(NRF8001_DEVICE_STARTED_EVENT, (nrf8001_callback_t) device_started_callback);
 	nrf8001_register_callback(NRF8001_CONNECTED_EVENT, (nrf8001_callback_t) connected_handler);
 	nrf8001_register_callback(NRF8001_DISCONNECTED_EVENT, (nrf8001_callback_t) disconnected_handler);
 	nrf8001_register_callback(NRF8001_PIPE_STATUS_EVENT, (nrf8001_callback_t) pipe_handler);
 	nrf8001_register_callback(NRF8001_DATA_CREDIT_EVENT, (nrf8001_callback_t) data_credit_handler);
+	nrf8001_register_callback(NRF8001_DATA_RECEIVED_EVENT, (nrf8001_callback_t) data_received_handler);
+
 	nrf8001_enable();
 
 	PROCESS_END();
