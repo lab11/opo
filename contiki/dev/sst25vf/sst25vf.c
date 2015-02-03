@@ -8,7 +8,11 @@
 #include "dev/leds.h"
 #include "sys/clock.h"
 
-enum {PAGE_PROGRAM_DONE, CHIP_ERASE_DONE, SMALL_BLOCK_ERASE_DONE, PROGRAM_SID_DONE, IDLE} status = IDLE;
+static enum {PAGE_PROGRAM_DONE,
+	  		 CHIP_ERASE_DONE,
+	  		 SMALL_BLOCK_ERASE_DONE,
+	  		 PROGRAM_SID_DONE,
+	  		 IDLE} status = IDLE;
 static uint32_t i = 0;
 static uint8_t m_addr[3];
 
@@ -17,6 +21,52 @@ static struct ctimer ct;
 static void (*page_program_callback)();
 static void (*chip_erase_callback)();
 static void (*program_sid_callback)();
+static void wait_callback();
+
+PROCESS(sst25vf_delay_manager, "sst25vfDelay");
+PROCESS(sst25vf_callback_manager, "sst25vfCallback"); 
+
+PROCESS_THREAD(sst25vf_callback_manager, ev, data) {
+	PROCESS_BEGIN();
+	while(1) {
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+		if(status == PAGE_PROGRAM_DONE) {
+			status = IDLE;
+			(*page_program_callback)();
+		}
+		else if(status == CHIP_ERASE_DONE) {
+			status = IDLE;
+			(*chip_erase_callback)();
+		}
+		else if(status == PROGRAM_SID_DONE) {
+			status = IDLE;
+			(*program_sid_callback)();
+		}
+		
+	}
+	PROCESS_END();
+}
+
+PROCESS_THREAD(sst25vf_delay_manager, ev, data) {
+	PROCESS_BEGIN();
+	while(1) {
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+		clock_time_t delay = 0;
+		if(status == CHIP_ERASE_DONE) {
+			delay = T_CHIP_ERASE;
+		}
+		else if(status == PAGE_PROGRAM_DONE) {
+			delay = T_PAGE_PROGRAM;
+		}
+		else if(status == PROGRAM_SID_DONE) {
+			delay = T_PROGRAM_SID;
+		}
+		if(delay != 0) {
+			ctimer_set(&ct, CLOCK_SECOND/1000 * delay, &wait_callback, NULL);
+		}
+	}
+	PROCESS_END();
+}
 
 void sst25vf_default_callback() {
 	//leds_on(LEDS_ALL);
@@ -36,6 +86,14 @@ static inline void clr_flash_power_pin() {
 
 static inline void set_flash_power_pin() {
 	GPIO_SET_PIN(SST25VF_FLASH_POWER_PORT_BASE, SST25VF_FLASH_POWER_PIN_MASK);
+}
+
+static inline void clr_flash_reset_pin() {
+	GPIO_CLR_PIN(SST25VF_FLASH_RESET_PORT_BASE, SST25VF_FLASH_RESET_PIN_MASK);
+}
+
+static inline void set_flash_reset_pin() {
+	GPIO_SET_PIN(SST25VF_FLASH_RESET_PORT_BASE, SST25VF_FLASH_RESET_PIN_MASK);
 }
 
 
@@ -76,17 +134,8 @@ static inline void runSingleCommand(uint8_t cmd) {
 	set_flash_cs();
 }
 
-static inline void wait_callback() {
-	if(status == PAGE_PROGRAM_DONE) {
-		(*page_program_callback)();
-	}
-	else if(status == CHIP_ERASE_DONE) {
-		(*chip_erase_callback)();
-	}
-	else if(status == PROGRAM_SID_DONE) {
-		(*program_sid_callback)();
-	}
-
+static void wait_callback() {
+	process_poll(&sst25vf_callback_manager);
 }
 
 void sst25vf_set_program_callback(void *callback) {
@@ -102,12 +151,15 @@ void sst25vf_set_program_sid_callback(void *callback) {
 }
 
 void sst25vf_turn_on() {
+	clr_flash_reset_pin();
 	clr_flash_power_pin();
 	clock_delay_usec(150);
+	set_flash_reset_pin();
 }
 
 void sst25vf_turn_off() {
 	set_flash_power_pin();
+	clr_flash_reset_pin();
 	clr_flash_cs();
 }
 
@@ -154,7 +206,7 @@ void sst25vf_program_sid(uint8_t addr, void *txBuffer, uint8_t tx_len) {
 	set_flash_cs();
 
 	status = PROGRAM_SID_DONE;
-	ctimer_set(&ct, T_PROGRAM_SID, wait_callback, NULL);
+	process_poll(&sst25vf_delay_manager);
 }
 
 uint8_t sst25vf_read_status_register() {
@@ -192,7 +244,7 @@ void sst25vf_program(uint32_t addr,
 	runSpiByteTx(&cmdBuffer[0], txBuffer, tx_len);
 
 	status = PAGE_PROGRAM_DONE;
-	ctimer_set(&ct, T_PAGE_PROGRAM, wait_callback, NULL);
+	process_poll(&sst25vf_delay_manager);
 }
 
 void sst25vf_chip_erase() {
@@ -200,7 +252,7 @@ void sst25vf_chip_erase() {
 	sst25vf_write_enable();
 	runSingleCommand(cmd);
 	status = CHIP_ERASE_DONE;
-	ctimer_set(&ct, T_CHIP_ERASE, wait_callback, NULL);
+	process_poll(&sst25vf_delay_manager);
 }
 
 void sst25vf_ewsr() {
@@ -226,4 +278,6 @@ void sst25vf_init() {
 	GPIO_SET_OUTPUT(SST25VF_FLASH_POWER_PORT_BASE, SST25VF_FLASH_POWER_PIN_MASK);
 	set_flash_power_pin();
 	clr_flash_cs();
+	process_start(&sst25vf_delay_manager, NULL);
+	process_start(&sst25vf_callback_manager, NULL);
 }

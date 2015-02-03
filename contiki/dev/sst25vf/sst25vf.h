@@ -69,4 +69,8 @@ void sst25vf_wrsr(uint8_t status_data);
 
 void sst25vf_init();
 
+void sst25vf_4kb_erase(uint32_t addr);
+void sst25vf_32kb_erase(uint32_t addr);
+void sst25vf_64kb_erase(uint32_t addr);
+
 #endif
