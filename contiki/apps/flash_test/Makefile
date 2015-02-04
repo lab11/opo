@@ -6,5 +6,5 @@ TARGETDIRS += ../../platform
 
 SMALL = 0
 
-CONTIKI = /home/wwhuang/Dropbox/git/contiki
+CONTIKI = ../../../../contiki
 include $(CONTIKI)/Makefile.include

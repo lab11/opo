@@ -5,6 +5,9 @@
 #include "sst25vf.h"
 #include "flash-test.h"
 #include "dev/leds.h"
+#include "cloudcomm.h"
+#include <stdbool.h>
+#include "sys/clock.h"
 
 #define CC2538_RF_CONF_CHANNEL 21
 
@@ -12,12 +15,12 @@ PROCESS(flash_test, "flash-test");
 PROCESS(flash_flash, "flashflash");
 AUTOSTART_PROCESSES(&flash_test);
 
-uint32_t page_count = 1;
+uint32_t page_count = 0;
 uint8_t stage = 0;
 uint8_t stat;
 
-opo_sunit_t mbuf[12] = {0};
-opo_sunit_t rmbuf[12] = {0};
+uint8_t wbuf[120] = {0};
+uint8_t rbuf[120] = {0};
 static struct etimer ftet;
 
 void sfd_callback() {
@@ -47,11 +50,25 @@ PROCESS_THREAD(flash_flash, ev, data) {
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 		if(stage == 1) {
-			sst25vf_program(page_count * 256, (void *) &mbuf, sizeof(mbuf));
+			sst25vf_write_status_register(0);
+			sst25vf_program(page_count * 256, (void *) &wbuf, sizeof(wbuf));
 		}
 		else if(stage == 2) {
-			leds_on(LEDS_RED);
-			sst25vf_read_page(page_count * 256, (void *) &rmbuf, sizeof(rmbuf));
+			uint8_t i = 0;
+			bool meh = true;
+			uint32_t count = 0;
+			sst25vf_read_page(page_count * 256, (void *) &rbuf, sizeof(rbuf));
+			for(i=0;i<120;i++) {
+				count += rbuf[1];
+				if(rbuf[i] != wbuf[i]) {
+					meh = false;
+				}
+			}
+			if(meh == false) {
+				leds_on(LEDS_RED);
+			} else {
+				leds_on(LEDS_BLUE);
+			}
 		}
 	}
 	PROCESS_END();
@@ -60,9 +77,8 @@ PROCESS_THREAD(flash_flash, ev, data) {
 PROCESS_THREAD(flash_test, ev, data) {
 	PROCESS_BEGIN();
 	uint8_t i = 0;
-	for(i=0;i<12;i++) {
-		mbuf[i].rx_id = 27;
-		mbuf[i].tx_id = 27;
+	for(i=0;i<120;i++) {
+		wbuf[i] = i;
 	}
 
     SFD_HANDLER.set_callback(sfd_callback);
@@ -72,36 +88,15 @@ PROCESS_THREAD(flash_test, ev, data) {
     NETSTACK_MAC.on();
 
   	process_start(&flash_flash, NULL);
+  	sst25vf_init();
   	sst25vf_set_chip_erase_callback(chip_erase_callback);
   	sst25vf_set_program_callback(flash_program_callback);
-
     sst25vf_turn_on();
 
-    stat = sst25vf_read_status_register();
+    sst25vf_write_status_register(0);
+    sst25vf_write_enable();
 
-    //sst25vf_chip_erase();
-/*
-//    while(1) {
-    	PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-    	if(stage == 1) {
-    		sst25vf_program(page_count*256, (void*) &mbuf[0], sizeof(mbuf));
-    	}
-//    	else if(stage == 2) {
-//    		sst25vf_read_page(page_count*256, (void*) &rmbuf, sizeof(rmbuf));
- //   		break;
- //   	}
-//   }
-*/
-
-/*
-	while(1) {
-		etimer_set(&et, CLOCK_SECOND * 3);
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_TIMER);
-		packetbuf_clear();
-		packetbuf_copyfrom((void *) rmbuf, 8);
-		NETSTACK_MAC.send(NULL, NULL);
-	}
-*/
+    sst25vf_chip_erase();
 
 	PROCESS_END();
 }
