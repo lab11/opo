@@ -26,7 +26,7 @@
 #define PROGRAM_SID           0xa5
 #define LOCKOUT_SID           0x85
 #define T_PROGRAM_SID         5
-#define T_PAGE_PROGRAM        3
+#define T_PAGE_PROGRAM        10
 #define T_CHIP_ERASE		  50
 #define T_BLOCK_ERASE         25
 #define T_SECTOR_ERASE		  25
@@ -65,7 +65,7 @@ void sst25vf_chip_erase();
 
 void sst25vf_ewsr();
 
-void sst25vf_wrsr(uint8_t status_data);
+void sst25vf_write_status_register(uint8_t status_data);
 
 void sst25vf_init();
 
