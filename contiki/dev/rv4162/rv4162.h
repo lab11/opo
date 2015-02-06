@@ -25,4 +25,6 @@ void rv4162_read_full_time(uint8_t *full_time); // Read the time
 
 void rv4162_set_time(uint8_t *full_time); // Set the time
 
+void rv4162_disable_clkout();
+
 #endif

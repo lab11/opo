@@ -71,14 +71,27 @@ void rv4162_set_time(uint8_t *full_time) {
 	i2c_master_set_slave_address(rv4162_slave_addr, I2C_SEND);
 	i2c_master_data_put(write_buffer[0]);
 	i2c_master_command(I2C_MASTER_CMD_BURST_SEND_START);
-
 	while(i2c_master_busy()) {}
 	for(i=1;i<8;i++) {
 		i2c_master_data_put(write_buffer[i]);
 		i2c_master_command(I2C_MASTER_CMD_BURST_SEND_CONT);
 		while(i2c_master_busy()) {}
 	}
+
 	i2c_master_data_put(write_buffer[8]);
 	i2c_master_command(I2C_MASTER_CMD_BURST_SEND_FINISH);
 	while(i2c_master_busy()) {}
+}
+
+void rv4162_disable_clkout() {
+	uint8_t write_buffer[2] = {0x0A, 0};
+	uint8_t i = 0;
+	i2c_init(I2C_SDA_PORT_NUM, I2C_SDA_PIN_NUM, I2C_SCL_PORT_NUM, I2C_SCL_PIN_NUM, I2C_SCL_NORMAL_BUS_SPEED);
+	i2c_master_set_slave_address(rv4162_slave_addr, I2C_SEND);
+	i2c_master_data_put(write_buffer[0]);
+	i2c_master_command(I2C_MASTER_CMD_BURST_SEND_START);
+	while(i2c_master_busy()) {}
+	i2c_master_data_put(write_buffer[i]);
+	while(i2c_master_busy());
+	i2c_master_command(I2C_MASTER_CMD_BURST_SEND_FINISH);
 }
