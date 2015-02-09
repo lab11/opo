@@ -12,9 +12,10 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
-#include "simple_network_driver.h"
 #include "nrf8001_setup.h"
 #include "rf_switch.h"
+#include "simplestore.h"
+#include "board.h"
 
 #define CLOUDCOMM_REQ_TIME 			0
 #define CLOUDCOMM_REQ_LOC			1

@@ -4,6 +4,7 @@ PROCESS(ble_setup_process, "BleSetup");
 PROCESS(ble_connect_process, "BleConnect");
 PROCESS(ble_pipe_process, "BlePipe");
 PROCESS(ble_credit_process, "BleCredit");
+PROCESS(ble_sleep_process, "BleSleep");
 
 PROCESS(cloudcomm_manager, "CCData");
 
@@ -63,6 +64,9 @@ static uint8_t get_bit_pos(uint8_t pos) {
 
 
 /*************************** NRF8001 CALLBACKS ********************************/
+static void sleep_callback() {
+	process_poll(&ble_sleep_process);
+}
 static void device_started_callback(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	if(payload_length > 0) {
 		if(payload[0] == 0x02) {
@@ -90,16 +94,18 @@ static void disconnected_handler(uint8_t event, uint8_t payload_length, uint8_t 
 	tried_open_data = false;
 	if(on && (data_index > -1 || req_count > 0)) {
 		process_poll(&ble_connect_process);
+	} else {
+		nrf8001_sleep();
 	}
 }
 
 static void pipe_status_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	if(connected && on) {
 		if(payload[ccra_byte_pos] & ccra_bit_pos) {
-			leds_on(LEDS_GREEN);
+			//leds_on(LEDS_GREEN);
 		}
 		if(payload[ccr_byte_pos] & ccr_bit_pos) {
-			leds_on(LEDS_BLUE);
+			//leds_on(LEDS_BLUE);
 		}
 		if(!(payload[ccra_byte_pos] & ccra_bit_pos)) {
 			if(tried_open_ready == false) {
@@ -161,7 +167,6 @@ static void data_received_handler(uint8_t event, uint8_t payload_length, uint8_t
 		callbacks[service_num](packet, packet_len);
 	}
 	else if(pipenum == PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX_ACK_AUTO || pipenum == PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX) {
-		leds_on(LEDS_RED);
 		phone_ready = true;
 		process_poll(&cloudcomm_manager);
 	}
@@ -199,6 +204,14 @@ static void pipe_error_handler(uint8_t event, uint8_t payload_length, uint8_t pa
 /*************************** END NRF8001 CALLBACKS ****************************/
 
 /******************************* NRF8001 PROCESSES ****************************/
+PROCESS_THREAD(ble_sleep_process, ev, data) {
+	// Setup the BLE chip
+	PROCESS_BEGIN();
+	while(1) {
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+	}
+	PROCESS_END();
+}
 
 PROCESS_THREAD(ble_setup_process, ev, data) {
 	// Setup the BLE chip
@@ -219,6 +232,9 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 			connecting = true;
 			ble_ant_enable();
 			nrf8001_connect(0,32);
+		}
+		else if(device_setup) {
+			nrf8001_sleep();
 		}
 	}
 	PROCESS_END();
@@ -309,6 +325,7 @@ void cloudcomm_init() {
 	process_start(&ble_pipe_process, NULL);
 	process_start(&ble_connect_process, NULL);
 	process_start(&cloudcomm_manager, NULL);
+	process_start(&ble_sleep_process, NULL);
 	nrf8001_register_callback(NRF8001_DEVICE_STARTED_EVENT, (nrf8001_callback_t) device_started_callback);
 	nrf8001_register_callback(NRF8001_CONNECTED_EVENT, (nrf8001_callback_t) connected_handler);
 	nrf8001_register_callback(NRF8001_DISCONNECTED_EVENT, (nrf8001_callback_t) disconnected_handler);
@@ -317,6 +334,9 @@ void cloudcomm_init() {
 	nrf8001_register_callback(NRF8001_DATA_CREDIT_EVENT, (nrf8001_callback_t) data_credit_handler);
 	nrf8001_register_callback(NRF8001_DATA_RECEIVED_EVENT, (nrf8001_callback_t) data_received_handler);
 	nrf8001_register_callback(NRF8001_DATA_ACK_EVENT, (nrf8001_callback_t) data_ack_handler);
+	nrf8001_register_sleep_callback(sleep_callback);
+	GPIO_POWER_UP_ON_FALLING(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
+	GPIO_ENABLE_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
 	nrf8001_enable();
 }
 
