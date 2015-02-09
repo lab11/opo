@@ -36,7 +36,9 @@ void rfdone_callback() {
 }
 
 void chip_erase_callback() {
-	stage = 1;
+	if(stage == 0) {
+		stage = 1;
+	}
 	process_poll(&flash_flash);
 }
 
@@ -56,17 +58,30 @@ PROCESS_THREAD(flash_flash, ev, data) {
 		else if(stage == 2) {
 			uint8_t i = 0;
 			bool meh = true;
-			uint32_t count = 0;
 			sst25vf_read_page(page_count * 256, (void *) &rbuf, sizeof(rbuf));
 			for(i=0;i<120;i++) {
-				count += rbuf[1];
 				if(rbuf[i] != wbuf[i]) {
 					meh = false;
 				}
 			}
-			if(meh == false) {
+			if(meh == true) {
 				leds_on(LEDS_RED);
-			} else {
+			}
+			stage = 3;
+			sst25vf_chip_erase();
+		}
+		else if(stage == 3) {
+			// We show that erase doesn't just reset the erase bit, also resets the data.
+			leds_on(LEDS_GREEN);
+			uint8_t i = 0;
+			bool meh = true;
+			sst25vf_read_page(page_count * 256, (void *) &rbuf, sizeof(rbuf));
+			for(i=0;i<120;i++) {
+				if(rbuf[i] != wbuf[i]) {
+					meh = false;
+				}
+			}
+			if(meh == true) {
 				leds_on(LEDS_BLUE);
 			}
 		}
