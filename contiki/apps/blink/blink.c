@@ -2,6 +2,7 @@
 #include "contiki.h"
 #include "sys/etimer.h"
 #include "dev/leds.h"
+#include "cloudcomm.h"
 
 static struct etimer periodic_timer_red;
 static struct etimer periodic_timer_green;
