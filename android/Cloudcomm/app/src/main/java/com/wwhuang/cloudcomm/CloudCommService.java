@@ -23,8 +23,21 @@ import android.os.Message;
 import android.os.Parcel;
 import android.os.PowerManager;
 import android.os.Vibrator;
+import android.util.Log;
 import android.widget.TextView;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.protocol.HTTP;
+
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -45,6 +58,11 @@ public class CloudCommService extends Service {
     private AtomicInteger char_setup;
     private HandlerThread BLThread;
     private Handler BLHandler;
+    private int debugCounter = 0;
+
+    private HttpClient hc;
+    private HttpPost hp;
+    ArrayList<Byte> dataBuilder;
 
     private String CCUUIDSTRING = "00002000-0000-1000-8000-00805F9B34FB";
     private String CCDATAUUIDSTRING = "00002b00-0000-1000-8000-00805F9B34FB";
@@ -99,6 +117,10 @@ public class CloudCommService extends Service {
         BLThread = new HandlerThread("CcBLHandlerThread");
         BLThread.start();
         BLHandler = new Handler(BLThread.getLooper(), ccBLHandlerCallback);
+        dataBuilder = new ArrayList<Byte>();
+        hc = new DefaultHttpClient();
+        hp = new HttpPost("https://gbns1w57rtvk.runscope.net/");
+        //hp.setHeader(HTTP.CONTENT_TYPE, HTTP.OCTET_STREAM_TYPE);
         pm = (PowerManager) getSystemService(POWER_SERVICE);
         wl = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "CCPartialWakeLock");
         // In this sample, we'll use the same text for the ticker and the expanded notification
@@ -149,7 +171,9 @@ public class CloudCommService extends Service {
            }
            else if(msg.what == 2) {
                BluetoothGatt mGatt = (BluetoothGatt) msg.obj;
-               mGatt.discoverServices();
+               if(!mGatt.discoverServices()) {
+                   Log.v("BLEServices", "failed");
+               }
            }
            else if(msg.what == 3) {
                BluetoothGatt mGatt = (BluetoothGatt) msg.obj;
@@ -170,7 +194,9 @@ public class CloudCommService extends Service {
                BluetoothGattCharacteristic ccReadyChar = mGatt.getService(CCUUID).getCharacteristic(CCREADYUUID);
                ccReadyChar.setValue(msg.arg1, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                ccReadyChar.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-               mGatt.writeCharacteristic(ccReadyChar);
+               if(!(mGatt.writeCharacteristic(ccReadyChar))) {
+                   Log.v("BleCharWrite", "failed");
+               }
            }
            return true;
        }
@@ -231,7 +257,36 @@ public class CloudCommService extends Service {
             public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
                 super.onCharacteristicRead(gatt, characteristic, status);
                 if (characteristic.getUuid().equals(CCDATAUUID)) {
-                    int seq_num = characteristic.getValue()[0];
+                    byte[] cData = characteristic.getValue();
+                    int seq_num = cData[0];
+                    if(seq_num < 0) {
+                        seq_num += 256;
+                    }
+
+                    for(int i=1;i<cData.length;i++) {
+                        dataBuilder.add(cData[i]);
+                    }
+
+                    if(seq_num == 255) {
+                        Log.v("ccDataSend", "cloudsend");
+                        byte[] finalData = new byte[dataBuilder.size()];
+                        for(int i=0;i<finalData.length;i++) {
+                            finalData[i] = (byte) dataBuilder.get(i);
+                        }
+                        String fd = bytesToHex(finalData);
+                        Log.v("ccDataString", fd);
+                        try{
+                            hp.setEntity(new StringEntity(fd));
+                            HttpResponse r = hc.execute(hp);
+                            r.getEntity().consumeContent();
+                        }catch (ClientProtocolException e) {
+                            Log.v("ccHpException", "Client protocol exception");
+                        } catch (IOException e) {
+                            Log.v("ccHpException", "IO exception");
+                        }
+                        dataBuilder.clear();
+                    }
+                    Log.v("seqnum", Integer.toString(seq_num));
                     Message m = Message.obtain(BLHandler, 5, seq_num, 0, gatt);
                     BLHandler.sendMessage(m);
                 }
@@ -246,7 +301,11 @@ public class CloudCommService extends Service {
             @Override
             public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
                 super.onCharacteristicWrite(gatt, characteristic, status);
-                if (characteristic.getUuid().equals(CCREADYUUID)) {}
+                if (characteristic.getUuid().equals(CCREADYUUID)) {
+                    if(status != BluetoothGatt.GATT_SUCCESS) {
+                        Log.v("ccOnCharWrite", "CCREADY write failed");
+                    }
+                }
                 if (characteristic.getUuid().equals(CCACKUUID)) {}
             }
 
