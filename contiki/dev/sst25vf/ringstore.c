@@ -125,7 +125,6 @@ uint8_t simplestore_write_next_page(void *txBuffer, uint8_t tx_len) {
 		return 1; // good to go!
 	}
 	else {
-		leds_on(LEDS_RED);
 		return 0; // chip is full :(
 	}
 }

@@ -7,71 +7,23 @@
 #include "dev/ioc.h"
 #include "dev/leds.h"
 #include "sys/clock.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include "cpu.h"
 
-static enum {PAGE_PROGRAM_DONE,
-	  		 CHIP_ERASE_DONE,
+static enum {CHIP_ERASE_DONE,
 	  		 SMALL_BLOCK_ERASE_DONE,
+	  		 LARGE_BLOCK_ERASE_DONE,
+	  		 SECTOR_ERASE_DONE,
 	  		 PROGRAM_SID_DONE,
 	  		 IDLE} status = IDLE;
+
 static uint32_t i = 0;
-static uint8_t m_addr[3];
+static uint8_t  m_addr[3];
 
-static struct ctimer ct;
+static bool on = false;
 
-static void (*page_program_callback)();
-static void (*chip_erase_callback)();
-static void (*program_sid_callback)();
-static void wait_callback();
-static void sst25vf_default_callback();
-
-PROCESS(sst25vf_delay_manager, "sst25vfDelay");
-PROCESS(sst25vf_callback_manager, "sst25vfCallback");
-
-PROCESS_THREAD(sst25vf_callback_manager, ev, data) {
-	PROCESS_BEGIN();
-	while(1) {
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		if(status == PAGE_PROGRAM_DONE) {
-			status = IDLE;
-			(*page_program_callback)();
-		}
-		else if(status == CHIP_ERASE_DONE) {
-			status = IDLE;
-			(*chip_erase_callback)();
-		}
-		else if(status == PROGRAM_SID_DONE) {
-			status = IDLE;
-			(*program_sid_callback)();
-		}
-
-	}
-	PROCESS_END();
-}
-
-PROCESS_THREAD(sst25vf_delay_manager, ev, data) {
-	PROCESS_BEGIN();
-	while(1) {
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		clock_time_t delay = 0;
-		if(status == CHIP_ERASE_DONE) {
-			delay = T_CHIP_ERASE;
-		}
-		else if(status == PAGE_PROGRAM_DONE) {
-			delay = T_PAGE_PROGRAM;
-		}
-		else if(status == PROGRAM_SID_DONE) {
-			delay = T_PROGRAM_SID;
-		}
-		if(delay != 0) {
-			ctimer_set(&ct, CLOCK_SECOND/1000 * delay, &wait_callback, NULL);
-		}
-	}
-	PROCESS_END();
-}
-
-void sst25vf_default_callback() {
-	//leds_on(LEDS_ALL);
-}
+void sst25vf_default_callback() {}
 
 static inline void set_flash_cs() {
 	SPI_CS_SET(SST25VF_CS_PORT_NUM, SST25VF_CS_PIN_NUM);
@@ -97,8 +49,15 @@ static inline void set_flash_reset_pin() {
 	GPIO_SET_PIN(SST25VF_FLASH_RESET_PORT_BASE, SST25VF_FLASH_RESET_PIN_MASK);
 }
 
+static inline void enable_writes() {
+	sst25vf_ewsr();
+	sst25vf_write_status_register(0);
+	sst25vf_write_enable();
+}
+
 
 static inline void runSpiByteRx(uint8_t *cmdBuffer, void *rxBuffer, uint32_t rx_len) {
+	INTERRUPTS_DISABLE();
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
 	clr_flash_cs();
@@ -110,9 +69,11 @@ static inline void runSpiByteRx(uint8_t *cmdBuffer, void *rxBuffer, uint32_t rx_
 		SPI_READ(((uint8_t *)rxBuffer)[i]);
 	}
 	set_flash_cs();
+	INTERRUPTS_ENABLE();
 }
 
 static inline void runSpiByteTx(uint8_t *cmdBuffer, void *txBuffer, uint32_t tx_len) {
+	INTERRUPTS_DISABLE();
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
 	clr_flash_cs();
@@ -123,6 +84,7 @@ static inline void runSpiByteTx(uint8_t *cmdBuffer, void *txBuffer, uint32_t tx_
 		SPI_WRITE(((uint8_t *)txBuffer)[i]);
 	}
 	set_flash_cs();
+	INTERRUPTS_ENABLE();
 }
 
 static inline void shiftPageAddr(uint32_t user_addr) {
@@ -132,27 +94,13 @@ static inline void shiftPageAddr(uint32_t user_addr) {
 }
 
 static inline void runSingleCommand(uint8_t cmd) {
+	INTERRUPTS_DISABLE();
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
 	clr_flash_cs();
 	SPI_WRITE(cmd);
 	set_flash_cs();
-}
-
-static void wait_callback() {
-	process_poll(&sst25vf_callback_manager);
-}
-
-void sst25vf_set_program_callback(void *callback) {
-	page_program_callback = callback;
-}
-
-void sst25vf_set_chip_erase_callback(void *callback) {
-	chip_erase_callback = callback;
-}
-
-void sst25vf_set_program_sid_callback(void *callback) {
-	program_sid_callback = callback;
+	INTERRUPTS_ENABLE();
 }
 
 void sst25vf_turn_on() {
@@ -161,16 +109,32 @@ void sst25vf_turn_on() {
 	clr_flash_power_pin();
 	clock_delay_usec(150);
 	set_flash_reset_pin();
+	on = true;
 }
 
 void sst25vf_turn_off() {
 	set_flash_power_pin();
 	clr_flash_reset_pin();
 	clr_flash_cs();
+	on = false;
 }
 
-void sst25vf_read_page(uint32_t addr, void *rxBuffer, uint32_t rx_len) {
+uint8_t sst25vf_read_page(uint32_t addr, void *rxBuffer, uint32_t rx_len) {
 	uint8_t cmdBuffer[4];
+	bool auton = false;
+
+	if(!on) {
+		auton = true;
+		sst25vf_turn_on();
+	}
+
+	while(1) {
+		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
+			break;
+		}
+		clock_delay_usec(5000);
+	}
+
 	shiftPageAddr(addr);
 	cmdBuffer[0] = READ;
 	cmdBuffer[1] = m_addr[0];
@@ -178,6 +142,19 @@ void sst25vf_read_page(uint32_t addr, void *rxBuffer, uint32_t rx_len) {
 	cmdBuffer[3] = m_addr[2];
 
 	runSpiByteRx(&cmdBuffer[0], rxBuffer, rx_len);
+
+	while(1) {
+		clock_delay_usec(2600);
+		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
+			break;
+		}
+	}
+
+	if(auton) {
+		sst25vf_turn_off();
+	}
+
+	return 1;
 }
 
 void sst25vf_read_sid(uint8_t addr, void *rxBuffer, uint8_t rx_len) {
@@ -199,11 +176,12 @@ void sst25vf_read_sid(uint8_t addr, void *rxBuffer, uint8_t rx_len) {
 }
 
 void sst25vf_program_sid(uint8_t addr, void *txBuffer, uint8_t tx_len) {
+	// DON'T USE THIS. UNTESTED
 	uint8_t cmdBuffer[2];
-	uint8_t check_status = 0;
 	cmdBuffer[0] = PROGRAM_SID;
 	cmdBuffer[1] = addr;
-	sst25vf_write_enable();
+
+	enable_writes();
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
 	clr_flash_cs();
@@ -215,10 +193,10 @@ void sst25vf_program_sid(uint8_t addr, void *txBuffer, uint8_t tx_len) {
 	set_flash_cs();
 
 	status = PROGRAM_SID_DONE;
-	process_poll(&sst25vf_delay_manager);
 }
 
 uint8_t sst25vf_read_status_register() {
+	INTERRUPTS_DISABLE();
 	uint8_t status_buffer = 0;
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
@@ -227,8 +205,9 @@ uint8_t sst25vf_read_status_register() {
 	SPI_FLUSH();
 	SPI_READ(status_buffer);
 	set_flash_cs();
-
+	INTERRUPTS_ENABLE();
 	return status_buffer;
+
 }
 
 void sst25vf_write_enable() {
@@ -239,32 +218,78 @@ void sst25vf_write_disable() {
 	runSingleCommand(WRDI);
 }
 
-/*
-	The write_enable command must be called prior to page program.
-*/
-void sst25vf_program(uint32_t addr,
-				     void *txBuffer,
-				     uint32_t tx_len) {
+
+uint8_t sst25vf_program(uint32_t addr,
+				        void *txBuffer,
+				        uint32_t tx_len) {
 	uint8_t cmdBuffer[4];
+	bool auton = false;
+
+	if(!on) {
+		auton = true;
+		sst25vf_turn_on();
+	}
+
+	while(1) {
+		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
+			break;
+		}
+		clock_delay_usec(5000);
+	}
+
 	shiftPageAddr(addr);
 	cmdBuffer[0] = PAGE_PROGRAM;
 	cmdBuffer[1] = m_addr[0];
 	cmdBuffer[2] = m_addr[1];
 	cmdBuffer[3] = m_addr[2];
 
-	sst25vf_write_enable();
+	enable_writes();
 	runSpiByteTx(&cmdBuffer[0], txBuffer, tx_len);
 
-	status = PAGE_PROGRAM_DONE;
-	process_poll(&sst25vf_delay_manager);
+	while(1) {
+		clock_delay_usec(2600);
+		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
+			break;
+		}
+	}
+
+	if(auton) {
+		sst25vf_turn_off();
+	}
+
+	return 1;
 }
 
-void sst25vf_chip_erase() {
+uint8_t sst25vf_chip_erase() {
 	uint8_t cmd = CHIP_ERASE;
-	sst25vf_write_enable();
+	bool auton = false;
+
+	if(!on) {
+		auton = true;
+		sst25vf_turn_on();
+	}
+
+	while(1) {
+		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
+			break;
+		}
+		clock_delay_usec(5000);
+	}
+
+	enable_writes();
 	runSingleCommand(cmd);
-	status = CHIP_ERASE_DONE;
-	process_poll(&sst25vf_delay_manager);
+
+	while(1) {
+		clock_delay_usec(26000);
+		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
+			break;
+		}
+	}
+	if(auton) {
+		sst25vf_turn_off();
+	}
+
+	return 1;
 }
 
 void sst25vf_ewsr() {
@@ -272,9 +297,9 @@ void sst25vf_ewsr() {
 }
 
 void sst25vf_write_status_register(uint8_t status_data) {
+	sst25vf_ewsr();
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
-	sst25vf_ewsr();
 	clr_flash_cs();
 	SPI_WRITE(WRSR);
 	SPI_WRITE(status_data);
@@ -284,9 +309,6 @@ void sst25vf_write_status_register(uint8_t status_data) {
 void sst25vf_init() {
 	spi_cs_init(SST25VF_CS_PORT_NUM, SST25VF_CS_PIN_NUM);
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
-	sst25vf_set_chip_erase_callback(sst25vf_default_callback);
-	sst25vf_set_program_callback(sst25vf_default_callback);
-	sst25vf_set_program_sid_callback(sst25vf_default_callback);
 	GPIO_SOFTWARE_CONTROL(SST25VF_FLASH_POWER_PORT_BASE, SST25VF_FLASH_POWER_PIN_MASK);
 	GPIO_SET_OUTPUT(SST25VF_FLASH_POWER_PORT_BASE, SST25VF_FLASH_POWER_PIN_MASK);
 	GPIO_SOFTWARE_CONTROL(SST25VF_FLASH_RESET_PORT_BASE, SST25VF_FLASH_RESET_PIN_MASK);
@@ -294,6 +316,64 @@ void sst25vf_init() {
 	set_flash_power_pin();
 	clr_flash_cs();
 	clr_flash_reset_pin();
-	process_start(&sst25vf_delay_manager, NULL);
-	process_start(&sst25vf_callback_manager, NULL);
+}
+
+uint8_t sst25vf_4kb_erase(uint32_t addr) {
+	uint8_t cmdBuffer[4];
+
+	if(sst25vf_read_status_register() & STATUS_BUSY) {
+		return 0;
+	}
+
+	shiftPageAddr(addr);
+	cmdBuffer[0] = SECTOR_ERASE;
+	cmdBuffer[1] = m_addr[0];
+	cmdBuffer[2] = m_addr[1];
+	cmdBuffer[3] = m_addr[2];
+
+	enable_writes();
+	runSpiByteTx(&cmdBuffer[0], NULL, 0);
+
+	status = SECTOR_ERASE_DONE;
+	return 1;
+}
+
+uint8_t sst25vf_32kb_erase(uint32_t addr) {
+	uint8_t cmdBuffer[4];
+
+	if(sst25vf_read_status_register() & STATUS_BUSY) {
+		return 0;
+	}
+
+	shiftPageAddr(addr);
+	cmdBuffer[0] = SMALL_BLOCK_ERASE;
+	cmdBuffer[1] = m_addr[0];
+	cmdBuffer[2] = m_addr[1];
+	cmdBuffer[3] = m_addr[2];
+
+	enable_writes();
+	runSpiByteTx(&cmdBuffer[0], NULL, 0);
+
+	status = SMALL_BLOCK_ERASE_DONE;
+	return 1;
+}
+
+uint8_t sst25vf_64kb_erase(uint32_t addr) {
+	uint8_t cmdBuffer[4];
+
+	if(sst25vf_read_status_register() & STATUS_BUSY) {
+		return 0;
+	}
+
+	shiftPageAddr(addr);
+	cmdBuffer[0] = LARGE_BLOCK_ERASE;
+	cmdBuffer[1] = m_addr[0];
+	cmdBuffer[2] = m_addr[1];
+	cmdBuffer[3] = m_addr[2];
+
+	enable_writes();
+	runSpiByteTx(&cmdBuffer[0], NULL, 0);
+
+	status = LARGE_BLOCK_ERASE_DONE;
+	return 1;
 }
