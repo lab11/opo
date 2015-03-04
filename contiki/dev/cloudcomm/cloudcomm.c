@@ -1,23 +1,49 @@
 #include "cloudcomm.h"
 
-PROCESS(ble_setup_process, "BleSetup");
 PROCESS(ble_connect_process, "BleConnect");
-PROCESS(ble_pipe_process, "BlePipe");
-PROCESS(ble_credit_process, "BleCredit");
 PROCESS(ble_sleep_process, "BleSleep");
 
 PROCESS(cloudcomm_manager, "CCData");
 
-static cloudcomm_meta_t metadata;
-static int data_index = -1;
-static int data_head = -1;
-static uint8_t req_count = 0;
-static cloudcomm_data_t data_queue[CLOUDCOMM_DATA_QUEUE_LENGTH];
-static bool req_queue[CLOUDCOMM_REQ_QUEUE_LENGTH];
+// Destination hostname
+static cloudcomm_meta_t metainfo;
 
+// What things we want updated (time, location, stepcount, etc)
+static uint8_t req_count = 0;
+static bool    req_queue[CLOUDCOMM_REQ_QUEUE_LENGTH];
+
+// Data storage shit
+static uint8_t  cc_packet_length = 0;
+static uint8_t  data_store[256] = {0};
+static uint8_t  data_store_index = 0;
+static uint32_t flash_pages_stored = 0;
+
+// Stuff for sending data;
+
+static uint8_t sequence_num = 1; // 1 starts a new packet to be sent to the cloud. 255 ends the packet.
+static uint8_t last_sequence_num = 0;
+static uint8_t sending_packet[20] = {0}; // packet we use to send shit to the phone
+static uint8_t sending_data_store[256] = {0};
+static uint8_t sending_data_store_index = 0; // how much data is in our sending buffer
+static uint8_t next_packet_index = 0; // demarcates next data packet
+static uint8_t sending_data_store_end = 0;
+static uint8_t max_data_store_length = 0;
+static bool    sending_data_store_empty = true;
+
+// Stuff for sending over the url
+static bool    urlSet = false;
+static uint8_t urlIndex = 0;
+
+
+//Cloudcomm operation/shutdown parameters
+static void     (*cc_done_callback)();
+static vtimer    cc_vtimer;
+
+//Cloudcomm ble state
 static bool on = false; // should we be scanning on ble
-static bool connecting = false;
-static bool connected = false; // ble connection status;
+static bool sleep = false;
+static bool connecting = false; // currently attempting to connect
+static bool connected = false; // connected to phone
 static bool device_setup = false; // nrf8001 setup complete
 static bool sending = false; // currently sending data on ble_chip
 static bool ble_credited = true; // need both this and data_acked to keep sending
@@ -30,14 +56,14 @@ static bool open_pipes[NUMBER_OF_PIPES];
 //Cloudcomm ready pipe byte and bit positions
 static uint8_t ccra_byte_pos = 0;
 static uint8_t ccra_bit_pos = 0;
-static uint8_t ccr_byte_pos = 0;
-static uint8_t ccr_bit_pos = 0;
+//static uint8_t ccr_byte_pos = 0;
+//static uint8_t ccr_bit_pos = 0;
 
 //Cloudcomm incoming data pipe byte and bit positions
 static uint8_t ccida_byte_pos = 0;
 static uint8_t ccida_bit_pos = 0;
-static uint8_t ccid_byte_pos = 0;
-static uint8_t ccid_bit_pos = 0;
+//static uint8_t ccid_byte_pos = 0;
+//static uint8_t ccid_bit_pos = 0;
 
 static cloudcomm_callback_t callbacks[CLOUDCOMM_REQ_QUEUE_LENGTH];
 
@@ -64,13 +90,15 @@ static uint8_t get_bit_pos(uint8_t pos) {
 
 
 /*************************** NRF8001 CALLBACKS ********************************/
+
 static void sleep_callback() {
 	process_poll(&ble_sleep_process);
 }
+
 static void device_started_callback(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	if(payload_length > 0) {
 		if(payload[0] == 0x02) {
-			process_poll(&ble_setup_process);
+			nrf8001_setup();
 		}
 		else if(payload[0] == 0x03) {
 			device_setup = true;
@@ -92,21 +120,19 @@ static void disconnected_handler(uint8_t event, uint8_t payload_length, uint8_t 
 	phone_ready = false;
 	tried_open_ready = false;
 	tried_open_data = false;
-	if(on && (data_index > -1 || req_count > 0)) {
+	urlSet = false;
+	if(on && (!sending_data_store_empty || req_count > 0)) {
 		process_poll(&ble_connect_process);
 	} else {
-		nrf8001_sleep();
+		sleep = true;
+		process_poll(&ble_sleep_process);
 	}
 }
 
 static void pipe_status_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	if(connected && on) {
-		if(payload[ccra_byte_pos] & ccra_bit_pos) {
-			//leds_on(LEDS_GREEN);
-		}
-		if(payload[ccr_byte_pos] & ccr_bit_pos) {
-			//leds_on(LEDS_BLUE);
-		}
+		if(payload[ccra_byte_pos] & ccra_bit_pos) {}
+
 		if(!(payload[ccra_byte_pos] & ccra_bit_pos)) {
 			if(tried_open_ready == false) {
 				tried_open_ready = true;
@@ -119,86 +145,77 @@ static void pipe_status_handler(uint8_t event, uint8_t payload_length, uint8_t p
 				nrf8001_open_remote_pipe(PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX_ACK_AUTO);
 			}
 		}
-		process_poll(&cloudcomm_manager);
+		else {
+			process_poll(&cloudcomm_manager);
+		}
 	}
 }
 
 static void data_credit_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
-	if(connected && on) {
+	if(connected) {
 		ble_credited = true;
 		sending = false;
-		//leds_on(LEDS_RED);
 		process_poll(&cloudcomm_manager);
 	}
 }
 
-static void data_ack_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
-	INTERRUPTS_DISABLE();
-	ble_acked = true;
-	if(data_index > -1 && req_count == 0) {
-		if(data_queue[data_index].len - data_queue[data_index].current_byte > CLOUDCOMM_MAX_DATA_LENGTH) {
-			data_queue[data_index].current_byte += CLOUDCOMM_MAX_DATA_LENGTH;
-		} else {
-			if(data_index == data_head) {
-				data_index = -1;
-				data_head = -1;
-			} else {
-				data_index++;
-			}
-		}
-	}
-	INTERRUPTS_ENABLE();
-	//leds_on(LEDS_GREEN);
-	process_poll(&cloudcomm_manager);
-}
+static void data_ack_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {}
 
 static void data_received_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	uint8_t pipenum = payload[0];
-	if(pipenum == PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX_ACK_AUTO) {
+	if(pipenum == PIPE_CLOUDCOMM_CLOUDCOMMACKS_RX_ACK_AUTO) {
+		if(payload[1] == sequence_num && connected) {
+    		ble_acked = true;
+			sending = false;
+			process_poll(&cloudcomm_manager);
+		}
+	}
+	else if(pipenum == PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX_ACK_AUTO) {
 		uint8_t packet[30];
 		uint8_t packet_len = payload_length-2;
 		uint8_t i = 0;
 		uint8_t service_num = payload[1];
-		for(i=0;i<packet_len;i++) {
-			packet[i] = payload[i+2];
+		if(service_num == CLOUDCOMM_REQ_TIME) {
+			time_t new_unixtime = 0;
+			for(i=0;i<4;i++) {
+				new_unixtime <<= 8;
+				new_unixtime += payload[1+i];
+			}
+			set_unixtime(new_unixtime);
+		} else {
+			for(i=0;i<packet_len;i++) {
+				packet[i] = payload[i+2];
+			}
+			req_count--;
+			req_queue[service_num] = false;
+			callbacks[service_num](packet, packet_len);
 		}
-		req_count--;
-		req_queue[service_num] = false;
-		callbacks[service_num](packet, packet_len);
-	}
-	else if(pipenum == PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX_ACK_AUTO || pipenum == PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX) {
-		phone_ready = true;
 		process_poll(&cloudcomm_manager);
+	}
+	else if(pipenum == PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX_ACK_AUTO) {
+		if(!phone_ready) {
+			phone_ready = true;
+			process_poll(&cloudcomm_manager);
+		}
+		else if(payload[1] == last_sequence_num) {
+			ble_acked = true;
+			sending = false;
+			process_poll(&cloudcomm_manager);
+		} else {
+			if(payload[1] == last_sequence_num - 1) {}
+		}
 	}
 }
 
 static void pipe_error_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
-	if(payload[0] == PIPE_CLOUDCOMM_CLOUDCOMMDATA_TX_ACK) {
 		uint8_t ecode = payload[1];
-		if(ecode == ACI_STATUS_ERROR_DATA_SIZE) {
-			//leds_on(LEDS_BLUE);
-		}
-		else if(ecode == ACI_STATUS_ERROR_PIPE_INVALID) {
-			//leds_on(LEDS_GREEN);
-		}
-		else if(ecode == ACI_STATUS_ERROR_CREDIT_NOT_AVAILABLE) {
-			//leds_on(LEDS_RED);
-		}
-		else if(ecode == ACI_STATUS_ERROR_PEER_ATT_ERROR) {
-			//leds_on(LEDS_RED);
-			//leds_on(LEDS_BLUE);
-		}
-		else if(ecode == ACI_STATUS_ERROR_PIPE_TYPE_INVALID) {
-			//leds_on(LEDS_BLUE);
-		}
-		else if(ecode == ACI_STATUS_ERROR_PIPE_STATE_INVALID) {
-			//leds_on(LEDS_GREEN);
-		}
-		else {
-			//leds_on(LEDS_BLUE);
-			//leds_on(LEDS_GREEN);
-		}
-	}
+		if(ecode == ACI_STATUS_ERROR_DATA_SIZE) {}
+		else if(ecode == ACI_STATUS_ERROR_PIPE_INVALID) {}
+		else if(ecode == ACI_STATUS_ERROR_CREDIT_NOT_AVAILABLE) {}
+		else if(ecode == ACI_STATUS_ERROR_PEER_ATT_ERROR) {}
+		else if(ecode == ACI_STATUS_ERROR_PIPE_TYPE_INVALID) {}
+		else if(ecode == ACI_STATUS_ERROR_PIPE_STATE_INVALID) {}
+		else {}
 }
 
 /*************************** END NRF8001 CALLBACKS ****************************/
@@ -209,16 +226,8 @@ PROCESS_THREAD(ble_sleep_process, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-	}
-	PROCESS_END();
-}
-
-PROCESS_THREAD(ble_setup_process, ev, data) {
-	// Setup the BLE chip
-	PROCESS_BEGIN();
-	while(1) {
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		nrf8001_setup();
+		nrf8001_sleep();
+		(*cc_done_callback)();
 	}
 	PROCESS_END();
 }
@@ -228,32 +237,36 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		if(!connecting && on && (req_count > 0 || data_index > -1) && device_setup) {
-			connecting = true;
-			ble_ant_enable();
-			nrf8001_connect(0,32);
+		if(!connecting && on && (req_count > 0 || data_store_index > 0 || flash_pages_stored > 0) && device_setup) {
+			if(sleep) {
+				sleep = false;
+				nrf8001_wakeup();
+			}
+			else {
+				if(sending_data_store_empty) {
+					if(data_store_index > 0) {
+						sending_data_store_end = data_store_index - 1;
+						sending_data_store_empty = false;
+						sending_data_store_index = 0;
+						memcpy(&sending_data_store, &data_store, 256);
+					}
+					else if(flash_pages_stored > 0) {
+						if(simplestore_read_next_page(&sending_data_store, max_data_store_length) == SIMPLESTORE_SUCCESS) {
+							sending_data_store_end = max_data_store_length;
+							sending_data_store_empty = false;
+							sending_data_store_index = 0;
+						}
+					}
+				}
+				connecting = true;
+				ble_ant_enable();
+				nrf8001_connect(0,32);
+			}
 		}
 		else if(device_setup) {
+			sleep = true;
 			nrf8001_sleep();
 		}
-	}
-	PROCESS_END();
-}
-
-PROCESS_THREAD(ble_pipe_process, ev, data) {
-	// Lets us know what types of data we can receive or transmit
-	PROCESS_BEGIN();
-	while(1) {
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-	}
-	PROCESS_END();
-}
-
-PROCESS_THREAD(ble_credit_process, ev, data) {
-	// lets us know that we can keep transmitting
-	PROCESS_BEGIN();
-	while(1) {
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 	}
 	PROCESS_END();
 }
@@ -262,15 +275,47 @@ PROCESS_THREAD(ble_credit_process, ev, data) {
 
 /*************************** CLOUDCOMM PROCESSES ******************************/
 
+/*
+ * Manages sending data to the phone and shutting down the ble module when we are done
+ * We should already be connected to the phone.
+*/
 PROCESS_THREAD(cloudcomm_manager, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		if(!connected && !connecting) {
-			process_poll(&ble_connect_process);
-		}
-		else if(!sending && phone_ready && ble_credited && ble_acked) {
-			if(req_count > 0) {
+		if(!sending && phone_ready && ble_credited && ble_acked && connected) {
+			if(!urlSet && (req_count > 0 || !sending_data_store_empty)) {
+				uint8_t i = 0;
+				uint8_t remaining_data = metainfo.dest_len - urlIndex;
+				uint8_t ble_packet_length = remaining_data > CLOUDCOMM_MAX_DATA_LENGTH ? CLOUDCOMM_MAX_DATA_LENGTH : remaining_data;
+				if(remaining_data == ble_packet_length) {
+					sending_packet[0] = 0xFF; // set sequence byte to special ending byte
+					sequence_num = 1;
+				}
+				else {
+					sending_packet[0] = sequence_num; // update sequence byte
+					sequence_num += 1;
+				}
+
+				for(i=0;i<ble_packet_length;i++) {
+					sending_packet[i+1] = metainfo.dest[urlIndex + i];
+				}
+
+				last_sequence_num = sending_packet[0];
+				urlIndex += ble_packet_length;
+
+				if(sending_packet[0] == 0xFF) {
+					urlSet = true;
+				}
+				sending = true;
+				ble_acked = false;
+				ble_credited = false;
+				nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMDATA_TX_ACK,
+					              ble_packet_length + 1, // gotta account for sequence num
+					              &sending_packet[0]);
+			}
+			else if(req_count > 0) {
+				// Deal with requests for metainfo first
 				uint8_t i = 0;
 				sending = true;
 				ble_acked = false;
@@ -284,15 +329,67 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 					}
 				}
 			}
-			else if (data_index > -1) {
-				uint16_t remaining_data = data_queue[data_index].len - data_queue[data_index].current_byte;
-				uint8_t packet_length = remaining_data > CLOUDCOMM_MAX_DATA_LENGTH ? CLOUDCOMM_MAX_DATA_LENGTH : data_queue[data_index].len;
+			else if (!sending_data_store_empty) {
+				// Keep sending data until we are out of data.
+				uint8_t i = 0;
+				if(next_packet_index == 0) {
+					next_packet_index = cc_packet_length;
+				}
+
+				uint8_t remaining_data = next_packet_index - sending_data_store_index;
+				uint8_t ble_packet_length = remaining_data > CLOUDCOMM_MAX_DATA_LENGTH ? CLOUDCOMM_MAX_DATA_LENGTH : remaining_data;
+
+				if(remaining_data == ble_packet_length) {
+					sending_packet[0] = 0xFF; // set sequence byte to special ending byte
+					sequence_num = 1;
+				}
+				else {
+					sending_packet[0] = sequence_num; // update sequence byte
+					sequence_num += 1;
+				}
+
+				last_sequence_num = sending_packet[0];
+
+				for(i=0;i<ble_packet_length;i++) {
+					sending_packet[i+1] = sending_data_store[sending_data_store_index+i];
+				}
+
+				sending_data_store_index += ble_packet_length;
+
+				if(sending_data_store_index >= sending_data_store_end) {
+					// Current data store has been exhausted, check flash chip for more data
+					uint8_t ss_state = simplestore_read_next_page(&sending_data_store, max_data_store_length);
+					sending_data_store_index = 0;
+					sequence_num = 1;
+					next_packet_index = 0;
+
+					if(ss_state == SIMPLESTORE_SUCCESS) {
+						sending_data_store_empty = false;
+						sending_data_store_end = max_data_store_length;
+					}
+					else if(ss_state == SIMPLESTORE_FULL) {
+						sending_data_store_empty = true;
+						sending_data_store_end = 0;
+					}
+					else if(ss_state == SIMPLESTORE_FAIL) {
+						sending_data_store_empty = true;
+						sending_data_store_end = 0;
+					}
+				}
+				else if(sending_data_store_index == next_packet_index) {
+					// update packet end byte
+					next_packet_index += cc_packet_length;
+				}
+
 				sending = true;
 				ble_acked = false;
 				ble_credited = false;
 				nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMDATA_TX_ACK,
-					              packet_length,
-					              &data_queue[data_index].data[data_queue[data_index].current_byte]);
+					              ble_packet_length + 1, // gotta account for sequence num
+					              &sending_packet[0]);
+			}
+			else {
+				nrf8001_disconnect(0x01);
 			}
 		}
 	}
@@ -300,6 +397,12 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 }
 
 /*************************** END CLOUDCOMM PROCESSES **************************/
+static void cc_vtimer_callback() {
+	on = false;
+	if(!connected) {
+		process_poll(&ble_sleep_process);
+	}
+}
 
 void cloudcomm_init() {
 	uint8_t i = 0;
@@ -312,17 +415,14 @@ void cloudcomm_init() {
 
 	ccra_byte_pos = get_byte_pos(PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX_ACK_AUTO);
 	ccra_bit_pos = get_bit_pos(PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX_ACK_AUTO);
-	ccr_byte_pos = get_byte_pos(PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX);
-	ccr_bit_pos = get_bit_pos(PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX);
 
 	ccida_byte_pos = get_byte_pos(PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX_ACK_AUTO);
 	ccida_bit_pos = get_bit_pos(PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX_ACK_AUTO);
-	ccid_byte_pos = get_byte_pos(PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX);
-	ccid_bit_pos = get_bit_pos(PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX);
 
-	process_start(&ble_connect_process, NULL);
-	process_start(&ble_setup_process, NULL);
-	process_start(&ble_pipe_process, NULL);
+	simplestore_config();
+	flash_pages_stored = simplestore_pages_stored();
+	cc_vtimer = get_vtimer(cc_vtimer_callback);
+
 	process_start(&ble_connect_process, NULL);
 	process_start(&cloudcomm_manager, NULL);
 	process_start(&ble_sleep_process, NULL);
@@ -335,64 +435,59 @@ void cloudcomm_init() {
 	nrf8001_register_callback(NRF8001_DATA_RECEIVED_EVENT, (nrf8001_callback_t) data_received_handler);
 	nrf8001_register_callback(NRF8001_DATA_ACK_EVENT, (nrf8001_callback_t) data_ack_handler);
 	nrf8001_register_sleep_callback(sleep_callback);
-	GPIO_POWER_UP_ON_FALLING(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
-	GPIO_ENABLE_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
+
 	nrf8001_enable();
+	nrf8001_reset();
 }
 
-void start_cloudcomm() {
+void cloudcomm_on(void *callback, uint16_t ontime) {
 	on = true;
+	cc_done_callback = callback;
+	schedule_vtimer(&cc_vtimer, VTIMER_SECOND/1000 * ontime);
 	process_poll(&ble_connect_process);
 }
 
-void stop_cloudcomm() {
-	on = false;
-	connected = false;
-	nrf8001_disconnect(0x01);
+void cloudcomm_set_metainfo(cloudcomm_meta_t *new_metainfo) {
+	metainfo.dest = new_metainfo->dest;
+	metainfo.dest_len = new_metainfo->dest_len;
 }
 
-void set_cloudcomm_metainfo(cloudcomm_meta_t metainfo) {
-	uint8_t i;
-	for(i=0;i<8;i++) {
-		metadata.ip[i] = metainfo.ip[i];
-	}
+void cloudcomm_set_packet_length(uint8_t len) {
+	cc_packet_length = len;
+	max_data_store_length = len * (256/len);
 }
 
-uint8_t send_cloudcomm_data(void *data, uint8_t len) {
-	uint8_t result = 0;
-	INTERRUPTS_DISABLE();
-	if(len <= CLOUDCOMM_MAX_DATA_SIZE) {
-		if(++data_head < CLOUDCOMM_DATA_QUEUE_LENGTH) {
-			uint8_t i = 0;
-			uint8_t *data_ptr = (uint8_t *) data;
-			data_queue[data_head].len = len;
-			data_queue[data_head].current_byte = 0;
-			for(i=0;i<len;i++) {
-				data_queue[data_head].data[i] = data_ptr[i];
-			}
-			result = 1;
-			if(data_index == -1) {
-				data_index = 0;
-			}
-		} else {
-			data_head--;
+uint8_t cloudcomm_store(void *data) {
+	uint8_t i = 0;
+	uint8_t *data_ptr = (uint8_t *)data;
+	if(data_store_index + cc_packet_length < 256) {
+		for(i=0;i < cc_packet_length;i++) {
+			data_store[data_store_index+i] = data_ptr[i];
 		}
+		data_store_index += cc_packet_length;
 	}
-	INTERRUPTS_ENABLE();
-	process_poll(&cloudcomm_manager);
-	return result;
+	else {
+		if(simplestore_write_next_page((void *)&data_store, data_store_index) != SIMPLESTORE_SUCCESS) {
+			return 0;
+		}
+		flash_pages_stored += 1;
+		data_store_index = 0;
+		for(i=0;i<cc_packet_length;i++) {
+			data_store[data_store_index+i] = data_ptr[i];
+		}
+		data_store_index += cc_packet_length;
+	}
+	return 1;
 }
 
 uint8_t request_cloudcomm_data(uint8_t req) {
 	uint8_t result = 1;
-	INTERRUPTS_DISABLE();
 	if(req < CLOUDCOMM_REQ_QUEUE_LENGTH) {
 		req_queue[req] = true;
 		req_count++;
 	} else {
 		result = 0;
 	}
-	INTERRUPTS_ENABLE();
 	process_poll(&cloudcomm_manager);
 	return result;
 }
