@@ -1,4 +1,7 @@
 #include <stdint.h>
+#include "dev/i2c.h"
+#include <stdint.h>
+#include <time.h>
 
 #ifndef RV4162_H
 #define RV4162_H
@@ -22,9 +25,13 @@
 #define RV4162_BCD_TO_BINARY(v) ((v & 0x0F) + (((v & 0x10)>>4)*10) + (((v & 0x20)>>5)*20) + (((v & 0x40)>>6)*40))
 
 void rv4162_read_full_time(uint8_t *full_time); // Read the time
+time_t get_unixtime();
+void set_unixtime(time_t time);
 
 void rv4162_set_time(uint8_t *full_time); // Set the time
 
 void rv4162_disable_clkout();
+
+void rv4162_init();
 
 #endif
