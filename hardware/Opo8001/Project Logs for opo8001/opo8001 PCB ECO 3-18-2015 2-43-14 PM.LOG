@@ -1,0 +1,3 @@
+Change Component DesignItemId : Designator=UT1 Old DesignItemId=Tranducer New DesignItemId=PT120
+Change Component Footprint: Designator=UT1 Old Footprint=Transducer recepticle New Footprint=PT120
+Change Component Comment : Designator=UT1 Old Comment=400EP250 New Comment=PT120

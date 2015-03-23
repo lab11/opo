@@ -1,0 +1,2 @@
+Removed Pin From Net: NetName=FLASH_CS Pin=U3-54
+Added Pin To Net: NetName=FLASH_HOLD Pin=U3-29

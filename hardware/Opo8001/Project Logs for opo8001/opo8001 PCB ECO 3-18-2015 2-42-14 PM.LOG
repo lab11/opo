@@ -1,0 +1,10 @@
+Change Component DesignItemId : Designator=UT1 Old DesignItemId=Tranducer New DesignItemId=PT120
+Change Component Footprint: Designator=UT1 Old Footprint=Transducer recepticle New Footprint=PT120
+Change Component Comment : Designator=UT1 Old Comment=400EP250 New Comment=PT120
+Added Room: Name=bluetooth
+Added Room: Name=mcu
+Added Room: Name=power
+Added Room: Name=programmer_charger
+Added Room: Name=rtc_accel
+Added Room: Name=ul_rx
+Added Room: Name=ul_tx_ctrl

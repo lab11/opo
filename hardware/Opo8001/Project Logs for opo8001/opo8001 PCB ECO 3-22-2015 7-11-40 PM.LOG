@@ -1,0 +1,4 @@
+Removed Pin From Net: NetName=PWM Pin=U3-49
+Removed Pin From Net: NetName=TXRX_SELECT Pin=U3-50
+Added Pin To Net: NetName=PWM Pin=U3-48
+Added Pin To Net: NetName=TXRX_SELECT Pin=U3-49

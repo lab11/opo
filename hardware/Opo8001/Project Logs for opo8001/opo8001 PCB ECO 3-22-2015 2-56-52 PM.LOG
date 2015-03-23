@@ -1,0 +1,2 @@
+Removed Pin From Net: NetName=BLE_REQN Pin=U3-51
+Added Pin To Net: NetName=BLE_REQN Pin=U3-25

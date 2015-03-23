@@ -1,0 +1,21 @@
+---------------------------------------------------------------------------
+NCDrill File Report For: opo4.PcbDoc   12/9/2014  2:22:10 PM
+---------------------------------------------------------------------------
+
+Layer Pair : Top Layer to Bottom Layer
+ASCII RoundHoles File : opo4.TXT
+
+Tool         Hole Size           Hole Type     Hole Count Plated       Tool Travel
+---------------------------------------------------------------------------
+T1        10mil (0.254mm)          Round          6                2.71 Inch (68.89 mm)
+T2        12mil (0.3048mm)         Round          149              13.39 Inch (339.98 mm)
+T3        15mil (0.381mm)          Round          22               2.10 Inch (53.33 mm)
+T4        15.7mil (0.39878mm)      Round          1                0.00 Inch (0.00 mm)
+T5        20mil (0.508mm)          Round          1                0.00 Inch (0.00 mm)
+T6        32mil (0.8128mm)         Round          2                0.11 Inch (2.84 mm)
+T7        47.2mil (1.19888mm)      Round          2                0.25 Inch (6.35 mm)
+T8        84.6mil (2.14884mm)      Round          2                0.33 Inch (8.30 mm)
+---------------------------------------------------------------------------
+Totals                                            185              18.89 Inch (479.70 mm)
+
+Total Processing Time (hh:mm:ss) : 00:00:01

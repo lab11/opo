@@ -1,0 +1,8 @@
+Removed Pin From Net: NetName=GND Pin=U15-1
+Removed Pin From Net: NetName=TX_1 Pin=U15-4
+Removed Pin From Net: NetName=TX_2 Pin=U15-6
+Removed Pin From Net: NetName=OP_IN Pin=U15-9
+Added Pin To Net: NetName=TX_1 Pin=U15-1
+Added Pin To Net: NetName=OP_IN Pin=U15-4
+Added Pin To Net: NetName=GND Pin=U15-6
+Added Pin To Net: NetName=TX_2 Pin=U15-9
