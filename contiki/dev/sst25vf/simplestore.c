@@ -88,7 +88,7 @@ void simplestore_config() {
 		sst25vf_turn_on();
 	}
 	for(pc=0;pc<max_page;pc++) {
-		sst25vf_read_page(pc*256, &rbuf, 256);
+		sst25vf_read_page(pc*256, rbuf, 256);
 		for(i=0;i<256;i++) {
 			counter += rbuf[i];
 		}
