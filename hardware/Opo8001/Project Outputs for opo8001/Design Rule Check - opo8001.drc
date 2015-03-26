@@ -1,880 +1,876 @@
 Protel Design System Design Rule Check
 PCB File : C:\Users\wwhuang\Dropbox\git\opo\hardware\Opo8001\opo8001.PcbDoc
-Date     : 3/24/2015
-Time     : 10:26:03 PM
+Date     : 3/26/2015
+Time     : 8:42:54 AM
 
-Processing Rule : Rule
+Processing Rule : Clearance Constraint (Gap=6mil) (All),(All)
 Rule Violations :0
 
-Processing Rule : Net Antennae (Tolerance=0mil) (All)
+Processing Rule : Width Constraint (Min=6mil) (Max=100mil) (Preferred=10mil) (All)
 Rule Violations :0
 
-Processing Rule : Silk primitive without silk layer
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (556.488mil,-12.087mil)(556.488mil,185.748mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (867.512mil,-12.087mil)(867.512mil,186.732mil)  Top Overlay
-   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (556.488mil,-12.087mil)(867.512mil,-12.087mil)  Top Overlay
-Rule Violations :3
+Processing Rule : Power Plane Connect Rule(Relief Connect )(Expansion=10mil) (Conductor Width=8mil) (Air Gap=10mil) (Entries=4) (All)
+Rule Violations :0
+
+Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
+Rule Violations :0
+
+Processing Rule : Un-Routed Net Constraint ( (All) )
+Rule Violations :0
+
+Processing Rule : Minimum Annular Ring (Minimum=5mil) (All)
+Rule Violations :0
+
+Processing Rule : Hole Size Constraint (Min=8mil) (Max=251mil) (All)
+Rule Violations :0
+
+Processing Rule : Hole Size Constraint (Min=1mil) (Max=100mil) (All)
+Rule Violations :0
+
+Processing Rule : Hole Size Constraint (Min=1mil) (Max=100mil) (All)
+Rule Violations :0
+
+Processing Rule : Height Constraint (Min=0mil) (Max=1000mil) (Prefered=500mil) (All)
+Rule Violations :0
+
+Processing Rule : Hole To Hole Clearance (Gap=10mil) (All),(All)
+Rule Violations :0
+
+Processing Rule : Minimum Solder Mask Sliver (Gap=5mil) (All),(All)
+   Violation between Pad B1-5(1145.575mil,451.527mil)  Top Layer and 
+                     Pad B1-6(1145.575mil,471.212mil)  Top Layer
+   Violation between Pad B1-4(1145.575mil,431.842mil)  Top Layer and 
+                     Pad B1-5(1145.575mil,451.527mil)  Top Layer
+   Violation between Pad B1-2(1112.11mil,451.527mil)  Top Layer and 
+                     Pad B1-3(1112.11mil,431.842mil)  Top Layer
+   Violation between Pad B1-1(1112.11mil,471.212mil)  Top Layer and 
+                     Pad B1-2(1112.11mil,451.527mil)  Top Layer
+   Violation between Pad J1-6(587mil,45mil)  Multi-Layer and 
+                     Pad J1-6(664.756mil,45mil)  Top Layer
+   Violation between Pad J1-6(837mil,45mil)  Multi-Layer and 
+                     Pad J1-6(759.244mil,45mil)  Top Layer
+   Violation between Pad J1-5(763.181mil,150.315mil)  Top Layer and 
+                     Pad J1-4(737.591mil,150.315mil)  Top Layer
+   Violation between Pad J1-3(712mil,150.315mil)  Top Layer and 
+                     Pad J1-4(737.591mil,150.315mil)  Top Layer
+   Violation between Pad J1-2(686.409mil,150.315mil)  Top Layer and 
+                     Pad J1-1(660.819mil,150.315mil)  Top Layer
+   Violation between Pad J1-2(686.409mil,150.315mil)  Top Layer and 
+                     Pad J1-3(712mil,150.315mil)  Top Layer
+   Violation between Pad U16-5(86.764mil,391mil)  Top Layer and 
+                     Pad U16-6(86.764mil,410.685mil)  Top Layer
+   Violation between Pad U16-1(57.236mil,410.685mil)  Top Layer and 
+                     Pad U16-6(86.764mil,410.685mil)  Top Layer
+   Violation between Pad U16-2(57.236mil,391mil)  Top Layer and 
+                     Pad U16-6(86.764mil,410.685mil)  Top Layer
+   Violation between Pad U16-4(86.764mil,371.315mil)  Top Layer and 
+                     Pad U16-5(86.764mil,391mil)  Top Layer
+   Violation between Pad U16-3(57.236mil,371.315mil)  Top Layer and 
+                     Pad U16-5(86.764mil,391mil)  Top Layer
+   Violation between Pad U16-1(57.236mil,410.685mil)  Top Layer and 
+                     Pad U16-5(86.764mil,391mil)  Top Layer
+   Violation between Pad U16-2(57.236mil,391mil)  Top Layer and 
+                     Pad U16-5(86.764mil,391mil)  Top Layer
+   Violation between Pad U16-3(57.236mil,371.315mil)  Top Layer and 
+                     Pad U16-4(86.764mil,371.315mil)  Top Layer
+   Violation between Pad U16-2(57.236mil,391mil)  Top Layer and 
+                     Pad U16-4(86.764mil,371.315mil)  Top Layer
+   Violation between Pad U16-2(57.236mil,391mil)  Top Layer and 
+                     Pad U16-3(57.236mil,371.315mil)  Top Layer
+   Violation between Pad U16-1(57.236mil,410.685mil)  Top Layer and 
+                     Pad U16-2(57.236mil,391mil)  Top Layer
+   Violation between Pad U9-31(661.787mil,427.425mil)  Top Layer and 
+                     Pad U9-32(642.102mil,427.425mil)  Top Layer
+   Violation between Pad U9-30(681.472mil,427.425mil)  Top Layer and 
+                     Pad U9-31(661.787mil,427.425mil)  Top Layer
+   Violation between Pad U9-29(701.158mil,427.425mil)  Top Layer and 
+                     Pad U9-30(681.472mil,427.425mil)  Top Layer
+   Violation between Pad U9-28(720.842mil,427.425mil)  Top Layer and 
+                     Pad U9-29(701.158mil,427.425mil)  Top Layer
+   Violation between Pad U9-27(740.528mil,427.425mil)  Top Layer and 
+                     Pad U9-28(720.842mil,427.425mil)  Top Layer
+   Violation between Pad U9-26(760.213mil,427.425mil)  Top Layer and 
+                     Pad U9-27(740.528mil,427.425mil)  Top Layer
+   Violation between Pad U9-25(779.898mil,427.425mil)  Top Layer and 
+                     Pad U9-26(760.213mil,427.425mil)  Top Layer
+   Violation between Pad U9-23(809.425mil,378.213mil)  Top Layer and 
+                     Pad U9-24(809.425mil,397.898mil)  Top Layer
+   Violation between Pad U9-22(809.425mil,358.528mil)  Top Layer and 
+                     Pad U9-23(809.425mil,378.213mil)  Top Layer
+   Violation between Pad U9-21(809.425mil,338.842mil)  Top Layer and 
+                     Pad U9-22(809.425mil,358.528mil)  Top Layer
+   Violation between Pad U9-20(809.425mil,319.158mil)  Top Layer and 
+                     Pad U9-21(809.425mil,338.842mil)  Top Layer
+   Violation between Pad U9-19(809.425mil,299.472mil)  Top Layer and 
+                     Pad U9-20(809.425mil,319.158mil)  Top Layer
+   Violation between Pad U9-18(809.425mil,279.787mil)  Top Layer and 
+                     Pad U9-19(809.425mil,299.472mil)  Top Layer
+   Violation between Pad U9-17(809.425mil,260.102mil)  Top Layer and 
+                     Pad U9-18(809.425mil,279.787mil)  Top Layer
+   Violation between Pad U9-15(760.213mil,230.575mil)  Top Layer and 
+                     Pad U9-16(779.898mil,230.575mil)  Top Layer
+   Violation between Pad U9-14(740.528mil,230.575mil)  Top Layer and 
+                     Pad U9-15(760.213mil,230.575mil)  Top Layer
+   Violation between Pad U9-13(720.842mil,230.575mil)  Top Layer and 
+                     Pad U9-14(740.528mil,230.575mil)  Top Layer
+   Violation between Pad U9-12(701.158mil,230.575mil)  Top Layer and 
+                     Pad U9-13(720.842mil,230.575mil)  Top Layer
+   Violation between Pad U9-11(681.472mil,230.575mil)  Top Layer and 
+                     Pad U9-12(701.158mil,230.575mil)  Top Layer
+   Violation between Pad U9-10(661.787mil,230.575mil)  Top Layer and 
+                     Pad U9-11(681.472mil,230.575mil)  Top Layer
+   Violation between Pad U9-9(642.102mil,230.575mil)  Top Layer and 
+                     Pad U9-10(661.787mil,230.575mil)  Top Layer
+   Violation between Pad U9-7(612.575mil,279.787mil)  Top Layer and 
+                     Pad U9-8(612.575mil,260.102mil)  Top Layer
+   Violation between Pad U9-6(612.575mil,299.472mil)  Top Layer and 
+                     Pad U9-7(612.575mil,279.787mil)  Top Layer
+   Violation between Pad U9-5(612.575mil,319.158mil)  Top Layer and 
+                     Pad U9-6(612.575mil,299.472mil)  Top Layer
+   Violation between Pad U9-4(612.575mil,338.842mil)  Top Layer and 
+                     Pad U9-5(612.575mil,319.158mil)  Top Layer
+   Violation between Pad U9-3(612.575mil,358.528mil)  Top Layer and 
+                     Pad U9-4(612.575mil,338.842mil)  Top Layer
+   Violation between Pad U9-2(612.575mil,378.213mil)  Top Layer and 
+                     Pad U9-3(612.575mil,358.528mil)  Top Layer
+   Violation between Pad U9-1(612.575mil,397.898mil)  Top Layer and 
+                     Pad U9-2(612.575mil,378.213mil)  Top Layer
+   Violation between Pad U13-2(331.598mil,728mil)  Bottom Layer and 
+                     Pad U13-1(331.598mil,702.409mil)  Bottom Layer
+   Violation between Pad U13-3(331.598mil,753.591mil)  Bottom Layer and 
+                     Pad U13-2(331.598mil,728mil)  Bottom Layer
+   Violation between Pad U10-2(1223.675mil,528.69mil)  Bottom Layer and 
+                     Pad U10-1(1223.675mil,548.38mil)  Bottom Layer
+   Violation between Pad U10-3(1223.675mil,509mil)  Bottom Layer and 
+                     Pad U10-2(1223.675mil,528.69mil)  Bottom Layer
+   Violation between Pad U10-4(1223.675mil,489.31mil)  Bottom Layer and 
+                     Pad U10-3(1223.675mil,509mil)  Bottom Layer
+   Violation between Pad U10-5(1223.675mil,469.62mil)  Bottom Layer and 
+                     Pad U10-4(1223.675mil,489.31mil)  Bottom Layer
+   Violation between Pad U10-7(1172mil,458.805mil)  Bottom Layer and 
+                     Pad U10-6(1191.69mil,458.805mil)  Bottom Layer
+   Violation between Pad U10-8(1152.31mil,458.805mil)  Bottom Layer and 
+                     Pad U10-7(1172mil,458.805mil)  Bottom Layer
+   Violation between Pad U10-10(1120.325mil,489.31mil)  Bottom Layer and 
+                     Pad U10-9(1120.325mil,469.62mil)  Bottom Layer
+   Violation between Pad U10-11(1120.325mil,509mil)  Bottom Layer and 
+                     Pad U10-10(1120.325mil,489.31mil)  Bottom Layer
+   Violation between Pad U10-12(1120.325mil,528.69mil)  Bottom Layer and 
+                     Pad U10-11(1120.325mil,509mil)  Bottom Layer
+   Violation between Pad U10-13(1120.325mil,548.38mil)  Bottom Layer and 
+                     Pad U10-12(1120.325mil,528.69mil)  Bottom Layer
+   Violation between Pad U10-15(1172mil,559.195mil)  Bottom Layer and 
+                     Pad U10-14(1152.31mil,559.195mil)  Bottom Layer
+   Violation between Pad U10-16(1191.69mil,559.195mil)  Bottom Layer and 
+                     Pad U10-15(1172mil,559.195mil)  Bottom Layer
+   Violation between Pad U15-2(676.504mil,769.158mil)  Bottom Layer and 
+                     Pad U15-1(676.504mil,749.472mil)  Bottom Layer
+   Violation between Pad U15-3(676.504mil,788.842mil)  Bottom Layer and 
+                     Pad U15-2(676.504mil,769.158mil)  Bottom Layer
+   Violation between Pad U15-4(676.504mil,808.528mil)  Bottom Layer and 
+                     Pad U15-3(676.504mil,788.842mil)  Bottom Layer
+   Violation between Pad U15-7(739.496mil,788.842mil)  Bottom Layer and 
+                     Pad U15-6(739.496mil,808.528mil)  Bottom Layer
+   Violation between Pad U15-8(739.496mil,769.158mil)  Bottom Layer and 
+                     Pad U15-7(739.496mil,788.842mil)  Bottom Layer
+   Violation between Pad U15-9(739.496mil,749.472mil)  Bottom Layer and 
+                     Pad U15-8(739.496mil,769.158mil)  Bottom Layer
+   Violation between Pad U12-2(812.402mil,925mil)  Bottom Layer and 
+                     Pad U12-3(812.402mil,899.409mil)  Bottom Layer
+   Violation between Pad U12-1(812.402mil,950.591mil)  Bottom Layer and 
+                     Pad U12-2(812.402mil,925mil)  Bottom Layer
+   Violation between Pad U11-6(513.213mil,939.795mil)  Bottom Layer and 
+                     Pad U11-5(513.213mil,965.386mil)  Bottom Layer
+   Violation between Pad U11-7(513.213mil,914.205mil)  Bottom Layer and 
+                     Pad U11-6(513.213mil,939.795mil)  Bottom Layer
+   Violation between Pad U11-8(513.213mil,888.614mil)  Bottom Layer and 
+                     Pad U11-7(513.213mil,914.205mil)  Bottom Layer
+   Violation between Pad U11-3(414.787mil,939.795mil)  Bottom Layer and 
+                     Pad U11-4(414.787mil,965.386mil)  Bottom Layer
+   Violation between Pad U11-2(414.787mil,914.205mil)  Bottom Layer and 
+                     Pad U11-3(414.787mil,939.795mil)  Bottom Layer
+   Violation between Pad U11-1(414.787mil,888.614mil)  Bottom Layer and 
+                     Pad U11-2(414.787mil,914.205mil)  Bottom Layer
+Rule Violations :77
+
+Processing Rule : Silk To Solder Mask (Clearance=5mil) (IsPad),(All)
+   Violation between Track (997.701mil,197.59mil)(997.701mil,205.464mil)  Top Overlay and 
+                     Pad C2-2(1008.528mil,183.811mil)  Top Layer
+   Violation between Track (1019.354mil,197.59mil)(1019.354mil,205.464mil)  Top Overlay and 
+                     Pad C2-2(1008.528mil,183.811mil)  Top Layer
+   Violation between Track (997.701mil,197.59mil)(997.701mil,205.464mil)  Top Overlay and 
+                     Pad C2-1(1008.528mil,219.244mil)  Top Layer
+   Violation between Track (1019.354mil,197.59mil)(1019.354mil,205.464mil)  Top Overlay and 
+                     Pad C2-1(1008.528mil,219.244mil)  Top Layer
+   Violation between Track (917.591mil,438.354mil)(925.465mil,438.354mil)  Top Overlay and 
+                     Pad C3-2(903.811mil,427.527mil)  Top Layer
+   Violation between Track (917.591mil,416.701mil)(925.465mil,416.701mil)  Top Overlay and 
+                     Pad C3-2(903.811mil,427.527mil)  Top Layer
+   Violation between Track (917.591mil,438.354mil)(925.465mil,438.354mil)  Top Overlay and 
+                     Pad C3-1(939.244mil,427.527mil)  Top Layer
+   Violation between Track (917.591mil,416.701mil)(925.465mil,416.701mil)  Top Overlay and 
+                     Pad C3-1(939.244mil,427.527mil)  Top Layer
+   Violation between Track (1023.354mil,432.591mil)(1023.354mil,440.464mil)  Top Overlay and 
+                     Pad C4-2(1012.528mil,454.244mil)  Top Layer
+   Violation between Track (1001.701mil,432.591mil)(1001.701mil,440.464mil)  Top Overlay and 
+                     Pad C4-2(1012.528mil,454.244mil)  Top Layer
+   Violation between Track (1023.354mil,432.591mil)(1023.354mil,440.464mil)  Top Overlay and 
+                     Pad C4-1(1012.528mil,418.811mil)  Top Layer
+   Violation between Track (1001.701mil,432.591mil)(1001.701mil,440.464mil)  Top Overlay and 
+                     Pad C4-1(1012.528mil,418.811mil)  Top Layer
+   Violation between Track (1266.063mil,420.173mil)(1273.937mil,420.173mil)  Top Overlay and 
+                     Pad C8-2(1287.716mil,431mil)  Top Layer
+   Violation between Track (1266.063mil,441.827mil)(1273.937mil,441.827mil)  Top Overlay and 
+                     Pad C8-2(1287.716mil,431mil)  Top Layer
+   Violation between Track (1266.063mil,420.173mil)(1273.937mil,420.173mil)  Top Overlay and 
+                     Pad C8-1(1252.284mil,431mil)  Top Layer
+   Violation between Track (1266.063mil,441.827mil)(1273.937mil,441.827mil)  Top Overlay and 
+                     Pad C8-1(1252.284mil,431mil)  Top Layer
+   Violation between Track (418.827mil,618.063mil)(418.827mil,625.937mil)  Top Overlay and 
+                     Pad C20-2(408mil,639.716mil)  Top Layer
+   Violation between Track (397.173mil,618.063mil)(397.173mil,625.937mil)  Top Overlay and 
+                     Pad C20-2(408mil,639.716mil)  Top Layer
+   Violation between Track (418.827mil,618.063mil)(418.827mil,625.937mil)  Top Overlay and 
+                     Pad C20-1(408mil,604.284mil)  Top Layer
+   Violation between Track (397.173mil,618.063mil)(397.173mil,625.937mil)  Top Overlay and 
+                     Pad C20-1(408mil,604.284mil)  Top Layer
+   Violation between Track (516.063mil,448.173mil)(523.937mil,448.173mil)  Top Overlay and 
+                     Pad C21-2(537.716mil,459mil)  Top Layer
+   Violation between Track (516.063mil,469.827mil)(523.937mil,469.827mil)  Top Overlay and 
+                     Pad C21-2(537.716mil,459mil)  Top Layer
+   Violation between Track (516.063mil,448.173mil)(523.937mil,448.173mil)  Top Overlay and 
+                     Pad C21-1(502.284mil,459mil)  Top Layer
+   Violation between Track (516.063mil,469.827mil)(523.937mil,469.827mil)  Top Overlay and 
+                     Pad C21-1(502.284mil,459mil)  Top Layer
+   Violation between Track (488.173mil,512.063mil)(488.173mil,519.937mil)  Top Overlay and 
+                     Pad C22-2(499mil,498.284mil)  Top Layer
+   Violation between Track (509.827mil,512.063mil)(509.827mil,519.937mil)  Top Overlay and 
+                     Pad C22-2(499mil,498.284mil)  Top Layer
+   Violation between Track (488.173mil,512.063mil)(488.173mil,519.937mil)  Top Overlay and 
+                     Pad C22-1(499mil,533.716mil)  Top Layer
+   Violation between Track (509.827mil,512.063mil)(509.827mil,519.937mil)  Top Overlay and 
+                     Pad C22-1(499mil,533.716mil)  Top Layer
+   Violation between Track (380.063mil,786.827mil)(387.937mil,786.827mil)  Top Overlay and 
+                     Pad C26-2(366.284mil,776mil)  Top Layer
+   Violation between Track (380.063mil,765.173mil)(387.937mil,765.173mil)  Top Overlay and 
+                     Pad C26-2(366.284mil,776mil)  Top Layer
+   Violation between Track (380.063mil,786.827mil)(387.937mil,786.827mil)  Top Overlay and 
+                     Pad C26-1(401.716mil,776mil)  Top Layer
+   Violation between Track (380.063mil,765.173mil)(387.937mil,765.173mil)  Top Overlay and 
+                     Pad C26-1(401.716mil,776mil)  Top Layer
+   Violation between Track (433.221mil,926.284mil)(460.779mil,926.284mil)  Top Overlay and 
+                     Pad C27-1(417.472mil,944mil)  Top Layer
+   Violation between Track (433.221mil,960.732mil)(460.779mil,960.732mil)  Top Overlay and 
+                     Pad C27-1(417.472mil,944mil)  Top Layer
+   Violation between Track (433.221mil,926.284mil)(460.779mil,926.284mil)  Top Overlay and 
+                     Pad C27-2(476.528mil,944mil)  Top Layer
+   Violation between Track (433.221mil,960.732mil)(460.779mil,960.732mil)  Top Overlay and 
+                     Pad C27-2(476.528mil,944mil)  Top Layer
+   Violation between Track (1030.063mil,664.173mil)(1037.937mil,664.173mil)  Top Overlay and 
+                     Pad C31-2(1051.716mil,675mil)  Top Layer
+   Violation between Track (1030.063mil,685.827mil)(1037.937mil,685.827mil)  Top Overlay and 
+                     Pad C31-2(1051.716mil,675mil)  Top Layer
+   Violation between Track (1030.063mil,664.173mil)(1037.937mil,664.173mil)  Top Overlay and 
+                     Pad C31-1(1016.284mil,675mil)  Top Layer
+   Violation between Track (1030.063mil,685.827mil)(1037.937mil,685.827mil)  Top Overlay and 
+                     Pad C31-1(1016.284mil,675mil)  Top Layer
+   Violation between Track (340.827mil,960.063mil)(340.827mil,967.937mil)  Top Overlay and 
+                     Pad C48-2(330mil,981.716mil)  Top Layer
+   Violation between Track (319.173mil,960.063mil)(319.173mil,967.937mil)  Top Overlay and 
+                     Pad C48-2(330mil,981.716mil)  Top Layer
+   Violation between Track (340.827mil,960.063mil)(340.827mil,967.937mil)  Top Overlay and 
+                     Pad C48-1(330mil,946.284mil)  Top Layer
+   Violation between Track (319.173mil,960.063mil)(319.173mil,967.937mil)  Top Overlay and 
+                     Pad C48-1(330mil,946.284mil)  Top Layer
+   Violation between Track (917.701mil,167.59mil)(917.701mil,175.464mil)  Top Overlay and 
+                     Pad L1-2(928.528mil,153.811mil)  Top Layer
+   Violation between Track (939.354mil,167.59mil)(939.354mil,175.464mil)  Top Overlay and 
+                     Pad L1-2(928.528mil,153.811mil)  Top Layer
+   Violation between Track (917.701mil,167.59mil)(917.701mil,175.464mil)  Top Overlay and 
+                     Pad L1-1(928.528mil,189.244mil)  Top Layer
+   Violation between Track (939.354mil,167.59mil)(939.354mil,175.464mil)  Top Overlay and 
+                     Pad L1-1(928.528mil,189.244mil)  Top Layer
+   Violation between Track (944.221mil,125.732mil)(971.779mil,125.732mil)  Top Overlay and 
+                     Pad L2-1(928.472mil,109mil)  Top Layer
+   Violation between Track (944.221mil,91.284mil)(971.779mil,91.284mil)  Top Overlay and 
+                     Pad L2-1(928.472mil,109mil)  Top Layer
+   Violation between Track (944.221mil,125.732mil)(971.779mil,125.732mil)  Top Overlay and 
+                     Pad L2-2(987.528mil,109mil)  Top Layer
+   Violation between Track (944.221mil,91.284mil)(971.779mil,91.284mil)  Top Overlay and 
+                     Pad L2-2(987.528mil,109mil)  Top Layer
+   Violation between Track (1059.354mil,422.591mil)(1059.354mil,430.464mil)  Top Overlay and 
+                     Pad R1-2(1048.527mil,444.244mil)  Top Layer
+   Violation between Track (1037.701mil,422.591mil)(1037.701mil,430.464mil)  Top Overlay and 
+                     Pad R1-2(1048.527mil,444.244mil)  Top Layer
+   Violation between Track (1059.354mil,422.591mil)(1059.354mil,430.464mil)  Top Overlay and 
+                     Pad R1-1(1048.527mil,408.811mil)  Top Layer
+   Violation between Track (1037.701mil,422.591mil)(1037.701mil,430.464mil)  Top Overlay and 
+                     Pad R1-1(1048.527mil,408.811mil)  Top Layer
+   Violation between Track (144.063mil,449.827mil)(151.937mil,449.827mil)  Top Overlay and 
+                     Pad R2-2(130.284mil,439mil)  Top Layer
+   Violation between Track (144.063mil,428.173mil)(151.937mil,428.173mil)  Top Overlay and 
+                     Pad R2-2(130.284mil,439mil)  Top Layer
+   Violation between Track (144.063mil,449.827mil)(151.937mil,449.827mil)  Top Overlay and 
+                     Pad R2-1(165.716mil,439mil)  Top Layer
+   Violation between Track (144.063mil,428.173mil)(151.937mil,428.173mil)  Top Overlay and 
+                     Pad R2-1(165.716mil,439mil)  Top Layer
+   Violation between Track (1156.063mil,740.173mil)(1163.937mil,740.173mil)  Top Overlay and 
+                     Pad R7-2(1177.716mil,751mil)  Top Layer
+   Violation between Track (1156.063mil,761.827mil)(1163.937mil,761.827mil)  Top Overlay and 
+                     Pad R7-2(1177.716mil,751mil)  Top Layer
+   Violation between Track (1156.063mil,740.173mil)(1163.937mil,740.173mil)  Top Overlay and 
+                     Pad R7-1(1142.284mil,751mil)  Top Layer
+   Violation between Track (1156.063mil,761.827mil)(1163.937mil,761.827mil)  Top Overlay and 
+                     Pad R7-1(1142.284mil,751mil)  Top Layer
+   Violation between Track (913.591mil,219.701mil)(921.465mil,219.701mil)  Top Overlay and 
+                     Pad C1-2(899.811mil,230.528mil)  Top Layer
+   Violation between Track (913.591mil,241.354mil)(921.465mil,241.354mil)  Top Overlay and 
+                     Pad C1-2(899.811mil,230.528mil)  Top Layer
+   Violation between Track (913.591mil,219.701mil)(921.465mil,219.701mil)  Top Overlay and 
+                     Pad C1-1(935.244mil,230.528mil)  Top Layer
+   Violation between Track (913.591mil,241.354mil)(921.465mil,241.354mil)  Top Overlay and 
+                     Pad C1-1(935.244mil,230.528mil)  Top Layer
+   Violation between Track (1155.079mil,786.11mil)(1155.079mil,799.89mil)  Top Overlay and 
+                     Pad D1-2(1142.284mil,793mil)  Top Layer
+   Violation between Track (1158.032mil,793mil)(1164.921mil,786.11mil)  Top Overlay and 
+                     Pad D1-1(1177.716mil,793mil)  Top Layer
+   Violation between Track (1164.921mil,786.11mil)(1164.921mil,799.89mil)  Top Overlay and 
+                     Pad D1-1(1177.716mil,793mil)  Top Layer
+   Violation between Track (1158.032mil,793mil)(1164.921mil,799.89mil)  Top Overlay and 
+                     Pad D1-1(1177.716mil,793mil)  Top Layer
+   Violation between Track (266.221mil,831.716mil)(293.779mil,831.716mil)  Top Overlay and 
+                     Pad C25-1(309.528mil,814mil)  Top Layer
+   Violation between Track (266.221mil,797.268mil)(293.779mil,797.268mil)  Top Overlay and 
+                     Pad C25-1(309.528mil,814mil)  Top Layer
+   Violation between Track (266.221mil,831.716mil)(293.779mil,831.716mil)  Top Overlay and 
+                     Pad C25-2(250.472mil,814mil)  Top Layer
+   Violation between Track (266.221mil,797.268mil)(293.779mil,797.268mil)  Top Overlay and 
+                     Pad C25-2(250.472mil,814mil)  Top Layer
+   Violation between Track (389.661mil,517.063mil)(389.661mil,524.937mil)  Top Overlay and 
+                     Pad X2-1(408.362mil,549.543mil)  Top Layer
+   Violation between Track (389.661mil,517.063mil)(389.661mil,524.937mil)  Top Overlay and 
+                     Pad X2-2(408.362mil,492.457mil)  Top Layer
+   Violation between Track (472.339mil,517.063mil)(472.339mil,524.937mil)  Top Overlay and 
+                     Pad X2-3(453.638mil,492.457mil)  Top Layer
+   Violation between Track (472.339mil,517.063mil)(472.339mil,524.937mil)  Top Overlay and 
+                     Pad X2-4(453.638mil,549.543mil)  Top Layer
+   Violation between Track (556.488mil,-12.087mil)(556.488mil,185.748mil)  Top Overlay and 
+                     Pad J1-6(586.016mil,143.425mil)  Top Layer
+   Violation between Track (867.512mil,-12.087mil)(867.512mil,186.732mil)  Top Overlay and 
+                     Pad J1-6(837.984mil,143.425mil)  Top Layer
+   Violation between Track (934.575mil,253.709mil)(940.48mil,253.709mil)  Top Overlay and 
+                     Pad X1-4(906.031mil,284.22mil)  Top Layer
+   Violation between Track (880.441mil,317.685mil)(880.441mil,337.37mil)  Top Overlay and 
+                     Pad X1-4(906.031mil,284.22mil)  Top Layer
+   Violation between Track (934.575mil,401.346mil)(940.48mil,401.346mil)  Top Overlay and 
+                     Pad X1-3(906.031mil,370.835mil)  Top Layer
+   Violation between Track (880.441mil,317.685mil)(880.441mil,337.37mil)  Top Overlay and 
+                     Pad X1-3(906.031mil,370.835mil)  Top Layer
+   Violation between Track (934.575mil,401.346mil)(940.48mil,401.346mil)  Top Overlay and 
+                     Pad X1-2(969.024mil,370.835mil)  Top Layer
+   Violation between Track (994.614mil,317.685mil)(994.614mil,337.37mil)  Top Overlay and 
+                     Pad X1-2(969.024mil,370.835mil)  Top Layer
+   Violation between Track (934.575mil,253.709mil)(940.48mil,253.709mil)  Top Overlay and 
+                     Pad X1-1(969.024mil,284.22mil)  Top Layer
+   Violation between Track (994.614mil,317.685mil)(994.614mil,337.37mil)  Top Overlay and 
+                     Pad X1-1(969.024mil,284.22mil)  Top Layer
+   Violation between Track (556.488mil,-12.087mil)(556.488mil,185.748mil)  Top Overlay and 
+                     Pad J1-6(587mil,45mil)  Multi-Layer
+   Violation between Track (867.512mil,-12.087mil)(867.512mil,186.732mil)  Top Overlay and 
+                     Pad J1-6(837mil,45mil)  Multi-Layer
+   Violation between Text "C40" (515mil,706mil)  Bottom Overlay and 
+                     Pad UT1-1(547.614mil,755mil)  Multi-Layer
+   Violation between Track (1044.173mil,214.063mil)(1044.173mil,221.937mil)  Bottom Overlay and 
+                     Pad C5-2(1055mil,235.716mil)  Bottom Layer
+   Violation between Track (1065.827mil,214.063mil)(1065.827mil,221.937mil)  Bottom Overlay and 
+                     Pad C5-2(1055mil,235.716mil)  Bottom Layer
+   Violation between Track (1044.173mil,214.063mil)(1044.173mil,221.937mil)  Bottom Overlay and 
+                     Pad C5-1(1055mil,200.284mil)  Bottom Layer
+   Violation between Track (1065.827mil,214.063mil)(1065.827mil,221.937mil)  Bottom Overlay and 
+                     Pad C5-1(1055mil,200.284mil)  Bottom Layer
+   Violation between Track (1032.063mil,102.173mil)(1039.937mil,102.173mil)  Bottom Overlay and 
+                     Pad C6-2(1018.284mil,113mil)  Bottom Layer
+   Violation between Track (1032.063mil,123.827mil)(1039.937mil,123.827mil)  Bottom Overlay and 
+                     Pad C6-2(1018.284mil,113mil)  Bottom Layer
+   Violation between Track (1032.063mil,102.173mil)(1039.937mil,102.173mil)  Bottom Overlay and 
+                     Pad C6-1(1053.716mil,113mil)  Bottom Layer
+   Violation between Track (1032.063mil,123.827mil)(1039.937mil,123.827mil)  Bottom Overlay and 
+                     Pad C6-1(1053.716mil,113mil)  Bottom Layer
+   Violation between Track (1132.78mil,185.827mil)(1140.653mil,185.827mil)  Bottom Overlay and 
+                     Pad C7-2(1154.433mil,175mil)  Bottom Layer
+   Violation between Track (1132.78mil,164.173mil)(1140.653mil,164.173mil)  Bottom Overlay and 
+                     Pad C7-2(1154.433mil,175mil)  Bottom Layer
+   Violation between Track (1132.78mil,185.827mil)(1140.653mil,185.827mil)  Bottom Overlay and 
+                     Pad C7-1(1119mil,175mil)  Bottom Layer
+   Violation between Track (1132.78mil,164.173mil)(1140.653mil,164.173mil)  Bottom Overlay and 
+                     Pad C7-1(1119mil,175mil)  Bottom Layer
+   Violation between Track (1237.11mil,243.063mil)(1237.11mil,250.937mil)  Bottom Overlay and 
+                     Pad C9-2(1247.937mil,264.716mil)  Bottom Layer
+   Violation between Track (1258.764mil,243.063mil)(1258.764mil,250.937mil)  Bottom Overlay and 
+                     Pad C9-2(1247.937mil,264.716mil)  Bottom Layer
+   Violation between Track (1237.11mil,243.063mil)(1237.11mil,250.937mil)  Bottom Overlay and 
+                     Pad C9-1(1247.937mil,229.284mil)  Bottom Layer
+   Violation between Track (1258.764mil,243.063mil)(1258.764mil,250.937mil)  Bottom Overlay and 
+                     Pad C9-1(1247.937mil,229.284mil)  Bottom Layer
+   Violation between Track (375.591mil,98.347mil)(383.465mil,98.347mil)  Bottom Overlay and 
+                     Pad C10-2(361.811mil,87.52mil)  Bottom Layer
+   Violation between Track (375.591mil,76.693mil)(383.465mil,76.693mil)  Bottom Overlay and 
+                     Pad C10-2(361.811mil,87.52mil)  Bottom Layer
+   Violation between Track (375.591mil,98.347mil)(383.465mil,98.347mil)  Bottom Overlay and 
+                     Pad C10-1(397.244mil,87.52mil)  Bottom Layer
+   Violation between Track (375.591mil,76.693mil)(383.465mil,76.693mil)  Bottom Overlay and 
+                     Pad C10-1(397.244mil,87.52mil)  Bottom Layer
+   Violation between Track (494.173mil,140.063mil)(494.173mil,147.937mil)  Bottom Overlay and 
+                     Pad C11-2(505mil,161.716mil)  Bottom Layer
+   Violation between Track (515.827mil,140.063mil)(515.827mil,147.937mil)  Bottom Overlay and 
+                     Pad C11-2(505mil,161.716mil)  Bottom Layer
+   Violation between Track (494.173mil,140.063mil)(494.173mil,147.937mil)  Bottom Overlay and 
+                     Pad C11-1(505mil,126.284mil)  Bottom Layer
+   Violation between Track (515.827mil,140.063mil)(515.827mil,147.937mil)  Bottom Overlay and 
+                     Pad C11-1(505mil,126.284mil)  Bottom Layer
+   Violation between Track (495.173mil,307.779mil)(495.173mil,315.654mil)  Bottom Overlay and 
+                     Pad C12-2(506mil,329.433mil)  Bottom Layer
+   Violation between Track (516.827mil,307.779mil)(516.827mil,315.654mil)  Bottom Overlay and 
+                     Pad C12-2(506mil,329.433mil)  Bottom Layer
+   Violation between Track (495.173mil,307.779mil)(495.173mil,315.654mil)  Bottom Overlay and 
+                     Pad C12-1(506mil,294mil)  Bottom Layer
+   Violation between Track (516.827mil,307.779mil)(516.827mil,315.654mil)  Bottom Overlay and 
+                     Pad C12-1(506mil,294mil)  Bottom Layer
+   Violation between Track (374.779mil,390.173mil)(382.654mil,390.173mil)  Bottom Overlay and 
+                     Pad C13-2(396.433mil,401mil)  Bottom Layer
+   Violation between Track (374.779mil,411.827mil)(382.654mil,411.827mil)  Bottom Overlay and 
+                     Pad C13-2(396.433mil,401mil)  Bottom Layer
+   Violation between Track (374.779mil,390.173mil)(382.654mil,390.173mil)  Bottom Overlay and 
+                     Pad C13-1(361mil,401mil)  Bottom Layer
+   Violation between Track (374.779mil,411.827mil)(382.654mil,411.827mil)  Bottom Overlay and 
+                     Pad C13-1(361mil,401mil)  Bottom Layer
+   Violation between Track (453.063mil,390.173mil)(460.937mil,390.173mil)  Bottom Overlay and 
+                     Pad C14-2(474.716mil,401mil)  Bottom Layer
+   Violation between Track (453.063mil,411.827mil)(460.937mil,411.827mil)  Bottom Overlay and 
+                     Pad C14-2(474.716mil,401mil)  Bottom Layer
+   Violation between Track (453.063mil,390.173mil)(460.937mil,390.173mil)  Bottom Overlay and 
+                     Pad C14-1(439.284mil,401mil)  Bottom Layer
+   Violation between Track (453.063mil,411.827mil)(460.937mil,411.827mil)  Bottom Overlay and 
+                     Pad C14-1(439.284mil,401mil)  Bottom Layer
+   Violation between Track (208.827mil,319.063mil)(208.827mil,326.937mil)  Bottom Overlay and 
+                     Pad C15-2(198mil,305.284mil)  Bottom Layer
+   Violation between Track (187.173mil,319.063mil)(187.173mil,326.937mil)  Bottom Overlay and 
+                     Pad C15-2(198mil,305.284mil)  Bottom Layer
+   Violation between Track (208.827mil,319.063mil)(208.827mil,326.937mil)  Bottom Overlay and 
+                     Pad C15-1(198mil,340.716mil)  Bottom Layer
+   Violation between Track (187.173mil,319.063mil)(187.173mil,326.937mil)  Bottom Overlay and 
+                     Pad C15-1(198mil,340.716mil)  Bottom Layer
+   Violation between Track (187.173mil,166.063mil)(187.173mil,173.937mil)  Bottom Overlay and 
+                     Pad C16-2(198mil,187.716mil)  Bottom Layer
+   Violation between Track (208.827mil,166.063mil)(208.827mil,173.937mil)  Bottom Overlay and 
+                     Pad C16-2(198mil,187.716mil)  Bottom Layer
+   Violation between Track (187.173mil,166.063mil)(187.173mil,173.937mil)  Bottom Overlay and 
+                     Pad C16-1(198mil,152.284mil)  Bottom Layer
+   Violation between Track (208.827mil,166.063mil)(208.827mil,173.937mil)  Bottom Overlay and 
+                     Pad C16-1(198mil,152.284mil)  Bottom Layer
+   Violation between Track (260.063mil,105.827mil)(267.937mil,105.827mil)  Bottom Overlay and 
+                     Pad C17-2(281.716mil,95mil)  Bottom Layer
+   Violation between Track (260.063mil,84.173mil)(267.937mil,84.173mil)  Bottom Overlay and 
+                     Pad C17-2(281.716mil,95mil)  Bottom Layer
+   Violation between Track (260.063mil,105.827mil)(267.937mil,105.827mil)  Bottom Overlay and 
+                     Pad C17-1(246.284mil,95mil)  Bottom Layer
+   Violation between Track (260.063mil,84.173mil)(267.937mil,84.173mil)  Bottom Overlay and 
+                     Pad C17-1(246.284mil,95mil)  Bottom Layer
+   Violation between Track (308.063mil,389.173mil)(315.937mil,389.173mil)  Bottom Overlay and 
+                     Pad C18-2(329.716mil,400mil)  Bottom Layer
+   Violation between Track (308.063mil,410.827mil)(315.937mil,410.827mil)  Bottom Overlay and 
+                     Pad C18-2(329.716mil,400mil)  Bottom Layer
+   Violation between Track (308.063mil,389.173mil)(315.937mil,389.173mil)  Bottom Overlay and 
+                     Pad C18-1(294.284mil,400mil)  Bottom Layer
+   Violation between Track (308.063mil,410.827mil)(315.937mil,410.827mil)  Bottom Overlay and 
+                     Pad C18-1(294.284mil,400mil)  Bottom Layer
+   Violation between Track (242.78mil,389.173mil)(250.654mil,389.173mil)  Bottom Overlay and 
+                     Pad C19-2(264.433mil,400mil)  Bottom Layer
+   Violation between Track (242.78mil,410.827mil)(250.654mil,410.827mil)  Bottom Overlay and 
+                     Pad C19-2(264.433mil,400mil)  Bottom Layer
+   Violation between Track (242.78mil,389.173mil)(250.654mil,389.173mil)  Bottom Overlay and 
+                     Pad C19-1(229mil,400mil)  Bottom Layer
+   Violation between Track (242.78mil,410.827mil)(250.654mil,410.827mil)  Bottom Overlay and 
+                     Pad C19-1(229mil,400mil)  Bottom Layer
+   Violation between Track (695.173mil,272.063mil)(695.173mil,279.937mil)  Bottom Overlay and 
+                     Pad C23-2(706mil,293.716mil)  Bottom Layer
+   Violation between Track (716.827mil,272.063mil)(716.827mil,279.937mil)  Bottom Overlay and 
+                     Pad C23-2(706mil,293.716mil)  Bottom Layer
+   Violation between Track (695.173mil,272.063mil)(695.173mil,279.937mil)  Bottom Overlay and 
+                     Pad C23-1(706mil,258.284mil)  Bottom Layer
+   Violation between Track (716.827mil,272.063mil)(716.827mil,279.937mil)  Bottom Overlay and 
+                     Pad C23-1(706mil,258.284mil)  Bottom Layer
+   Violation between Track (949.063mil,579.827mil)(956.937mil,579.827mil)  Bottom Overlay and 
+                     Pad C24-2(935.284mil,569mil)  Bottom Layer
+   Violation between Track (949.063mil,558.173mil)(956.937mil,558.173mil)  Bottom Overlay and 
+                     Pad C24-2(935.284mil,569mil)  Bottom Layer
+   Violation between Track (949.063mil,579.827mil)(956.937mil,579.827mil)  Bottom Overlay and 
+                     Pad C24-1(970.716mil,569mil)  Bottom Layer
+   Violation between Track (949.063mil,558.173mil)(956.937mil,558.173mil)  Bottom Overlay and 
+                     Pad C24-1(970.716mil,569mil)  Bottom Layer
+   Violation between Track (932.063mil,843.386mil)(939.937mil,843.386mil)  Bottom Overlay and 
+                     Pad C28-2(918.284mil,854.213mil)  Bottom Layer
+   Violation between Track (932.063mil,865.039mil)(939.937mil,865.039mil)  Bottom Overlay and 
+                     Pad C28-2(918.284mil,854.213mil)  Bottom Layer
+   Violation between Track (932.063mil,843.386mil)(939.937mil,843.386mil)  Bottom Overlay and 
+                     Pad C28-1(953.716mil,854.213mil)  Bottom Layer
+   Violation between Track (932.063mil,865.039mil)(939.937mil,865.039mil)  Bottom Overlay and 
+                     Pad C28-1(953.716mil,854.213mil)  Bottom Layer
+   Violation between Track (1028.347mil,647.268mil)(1055.906mil,647.268mil)  Bottom Overlay and 
+                     Pad C29-1(1012.598mil,664mil)  Bottom Layer
+   Violation between Track (1028.347mil,681.716mil)(1055.906mil,681.716mil)  Bottom Overlay and 
+                     Pad C29-1(1012.598mil,664mil)  Bottom Layer
+   Violation between Track (1028.347mil,647.268mil)(1055.906mil,647.268mil)  Bottom Overlay and 
+                     Pad C29-2(1071.654mil,664mil)  Bottom Layer
+   Violation between Track (1028.347mil,681.716mil)(1055.906mil,681.716mil)  Bottom Overlay and 
+                     Pad C29-2(1071.654mil,664mil)  Bottom Layer
+   Violation between Track (1026.378mil,699.173mil)(1034.252mil,699.173mil)  Bottom Overlay and 
+                     Pad C30-2(1048.031mil,710mil)  Bottom Layer
+   Violation between Track (1026.378mil,720.827mil)(1034.252mil,720.827mil)  Bottom Overlay and 
+                     Pad C30-2(1048.031mil,710mil)  Bottom Layer
+   Violation between Track (1026.378mil,699.173mil)(1034.252mil,699.173mil)  Bottom Overlay and 
+                     Pad C30-1(1012.598mil,710mil)  Bottom Layer
+   Violation between Track (1026.378mil,720.827mil)(1034.252mil,720.827mil)  Bottom Overlay and 
+                     Pad C30-1(1012.598mil,710mil)  Bottom Layer
+   Violation between Track (921.063mil,908.173mil)(928.937mil,908.173mil)  Bottom Overlay and 
+                     Pad C32-2(907.284mil,919mil)  Bottom Layer
+   Violation between Track (921.063mil,929.827mil)(928.937mil,929.827mil)  Bottom Overlay and 
+                     Pad C32-2(907.284mil,919mil)  Bottom Layer
+   Violation between Track (921.063mil,908.173mil)(928.937mil,908.173mil)  Bottom Overlay and 
+                     Pad C32-1(942.716mil,919mil)  Bottom Layer
+   Violation between Track (921.063mil,929.827mil)(928.937mil,929.827mil)  Bottom Overlay and 
+                     Pad C32-1(942.716mil,919mil)  Bottom Layer
+   Violation between Track (862.063mil,223.827mil)(869.937mil,223.827mil)  Bottom Overlay and 
+                     Pad C33-2(883.716mil,213mil)  Bottom Layer
+   Violation between Track (862.063mil,202.173mil)(869.937mil,202.173mil)  Bottom Overlay and 
+                     Pad C33-2(883.716mil,213mil)  Bottom Layer
+   Violation between Track (862.063mil,223.827mil)(869.937mil,223.827mil)  Bottom Overlay and 
+                     Pad C33-1(848.284mil,213mil)  Bottom Layer
+   Violation between Track (862.063mil,202.173mil)(869.937mil,202.173mil)  Bottom Overlay and 
+                     Pad C33-1(848.284mil,213mil)  Bottom Layer
+   Violation between Track (716.063mil,143.425mil)(723.937mil,143.425mil)  Bottom Overlay and 
+                     Pad C35-2(737.716mil,132.599mil)  Bottom Layer
+   Violation between Track (716.063mil,121.772mil)(723.937mil,121.772mil)  Bottom Overlay and 
+                     Pad C35-2(737.716mil,132.599mil)  Bottom Layer
+   Violation between Track (716.063mil,143.425mil)(723.937mil,143.425mil)  Bottom Overlay and 
+                     Pad C35-1(702.284mil,132.599mil)  Bottom Layer
+   Violation between Track (716.063mil,121.772mil)(723.937mil,121.772mil)  Bottom Overlay and 
+                     Pad C35-1(702.284mil,132.599mil)  Bottom Layer
+   Violation between Track (795.173mil,278.063mil)(795.173mil,285.937mil)  Bottom Overlay and 
+                     Pad C36-2(806mil,299.716mil)  Bottom Layer
+   Violation between Track (816.827mil,278.063mil)(816.827mil,285.937mil)  Bottom Overlay and 
+                     Pad C36-2(806mil,299.716mil)  Bottom Layer
+   Violation between Track (795.173mil,278.063mil)(795.173mil,285.937mil)  Bottom Overlay and 
+                     Pad C36-1(806mil,264.284mil)  Bottom Layer
+   Violation between Track (816.827mil,278.063mil)(816.827mil,285.937mil)  Bottom Overlay and 
+                     Pad C36-1(806mil,264.284mil)  Bottom Layer
+   Violation between Track (1204.063mil,633.173mil)(1211.937mil,633.173mil)  Bottom Overlay and 
+                     Pad C37-2(1190.284mil,644mil)  Bottom Layer
+   Violation between Track (1204.063mil,654.827mil)(1211.937mil,654.827mil)  Bottom Overlay and 
+                     Pad C37-2(1190.284mil,644mil)  Bottom Layer
+   Violation between Track (1204.063mil,633.173mil)(1211.937mil,633.173mil)  Bottom Overlay and 
+                     Pad C37-1(1225.716mil,644mil)  Bottom Layer
+   Violation between Track (1204.063mil,654.827mil)(1211.937mil,654.827mil)  Bottom Overlay and 
+                     Pad C37-1(1225.716mil,644mil)  Bottom Layer
+   Violation between Track (1130.657mil,581.173mil)(1138.531mil,581.173mil)  Bottom Overlay and 
+                     Pad C38-2(1116.877mil,592mil)  Bottom Layer
+   Violation between Track (1130.657mil,602.827mil)(1138.531mil,602.827mil)  Bottom Overlay and 
+                     Pad C38-2(1116.877mil,592mil)  Bottom Layer
+   Violation between Track (1130.657mil,581.173mil)(1138.531mil,581.173mil)  Bottom Overlay and 
+                     Pad C38-1(1152.31mil,592mil)  Bottom Layer
+   Violation between Track (1130.657mil,602.827mil)(1138.531mil,602.827mil)  Bottom Overlay and 
+                     Pad C38-1(1152.31mil,592mil)  Bottom Layer
+   Violation between Track (520.063mil,812.173mil)(527.937mil,812.173mil)  Bottom Overlay and 
+                     Pad C39-2(506.284mil,823mil)  Bottom Layer
+   Violation between Track (520.063mil,833.827mil)(527.937mil,833.827mil)  Bottom Overlay and 
+                     Pad C39-2(506.284mil,823mil)  Bottom Layer
+   Violation between Track (520.063mil,812.173mil)(527.937mil,812.173mil)  Bottom Overlay and 
+                     Pad C39-1(541.716mil,823mil)  Bottom Layer
+   Violation between Track (520.063mil,833.827mil)(527.937mil,833.827mil)  Bottom Overlay and 
+                     Pad C39-1(541.716mil,823mil)  Bottom Layer
+   Violation between Track (461.063mil,742.173mil)(468.937mil,742.173mil)  Bottom Overlay and 
+                     Pad C40-2(447.284mil,753mil)  Bottom Layer
+   Violation between Track (461.063mil,763.827mil)(468.937mil,763.827mil)  Bottom Overlay and 
+                     Pad C40-2(447.284mil,753mil)  Bottom Layer
+   Violation between Track (461.063mil,742.173mil)(468.937mil,742.173mil)  Bottom Overlay and 
+                     Pad C40-1(482.716mil,753mil)  Bottom Layer
+   Violation between Track (461.063mil,763.827mil)(468.937mil,763.827mil)  Bottom Overlay and 
+                     Pad C40-1(482.716mil,753mil)  Bottom Layer
+   Violation between Track (789.063mil,1000.827mil)(796.937mil,1000.827mil)  Bottom Overlay and 
+                     Pad C41-2(810.716mil,990mil)  Bottom Layer
+   Violation between Track (789.063mil,979.173mil)(796.937mil,979.173mil)  Bottom Overlay and 
+                     Pad C41-2(810.716mil,990mil)  Bottom Layer
+   Violation between Track (789.063mil,1000.827mil)(796.937mil,1000.827mil)  Bottom Overlay and 
+                     Pad C41-1(775.284mil,990mil)  Bottom Layer
+   Violation between Track (789.063mil,979.173mil)(796.937mil,979.173mil)  Bottom Overlay and 
+                     Pad C41-1(775.284mil,990mil)  Bottom Layer
+   Violation between Track (716.063mil,979.173mil)(723.937mil,979.173mil)  Bottom Overlay and 
+                     Pad C42-2(702.284mil,990mil)  Bottom Layer
+   Violation between Track (716.063mil,1000.827mil)(723.937mil,1000.827mil)  Bottom Overlay and 
+                     Pad C42-2(702.284mil,990mil)  Bottom Layer
+   Violation between Track (716.063mil,979.173mil)(723.937mil,979.173mil)  Bottom Overlay and 
+                     Pad C42-1(737.716mil,990mil)  Bottom Layer
+   Violation between Track (716.063mil,1000.827mil)(723.937mil,1000.827mil)  Bottom Overlay and 
+                     Pad C42-1(737.716mil,990mil)  Bottom Layer
+   Violation between Track (797.063mil,824.827mil)(804.937mil,824.827mil)  Bottom Overlay and 
+                     Pad C43-2(818.716mil,814mil)  Bottom Layer
+   Violation between Track (797.063mil,803.173mil)(804.937mil,803.173mil)  Bottom Overlay and 
+                     Pad C43-2(818.716mil,814mil)  Bottom Layer
+   Violation between Track (797.063mil,824.827mil)(804.937mil,824.827mil)  Bottom Overlay and 
+                     Pad C43-1(783.284mil,814mil)  Bottom Layer
+   Violation between Track (797.063mil,803.173mil)(804.937mil,803.173mil)  Bottom Overlay and 
+                     Pad C43-1(783.284mil,814mil)  Bottom Layer
+   Violation between Track (669.063mil,928.173mil)(676.937mil,928.173mil)  Bottom Overlay and 
+                     Pad C44-2(655.284mil,939mil)  Bottom Layer
+   Violation between Track (669.063mil,949.827mil)(676.937mil,949.827mil)  Bottom Overlay and 
+                     Pad C44-2(655.284mil,939mil)  Bottom Layer
+   Violation between Track (669.063mil,928.173mil)(676.937mil,928.173mil)  Bottom Overlay and 
+                     Pad C44-1(690.716mil,939mil)  Bottom Layer
+   Violation between Track (669.063mil,949.827mil)(676.937mil,949.827mil)  Bottom Overlay and 
+                     Pad C44-1(690.716mil,939mil)  Bottom Layer
+   Violation between Track (885.063mil,947.173mil)(892.937mil,947.173mil)  Bottom Overlay and 
+                     Pad C45-2(906.716mil,958mil)  Bottom Layer
+   Violation between Track (885.063mil,968.827mil)(892.937mil,968.827mil)  Bottom Overlay and 
+                     Pad C45-2(906.716mil,958mil)  Bottom Layer
+   Violation between Track (885.063mil,947.173mil)(892.937mil,947.173mil)  Bottom Overlay and 
+                     Pad C45-1(871.284mil,958mil)  Bottom Layer
+   Violation between Track (885.063mil,968.827mil)(892.937mil,968.827mil)  Bottom Overlay and 
+                     Pad C45-1(871.284mil,958mil)  Bottom Layer
+   Violation between Track (578.063mil,995.827mil)(585.937mil,995.827mil)  Bottom Overlay and 
+                     Pad C46-2(599.716mil,985mil)  Bottom Layer
+   Violation between Track (578.063mil,974.173mil)(585.937mil,974.173mil)  Bottom Overlay and 
+                     Pad C46-2(599.716mil,985mil)  Bottom Layer
+   Violation between Track (578.063mil,995.827mil)(585.937mil,995.827mil)  Bottom Overlay and 
+                     Pad C46-1(564.284mil,985mil)  Bottom Layer
+   Violation between Track (578.063mil,974.173mil)(585.937mil,974.173mil)  Bottom Overlay and 
+                     Pad C46-1(564.284mil,985mil)  Bottom Layer
+   Violation between Track (455.173mil,813.063mil)(455.173mil,820.937mil)  Bottom Overlay and 
+                     Pad C47-2(466mil,799.284mil)  Bottom Layer
+   Violation between Track (476.827mil,813.063mil)(476.827mil,820.937mil)  Bottom Overlay and 
+                     Pad C47-2(466mil,799.284mil)  Bottom Layer
+   Violation between Track (455.173mil,813.063mil)(455.173mil,820.937mil)  Bottom Overlay and 
+                     Pad C47-1(466mil,834.716mil)  Bottom Layer
+   Violation between Track (476.827mil,813.063mil)(476.827mil,820.937mil)  Bottom Overlay and 
+                     Pad C47-1(466mil,834.716mil)  Bottom Layer
+   Violation between Track (443.827mil,626.063mil)(443.827mil,633.937mil)  Bottom Overlay and 
+                     Pad C49-2(433mil,612.284mil)  Bottom Layer
+   Violation between Track (422.173mil,626.063mil)(422.173mil,633.937mil)  Bottom Overlay and 
+                     Pad C49-2(433mil,612.284mil)  Bottom Layer
+   Violation between Track (443.827mil,626.063mil)(443.827mil,633.937mil)  Bottom Overlay and 
+                     Pad C49-1(433mil,647.716mil)  Bottom Layer
+   Violation between Track (422.173mil,626.063mil)(422.173mil,633.937mil)  Bottom Overlay and 
+                     Pad C49-1(433mil,647.716mil)  Bottom Layer
+   Violation between Track (499.827mil,626.063mil)(499.827mil,633.937mil)  Bottom Overlay and 
+                     Pad C50-2(489mil,612.284mil)  Bottom Layer
+   Violation between Track (478.173mil,626.063mil)(478.173mil,633.937mil)  Bottom Overlay and 
+                     Pad C50-2(489mil,612.284mil)  Bottom Layer
+   Violation between Track (499.827mil,626.063mil)(499.827mil,633.937mil)  Bottom Overlay and 
+                     Pad C50-1(489mil,647.716mil)  Bottom Layer
+   Violation between Track (478.173mil,626.063mil)(478.173mil,633.937mil)  Bottom Overlay and 
+                     Pad C50-1(489mil,647.716mil)  Bottom Layer
+   Violation between Track (276.827mil,570.819mil)(276.827mil,578.693mil)  Bottom Overlay and 
+                     Pad C51-2(266mil,557.039mil)  Bottom Layer
+   Violation between Track (255.173mil,570.819mil)(255.173mil,578.693mil)  Bottom Overlay and 
+                     Pad C51-2(266mil,557.039mil)  Bottom Layer
+   Violation between Track (276.827mil,570.819mil)(276.827mil,578.693mil)  Bottom Overlay and 
+                     Pad C51-1(266mil,592.472mil)  Bottom Layer
+   Violation between Track (255.173mil,570.819mil)(255.173mil,578.693mil)  Bottom Overlay and 
+                     Pad C51-1(266mil,592.472mil)  Bottom Layer
+   Violation between Track (461.063mil,695.827mil)(468.937mil,695.827mil)  Bottom Overlay and 
+                     Pad C52-2(482.716mil,685mil)  Bottom Layer
+   Violation between Track (461.063mil,674.173mil)(468.937mil,674.173mil)  Bottom Overlay and 
+                     Pad C52-2(482.716mil,685mil)  Bottom Layer
+   Violation between Track (461.063mil,695.827mil)(468.937mil,695.827mil)  Bottom Overlay and 
+                     Pad C52-1(447.284mil,685mil)  Bottom Layer
+   Violation between Track (461.063mil,674.173mil)(468.937mil,674.173mil)  Bottom Overlay and 
+                     Pad C52-1(447.284mil,685mil)  Bottom Layer
+   Violation between Track (671.646mil,146.378mil)(671.646mil,154.252mil)  Bottom Overlay and 
+                     Pad FB1-2(660.819mil,132.599mil)  Bottom Layer
+   Violation between Track (649.992mil,146.378mil)(649.992mil,154.252mil)  Bottom Overlay and 
+                     Pad FB1-2(660.819mil,132.599mil)  Bottom Layer
+   Violation between Track (671.646mil,146.378mil)(671.646mil,154.252mil)  Bottom Overlay and 
+                     Pad FB1-1(660.819mil,168.031mil)  Bottom Layer
+   Violation between Track (649.992mil,146.378mil)(649.992mil,154.252mil)  Bottom Overlay and 
+                     Pad FB1-1(660.819mil,168.031mil)  Bottom Layer
+   Violation between Track (956.252mil,538.37mil)(987.748mil,538.37mil)  Bottom Overlay and 
+                     Pad Q1-1(1009.402mil,524.591mil)  Bottom Layer
+   Violation between Track (956.252mil,459.63mil)(987.748mil,459.63mil)  Bottom Overlay and 
+                     Pad Q1-2(1009.402mil,473.409mil)  Bottom Layer
+   Violation between Track (665.37mil,336.252mil)(665.37mil,367.748mil)  Bottom Overlay and 
+                     Pad Q2-2(651.591mil,389.402mil)  Bottom Layer
+   Violation between Track (586.63mil,336.252mil)(586.63mil,367.748mil)  Bottom Overlay and 
+                     Pad Q2-1(600.409mil,389.402mil)  Bottom Layer
+   Violation between Track (655.173mil,283.063mil)(655.173mil,290.937mil)  Bottom Overlay and 
+                     Pad R3-2(666mil,304.716mil)  Bottom Layer
+   Violation between Track (676.827mil,283.063mil)(676.827mil,290.937mil)  Bottom Overlay and 
+                     Pad R3-2(666mil,304.716mil)  Bottom Layer
+   Violation between Track (655.173mil,283.063mil)(655.173mil,290.937mil)  Bottom Overlay and 
+                     Pad R3-1(666mil,269.284mil)  Bottom Layer
+   Violation between Track (676.827mil,283.063mil)(676.827mil,290.937mil)  Bottom Overlay and 
+                     Pad R3-1(666mil,269.284mil)  Bottom Layer
+   Violation between Track (949.063mil,620.827mil)(956.937mil,620.827mil)  Bottom Overlay and 
+                     Pad R5-2(970.716mil,610mil)  Bottom Layer
+   Violation between Track (949.063mil,599.173mil)(956.937mil,599.173mil)  Bottom Overlay and 
+                     Pad R5-2(970.716mil,610mil)  Bottom Layer
+   Violation between Track (949.063mil,620.827mil)(956.937mil,620.827mil)  Bottom Overlay and 
+                     Pad R5-1(935.284mil,610mil)  Bottom Layer
+   Violation between Track (949.063mil,599.173mil)(956.937mil,599.173mil)  Bottom Overlay and 
+                     Pad R5-1(935.284mil,610mil)  Bottom Layer
+   Violation between Track (862.063mil,264.827mil)(869.937mil,264.827mil)  Bottom Overlay and 
+                     Pad R6-2(883.716mil,254mil)  Bottom Layer
+   Violation between Track (862.063mil,243.173mil)(869.937mil,243.173mil)  Bottom Overlay and 
+                     Pad R6-2(883.716mil,254mil)  Bottom Layer
+   Violation between Track (862.063mil,264.827mil)(869.937mil,264.827mil)  Bottom Overlay and 
+                     Pad R6-1(848.284mil,254mil)  Bottom Layer
+   Violation between Track (862.063mil,243.173mil)(869.937mil,243.173mil)  Bottom Overlay and 
+                     Pad R6-1(848.284mil,254mil)  Bottom Layer
+   Violation between Track (669.063mil,910.827mil)(676.937mil,910.827mil)  Bottom Overlay and 
+                     Pad R8-2(690.716mil,900mil)  Bottom Layer
+   Violation between Track (669.063mil,889.173mil)(676.937mil,889.173mil)  Bottom Overlay and 
+                     Pad R8-2(690.716mil,900mil)  Bottom Layer
+   Violation between Track (669.063mil,910.827mil)(676.937mil,910.827mil)  Bottom Overlay and 
+                     Pad R8-1(655.284mil,900mil)  Bottom Layer
+   Violation between Track (669.063mil,889.173mil)(676.937mil,889.173mil)  Bottom Overlay and 
+                     Pad R8-1(655.284mil,900mil)  Bottom Layer
+   Violation between Track (602.063mil,860.173mil)(609.937mil,860.173mil)  Bottom Overlay and 
+                     Pad R9-2(588.284mil,871mil)  Bottom Layer
+   Violation between Track (602.063mil,881.827mil)(609.937mil,881.827mil)  Bottom Overlay and 
+                     Pad R9-2(588.284mil,871mil)  Bottom Layer
+   Violation between Track (602.063mil,860.173mil)(609.937mil,860.173mil)  Bottom Overlay and 
+                     Pad R9-1(623.716mil,871mil)  Bottom Layer
+   Violation between Track (602.063mil,881.827mil)(609.937mil,881.827mil)  Bottom Overlay and 
+                     Pad R9-1(623.716mil,871mil)  Bottom Layer
+   Violation between Track (797.063mil,844.173mil)(804.937mil,844.173mil)  Bottom Overlay and 
+                     Pad R10-2(783.284mil,855mil)  Bottom Layer
+   Violation between Track (797.063mil,865.827mil)(804.937mil,865.827mil)  Bottom Overlay and 
+                     Pad R10-2(783.284mil,855mil)  Bottom Layer
+   Violation between Track (797.063mil,844.173mil)(804.937mil,844.173mil)  Bottom Overlay and 
+                     Pad R10-1(818.716mil,855mil)  Bottom Layer
+   Violation between Track (797.063mil,865.827mil)(804.937mil,865.827mil)  Bottom Overlay and 
+                     Pad R10-1(818.716mil,855mil)  Bottom Layer
+   Violation between Track (602.063mil,928.173mil)(609.937mil,928.173mil)  Bottom Overlay and 
+                     Pad R11-2(588.284mil,939mil)  Bottom Layer
+   Violation between Track (602.063mil,949.827mil)(609.937mil,949.827mil)  Bottom Overlay and 
+                     Pad R11-2(588.284mil,939mil)  Bottom Layer
+   Violation between Track (602.063mil,928.173mil)(609.937mil,928.173mil)  Bottom Overlay and 
+                     Pad R11-1(623.716mil,939mil)  Bottom Layer
+   Violation between Track (602.063mil,949.827mil)(609.937mil,949.827mil)  Bottom Overlay and 
+                     Pad R11-1(623.716mil,939mil)  Bottom Layer
+   Violation between Track (371.827mil,893.063mil)(371.827mil,900.937mil)  Bottom Overlay and 
+                     Pad R12-2(361mil,879.284mil)  Bottom Layer
+   Violation between Track (350.173mil,893.063mil)(350.173mil,900.937mil)  Bottom Overlay and 
+                     Pad R12-2(361mil,879.284mil)  Bottom Layer
+   Violation between Track (371.827mil,893.063mil)(371.827mil,900.937mil)  Bottom Overlay and 
+                     Pad R12-1(361mil,914.716mil)  Bottom Layer
+   Violation between Track (350.173mil,893.063mil)(350.173mil,900.937mil)  Bottom Overlay and 
+                     Pad R12-1(361mil,914.716mil)  Bottom Layer
+   Violation between Track (409.827mil,813.063mil)(409.827mil,820.937mil)  Bottom Overlay and 
+                     Pad R13-2(399mil,799.284mil)  Bottom Layer
+   Violation between Track (388.173mil,813.063mil)(388.173mil,820.937mil)  Bottom Overlay and 
+                     Pad R13-2(399mil,799.284mil)  Bottom Layer
+   Violation between Track (409.827mil,813.063mil)(409.827mil,820.937mil)  Bottom Overlay and 
+                     Pad R13-1(399mil,834.716mil)  Bottom Layer
+   Violation between Track (388.173mil,813.063mil)(388.173mil,820.937mil)  Bottom Overlay and 
+                     Pad R13-1(399mil,834.716mil)  Bottom Layer
+   Violation between Track (297.827mil,699.063mil)(297.827mil,706.937mil)  Bottom Overlay and 
+                     Pad R14-2(287mil,685.284mil)  Bottom Layer
+   Violation between Track (276.173mil,699.063mil)(276.173mil,706.937mil)  Bottom Overlay and 
+                     Pad R14-2(287mil,685.284mil)  Bottom Layer
+   Violation between Track (297.827mil,699.063mil)(297.827mil,706.937mil)  Bottom Overlay and 
+                     Pad R14-1(287mil,720.716mil)  Bottom Layer
+   Violation between Track (276.173mil,699.063mil)(276.173mil,706.937mil)  Bottom Overlay and 
+                     Pad R14-1(287mil,720.716mil)  Bottom Layer
+   Violation between Track (342.827mil,814.063mil)(342.827mil,821.937mil)  Bottom Overlay and 
+                     Pad R15-2(332mil,800.284mil)  Bottom Layer
+   Violation between Track (321.173mil,814.063mil)(321.173mil,821.937mil)  Bottom Overlay and 
+                     Pad R15-2(332mil,800.284mil)  Bottom Layer
+   Violation between Track (342.827mil,814.063mil)(342.827mil,821.937mil)  Bottom Overlay and 
+                     Pad R15-1(332mil,835.716mil)  Bottom Layer
+   Violation between Track (321.173mil,814.063mil)(321.173mil,821.937mil)  Bottom Overlay and 
+                     Pad R15-1(332mil,835.716mil)  Bottom Layer
+   Violation between Track (300.779mil,660.827mil)(308.654mil,660.827mil)  Bottom Overlay and 
+                     Pad R16-2(322.433mil,650mil)  Bottom Layer
+   Violation between Track (300.779mil,639.173mil)(308.654mil,639.173mil)  Bottom Overlay and 
+                     Pad R16-2(322.433mil,650mil)  Bottom Layer
+   Violation between Track (300.779mil,660.827mil)(308.654mil,660.827mil)  Bottom Overlay and 
+                     Pad R16-1(287mil,650mil)  Bottom Layer
+   Violation between Track (300.779mil,639.173mil)(308.654mil,639.173mil)  Bottom Overlay and 
+                     Pad R16-1(287mil,650mil)  Bottom Layer
+   Violation between Track (276.173mil,767.37mil)(276.173mil,775.244mil)  Bottom Overlay and 
+                     Pad R17-2(287mil,789.024mil)  Bottom Layer
+   Violation between Track (297.827mil,767.37mil)(297.827mil,775.244mil)  Bottom Overlay and 
+                     Pad R17-2(287mil,789.024mil)  Bottom Layer
+   Violation between Track (276.173mil,767.37mil)(276.173mil,775.244mil)  Bottom Overlay and 
+                     Pad R17-1(287mil,753.591mil)  Bottom Layer
+   Violation between Track (297.827mil,767.37mil)(297.827mil,775.244mil)  Bottom Overlay and 
+                     Pad R17-1(287mil,753.591mil)  Bottom Layer
+   Violation between Track (299.173mil,570.819mil)(299.173mil,578.693mil)  Bottom Overlay and 
+                     Pad R18-2(310mil,557.039mil)  Bottom Layer
+   Violation between Track (320.827mil,570.819mil)(320.827mil,578.693mil)  Bottom Overlay and 
+                     Pad R18-2(310mil,557.039mil)  Bottom Layer
+   Violation between Track (299.173mil,570.819mil)(299.173mil,578.693mil)  Bottom Overlay and 
+                     Pad R18-1(310mil,592.472mil)  Bottom Layer
+   Violation between Track (320.827mil,570.819mil)(320.827mil,578.693mil)  Bottom Overlay and 
+                     Pad R18-1(310mil,592.472mil)  Bottom Layer
+   Violation between Track (353.252mil,688.63mil)(384.748mil,688.63mil)  Bottom Overlay and 
+                     Pad U13-1(331.598mil,702.409mil)  Bottom Layer
+   Violation between Track (353.252mil,767.37mil)(384.748mil,767.37mil)  Bottom Overlay and 
+                     Pad U13-3(331.598mil,753.591mil)  Bottom Layer
+   Violation between Track (353.252mil,767.37mil)(384.748mil,767.37mil)  Bottom Overlay and 
+                     Pad U13-4(406.402mil,753.591mil)  Bottom Layer
+   Violation between Track (353.252mil,688.63mil)(384.748mil,688.63mil)  Bottom Overlay and 
+                     Pad U13-5(406.402mil,702.409mil)  Bottom Layer
+   Violation between Track (740.284mil,249.22mil)(740.284mil,276.779mil)  Bottom Overlay and 
+                     Pad C34-2(758mil,292.528mil)  Bottom Layer
+   Violation between Track (774.732mil,249.22mil)(774.732mil,276.779mil)  Bottom Overlay and 
+                     Pad C34-2(758mil,292.528mil)  Bottom Layer
+   Violation between Track (738mil,218mil)(778mil,218mil)  Bottom Overlay and 
+                     Pad C34-1(758mil,233.472mil)  Bottom Layer
+   Violation between Track (740.284mil,249.22mil)(740.284mil,276.779mil)  Bottom Overlay and 
+                     Pad C34-1(758mil,233.472mil)  Bottom Layer
+   Violation between Track (774.732mil,249.22mil)(774.732mil,276.779mil)  Bottom Overlay and 
+                     Pad C34-1(758mil,233.472mil)  Bottom Layer
+   Violation between Track (674.535mil,737.661mil)(687.331mil,737.661mil)  Bottom Overlay and 
+                     Pad U15-1(676.504mil,749.472mil)  Bottom Layer
+   Violation between Track (674.535mil,820.339mil)(687.331mil,820.339mil)  Bottom Overlay and 
+                     Pad U15-4(676.504mil,808.528mil)  Bottom Layer
+   Violation between Track (728.669mil,820.339mil)(741.465mil,820.339mil)  Bottom Overlay and 
+                     Pad U15-6(739.496mil,808.528mil)  Bottom Layer
+   Violation between Track (728.669mil,737.661mil)(741.465mil,737.661mil)  Bottom Overlay and 
+                     Pad U15-9(739.496mil,749.472mil)  Bottom Layer
+   Violation between Track (724.252mil,435.37mil)(755.748mil,435.37mil)  Bottom Overlay and 
+                     Pad Q3-2(702.598mil,421.591mil)  Bottom Layer
+   Violation between Track (724.252mil,356.63mil)(755.748mil,356.63mil)  Bottom Overlay and 
+                     Pad Q3-1(702.598mil,370.409mil)  Bottom Layer
+   Violation between Track (759.252mil,964.37mil)(790.748mil,964.37mil)  Bottom Overlay and 
+                     Pad U12-5(737.598mil,950.591mil)  Bottom Layer
+   Violation between Track (759.252mil,885.63mil)(790.748mil,885.63mil)  Bottom Overlay and 
+                     Pad U12-4(737.598mil,899.409mil)  Bottom Layer
+   Violation between Track (759.252mil,885.63mil)(790.748mil,885.63mil)  Bottom Overlay and 
+                     Pad U12-3(812.402mil,899.409mil)  Bottom Layer
+   Violation between Track (759.252mil,964.37mil)(790.748mil,964.37mil)  Bottom Overlay and 
+                     Pad U12-1(812.402mil,950.591mil)  Bottom Layer
+Rule Violations :328
 
 Processing Rule : Silk to Silk (Clearance=5mil) (All),(All)
    Violation between Text "C22" (522mil,507mil)  Top Overlay and 
                      Arc (711mil,755mil)  Top Overlay
    Violation between Text "U12" (747mil,881mil)  Bottom Overlay and 
                      Track (728.669mil,820.339mil)(741.465mil,820.339mil)  Bottom Overlay
-   Violation between Text "C31" (1074mil,670mil)  Top Overlay and 
-                     Text "ANT2" (1110.299mil,658mil)  Top Overlay
-   Violation between Text "R5" (993mil,594mil)  Bottom Overlay and 
-                     Text "C24" (1041mil,571mil)  Bottom Overlay
-Rule Violations :4
+Rule Violations :2
 
-Processing Rule : Silk To Solder Mask (Clearance=5mil) (IsPad),(All)
-   Violation between Track (867.512mil,-12.087mil)(867.512mil,186.732mil)  Top Overlay and 
-                     Pad J1-6(837.984mil,143.425mil)  Top Layer
-   Violation between Track (556.488mil,-12.087mil)(556.488mil,185.748mil)  Top Overlay and 
-                     Pad J1-6(586.016mil,143.425mil)  Top Layer
-   Violation between Track (319.173mil,960.063mil)(319.173mil,967.937mil)  Top Overlay and 
-                     Pad C48-1(330mil,946.284mil)  Top Layer
-   Violation between Track (340.827mil,960.063mil)(340.827mil,967.937mil)  Top Overlay and 
-                     Pad C48-1(330mil,946.284mil)  Top Layer
-   Violation between Track (319.173mil,960.063mil)(319.173mil,967.937mil)  Top Overlay and 
-                     Pad C48-2(330mil,981.716mil)  Top Layer
-   Violation between Track (340.827mil,960.063mil)(340.827mil,967.937mil)  Top Overlay and 
-                     Pad C48-2(330mil,981.716mil)  Top Layer
-   Violation between Track (266.221mil,831.716mil)(293.779mil,831.716mil)  Top Overlay and 
-                     Pad C25-2(250.472mil,814mil)  Top Layer
-   Violation between Track (266.221mil,797.268mil)(293.779mil,797.268mil)  Top Overlay and 
-                     Pad C25-2(250.472mil,814mil)  Top Layer
-   Violation between Track (266.221mil,831.716mil)(293.779mil,831.716mil)  Top Overlay and 
-                     Pad C25-1(309.528mil,814mil)  Top Layer
-   Violation between Track (266.221mil,797.268mil)(293.779mil,797.268mil)  Top Overlay and 
-                     Pad C25-1(309.528mil,814mil)  Top Layer
-   Violation between Track (380.063mil,765.173mil)(387.937mil,765.173mil)  Top Overlay and 
-                     Pad C26-1(401.716mil,776mil)  Top Layer
-   Violation between Track (380.063mil,786.827mil)(387.937mil,786.827mil)  Top Overlay and 
-                     Pad C26-1(401.716mil,776mil)  Top Layer
-   Violation between Track (380.063mil,765.173mil)(387.937mil,765.173mil)  Top Overlay and 
-                     Pad C26-2(366.284mil,776mil)  Top Layer
-   Violation between Track (380.063mil,786.827mil)(387.937mil,786.827mil)  Top Overlay and 
-                     Pad C26-2(366.284mil,776mil)  Top Layer
-   Violation between Track (913.591mil,219.701mil)(921.465mil,219.701mil)  Top Overlay and 
-                     Pad C1-1(935.244mil,230.528mil)  Top Layer
-   Violation between Track (913.591mil,241.354mil)(921.465mil,241.354mil)  Top Overlay and 
-                     Pad C1-1(935.244mil,230.528mil)  Top Layer
-   Violation between Track (913.591mil,219.701mil)(921.465mil,219.701mil)  Top Overlay and 
-                     Pad C1-2(899.811mil,230.528mil)  Top Layer
-   Violation between Track (913.591mil,241.354mil)(921.465mil,241.354mil)  Top Overlay and 
-                     Pad C1-2(899.811mil,230.528mil)  Top Layer
-   Violation between Track (1019.354mil,197.59mil)(1019.354mil,205.464mil)  Top Overlay and 
-                     Pad C2-1(1008.528mil,219.244mil)  Top Layer
-   Violation between Track (997.701mil,197.59mil)(997.701mil,205.464mil)  Top Overlay and 
-                     Pad C2-1(1008.528mil,219.244mil)  Top Layer
-   Violation between Track (1019.354mil,197.59mil)(1019.354mil,205.464mil)  Top Overlay and 
-                     Pad C2-2(1008.528mil,183.811mil)  Top Layer
-   Violation between Track (997.701mil,197.59mil)(997.701mil,205.464mil)  Top Overlay and 
-                     Pad C2-2(1008.528mil,183.811mil)  Top Layer
-   Violation between Track (917.591mil,416.701mil)(925.465mil,416.701mil)  Top Overlay and 
-                     Pad C3-1(939.244mil,427.527mil)  Top Layer
-   Violation between Track (917.591mil,438.354mil)(925.465mil,438.354mil)  Top Overlay and 
-                     Pad C3-1(939.244mil,427.527mil)  Top Layer
-   Violation between Track (917.591mil,416.701mil)(925.465mil,416.701mil)  Top Overlay and 
-                     Pad C3-2(903.811mil,427.527mil)  Top Layer
-   Violation between Track (917.591mil,438.354mil)(925.465mil,438.354mil)  Top Overlay and 
-                     Pad C3-2(903.811mil,427.527mil)  Top Layer
-   Violation between Track (1001.701mil,432.591mil)(1001.701mil,440.464mil)  Top Overlay and 
-                     Pad C4-1(1012.528mil,418.811mil)  Top Layer
-   Violation between Track (1023.354mil,432.591mil)(1023.354mil,440.464mil)  Top Overlay and 
-                     Pad C4-1(1012.528mil,418.811mil)  Top Layer
-   Violation between Track (1001.701mil,432.591mil)(1001.701mil,440.464mil)  Top Overlay and 
-                     Pad C4-2(1012.528mil,454.244mil)  Top Layer
-   Violation between Track (1023.354mil,432.591mil)(1023.354mil,440.464mil)  Top Overlay and 
-                     Pad C4-2(1012.528mil,454.244mil)  Top Layer
-   Violation between Track (1266.063mil,441.827mil)(1273.937mil,441.827mil)  Top Overlay and 
-                     Pad C8-1(1252.284mil,431mil)  Top Layer
-   Violation between Track (1266.063mil,420.173mil)(1273.937mil,420.173mil)  Top Overlay and 
-                     Pad C8-1(1252.284mil,431mil)  Top Layer
-   Violation between Track (1266.063mil,441.827mil)(1273.937mil,441.827mil)  Top Overlay and 
-                     Pad C8-2(1287.716mil,431mil)  Top Layer
-   Violation between Track (1266.063mil,420.173mil)(1273.937mil,420.173mil)  Top Overlay and 
-                     Pad C8-2(1287.716mil,431mil)  Top Layer
-   Violation between Track (397.173mil,618.063mil)(397.173mil,625.937mil)  Top Overlay and 
-                     Pad C20-1(408mil,604.284mil)  Top Layer
-   Violation between Track (418.827mil,618.063mil)(418.827mil,625.937mil)  Top Overlay and 
-                     Pad C20-1(408mil,604.284mil)  Top Layer
-   Violation between Track (397.173mil,618.063mil)(397.173mil,625.937mil)  Top Overlay and 
-                     Pad C20-2(408mil,639.716mil)  Top Layer
-   Violation between Track (418.827mil,618.063mil)(418.827mil,625.937mil)  Top Overlay and 
-                     Pad C20-2(408mil,639.716mil)  Top Layer
-   Violation between Track (516.063mil,469.827mil)(523.937mil,469.827mil)  Top Overlay and 
-                     Pad C21-1(502.284mil,459mil)  Top Layer
-   Violation between Track (516.063mil,448.173mil)(523.937mil,448.173mil)  Top Overlay and 
-                     Pad C21-1(502.284mil,459mil)  Top Layer
-   Violation between Track (516.063mil,469.827mil)(523.937mil,469.827mil)  Top Overlay and 
-                     Pad C21-2(537.716mil,459mil)  Top Layer
-   Violation between Track (516.063mil,448.173mil)(523.937mil,448.173mil)  Top Overlay and 
-                     Pad C21-2(537.716mil,459mil)  Top Layer
-   Violation between Track (509.827mil,512.063mil)(509.827mil,519.937mil)  Top Overlay and 
-                     Pad C22-1(499mil,533.716mil)  Top Layer
-   Violation between Track (488.173mil,512.063mil)(488.173mil,519.937mil)  Top Overlay and 
-                     Pad C22-1(499mil,533.716mil)  Top Layer
-   Violation between Track (509.827mil,512.063mil)(509.827mil,519.937mil)  Top Overlay and 
-                     Pad C22-2(499mil,498.284mil)  Top Layer
-   Violation between Track (488.173mil,512.063mil)(488.173mil,519.937mil)  Top Overlay and 
-                     Pad C22-2(499mil,498.284mil)  Top Layer
-   Violation between Track (433.221mil,926.284mil)(460.779mil,926.284mil)  Top Overlay and 
-                     Pad C27-2(476.528mil,944mil)  Top Layer
-   Violation between Track (433.221mil,960.732mil)(460.779mil,960.732mil)  Top Overlay and 
-                     Pad C27-2(476.528mil,944mil)  Top Layer
-   Violation between Track (433.221mil,926.284mil)(460.779mil,926.284mil)  Top Overlay and 
-                     Pad C27-1(417.472mil,944mil)  Top Layer
-   Violation between Track (433.221mil,960.732mil)(460.779mil,960.732mil)  Top Overlay and 
-                     Pad C27-1(417.472mil,944mil)  Top Layer
-   Violation between Track (1030.063mil,685.827mil)(1037.937mil,685.827mil)  Top Overlay and 
-                     Pad C31-1(1016.284mil,675mil)  Top Layer
-   Violation between Track (1030.063mil,664.173mil)(1037.937mil,664.173mil)  Top Overlay and 
-                     Pad C31-1(1016.284mil,675mil)  Top Layer
-   Violation between Track (1030.063mil,685.827mil)(1037.937mil,685.827mil)  Top Overlay and 
-                     Pad C31-2(1051.716mil,675mil)  Top Layer
-   Violation between Track (1030.063mil,664.173mil)(1037.937mil,664.173mil)  Top Overlay and 
-                     Pad C31-2(1051.716mil,675mil)  Top Layer
-   Violation between Track (1158.032mil,793mil)(1164.921mil,786.11mil)  Top Overlay and 
-                     Pad D1-1(1177.716mil,793mil)  Top Layer
-   Violation between Track (1158.032mil,793mil)(1164.921mil,799.89mil)  Top Overlay and 
-                     Pad D1-1(1177.716mil,793mil)  Top Layer
-   Violation between Track (1164.921mil,786.11mil)(1164.921mil,799.89mil)  Top Overlay and 
-                     Pad D1-1(1177.716mil,793mil)  Top Layer
-   Violation between Track (1155.079mil,786.11mil)(1155.079mil,799.89mil)  Top Overlay and 
-                     Pad D1-2(1142.284mil,793mil)  Top Layer
-   Violation between Track (939.354mil,167.59mil)(939.354mil,175.464mil)  Top Overlay and 
-                     Pad L1-1(928.528mil,189.244mil)  Top Layer
-   Violation between Track (917.701mil,167.59mil)(917.701mil,175.464mil)  Top Overlay and 
-                     Pad L1-1(928.528mil,189.244mil)  Top Layer
-   Violation between Track (939.354mil,167.59mil)(939.354mil,175.464mil)  Top Overlay and 
-                     Pad L1-2(928.528mil,153.811mil)  Top Layer
-   Violation between Track (917.701mil,167.59mil)(917.701mil,175.464mil)  Top Overlay and 
-                     Pad L1-2(928.528mil,153.811mil)  Top Layer
-   Violation between Track (944.221mil,91.284mil)(971.779mil,91.284mil)  Top Overlay and 
-                     Pad L2-2(987.528mil,109mil)  Top Layer
-   Violation between Track (944.221mil,125.732mil)(971.779mil,125.732mil)  Top Overlay and 
-                     Pad L2-2(987.528mil,109mil)  Top Layer
-   Violation between Track (944.221mil,91.284mil)(971.779mil,91.284mil)  Top Overlay and 
-                     Pad L2-1(928.472mil,109mil)  Top Layer
-   Violation between Track (944.221mil,125.732mil)(971.779mil,125.732mil)  Top Overlay and 
-                     Pad L2-1(928.472mil,109mil)  Top Layer
-   Violation between Track (1037.701mil,422.591mil)(1037.701mil,430.464mil)  Top Overlay and 
-                     Pad R1-1(1048.527mil,408.811mil)  Top Layer
-   Violation between Track (1059.354mil,422.591mil)(1059.354mil,430.464mil)  Top Overlay and 
-                     Pad R1-1(1048.527mil,408.811mil)  Top Layer
-   Violation between Track (1037.701mil,422.591mil)(1037.701mil,430.464mil)  Top Overlay and 
-                     Pad R1-2(1048.527mil,444.244mil)  Top Layer
-   Violation between Track (1059.354mil,422.591mil)(1059.354mil,430.464mil)  Top Overlay and 
-                     Pad R1-2(1048.527mil,444.244mil)  Top Layer
-   Violation between Track (144.063mil,428.173mil)(151.937mil,428.173mil)  Top Overlay and 
-                     Pad R2-1(165.716mil,439mil)  Top Layer
-   Violation between Track (144.063mil,449.827mil)(151.937mil,449.827mil)  Top Overlay and 
-                     Pad R2-1(165.716mil,439mil)  Top Layer
-   Violation between Track (144.063mil,428.173mil)(151.937mil,428.173mil)  Top Overlay and 
-                     Pad R2-2(130.284mil,439mil)  Top Layer
-   Violation between Track (144.063mil,449.827mil)(151.937mil,449.827mil)  Top Overlay and 
-                     Pad R2-2(130.284mil,439mil)  Top Layer
-   Violation between Track (1156.063mil,761.827mil)(1163.937mil,761.827mil)  Top Overlay and 
-                     Pad R7-1(1142.284mil,751mil)  Top Layer
-   Violation between Track (1156.063mil,740.173mil)(1163.937mil,740.173mil)  Top Overlay and 
-                     Pad R7-1(1142.284mil,751mil)  Top Layer
-   Violation between Track (1156.063mil,761.827mil)(1163.937mil,761.827mil)  Top Overlay and 
-                     Pad R7-2(1177.716mil,751mil)  Top Layer
-   Violation between Track (1156.063mil,740.173mil)(1163.937mil,740.173mil)  Top Overlay and 
-                     Pad R7-2(1177.716mil,751mil)  Top Layer
-   Violation between Track (934.575mil,253.709mil)(940.48mil,253.709mil)  Top Overlay and 
-                     Pad X1-1(969.024mil,284.22mil)  Top Layer
-   Violation between Track (994.614mil,317.685mil)(994.614mil,337.37mil)  Top Overlay and 
-                     Pad X1-1(969.024mil,284.22mil)  Top Layer
-   Violation between Track (934.575mil,401.346mil)(940.48mil,401.346mil)  Top Overlay and 
-                     Pad X1-2(969.024mil,370.835mil)  Top Layer
-   Violation between Track (994.614mil,317.685mil)(994.614mil,337.37mil)  Top Overlay and 
-                     Pad X1-2(969.024mil,370.835mil)  Top Layer
-   Violation between Track (934.575mil,401.346mil)(940.48mil,401.346mil)  Top Overlay and 
-                     Pad X1-3(906.031mil,370.835mil)  Top Layer
-   Violation between Track (880.441mil,317.685mil)(880.441mil,337.37mil)  Top Overlay and 
-                     Pad X1-3(906.031mil,370.835mil)  Top Layer
-   Violation between Track (934.575mil,253.709mil)(940.48mil,253.709mil)  Top Overlay and 
-                     Pad X1-4(906.031mil,284.22mil)  Top Layer
-   Violation between Track (880.441mil,317.685mil)(880.441mil,337.37mil)  Top Overlay and 
-                     Pad X1-4(906.031mil,284.22mil)  Top Layer
-   Violation between Track (472.339mil,517.063mil)(472.339mil,524.937mil)  Top Overlay and 
-                     Pad X2-4(453.638mil,549.543mil)  Top Layer
-   Violation between Track (472.339mil,517.063mil)(472.339mil,524.937mil)  Top Overlay and 
-                     Pad X2-3(453.638mil,492.457mil)  Top Layer
-   Violation between Track (389.661mil,517.063mil)(389.661mil,524.937mil)  Top Overlay and 
-                     Pad X2-2(408.362mil,492.457mil)  Top Layer
-   Violation between Track (389.661mil,517.063mil)(389.661mil,524.937mil)  Top Overlay and 
-                     Pad X2-1(408.362mil,549.543mil)  Top Layer
-   Violation between Track (867.512mil,-12.087mil)(867.512mil,186.732mil)  Top Overlay and 
-                     Pad J1-6(837mil,45mil)  Multi-Layer
-   Violation between Track (556.488mil,-12.087mil)(556.488mil,185.748mil)  Top Overlay and 
-                     Pad J1-6(587mil,45mil)  Multi-Layer
-   Violation between Text "C40" (515mil,706mil)  Bottom Overlay and 
-                     Pad UT1-1(547.614mil,755mil)  Multi-Layer
-   Violation between Track (724.252mil,356.63mil)(755.748mil,356.63mil)  Bottom Overlay and 
-                     Pad Q3-1(702.598mil,370.409mil)  Bottom Layer
-   Violation between Track (724.252mil,435.37mil)(755.748mil,435.37mil)  Bottom Overlay and 
-                     Pad Q3-2(702.598mil,421.591mil)  Bottom Layer
-   Violation between Track (586.63mil,336.252mil)(586.63mil,367.748mil)  Bottom Overlay and 
-                     Pad Q2-1(600.409mil,389.402mil)  Bottom Layer
-   Violation between Track (665.37mil,336.252mil)(665.37mil,367.748mil)  Bottom Overlay and 
-                     Pad Q2-2(651.591mil,389.402mil)  Bottom Layer
-   Violation between Track (956.252mil,459.63mil)(987.748mil,459.63mil)  Bottom Overlay and 
-                     Pad Q1-2(1009.402mil,473.409mil)  Bottom Layer
-   Violation between Track (956.252mil,538.37mil)(987.748mil,538.37mil)  Bottom Overlay and 
-                     Pad Q1-1(1009.402mil,524.591mil)  Bottom Layer
-   Violation between Track (375.591mil,98.347mil)(383.465mil,98.347mil)  Bottom Overlay and 
-                     Pad C10-1(397.244mil,87.52mil)  Bottom Layer
-   Violation between Track (375.591mil,76.693mil)(383.465mil,76.693mil)  Bottom Overlay and 
-                     Pad C10-1(397.244mil,87.52mil)  Bottom Layer
-   Violation between Track (375.591mil,98.347mil)(383.465mil,98.347mil)  Bottom Overlay and 
-                     Pad C10-2(361.811mil,87.52mil)  Bottom Layer
-   Violation between Track (375.591mil,76.693mil)(383.465mil,76.693mil)  Bottom Overlay and 
-                     Pad C10-2(361.811mil,87.52mil)  Bottom Layer
-   Violation between Track (1204.063mil,633.173mil)(1211.937mil,633.173mil)  Bottom Overlay and 
-                     Pad C37-1(1225.716mil,644mil)  Bottom Layer
-   Violation between Track (1204.063mil,654.827mil)(1211.937mil,654.827mil)  Bottom Overlay and 
-                     Pad C37-1(1225.716mil,644mil)  Bottom Layer
-   Violation between Track (1204.063mil,633.173mil)(1211.937mil,633.173mil)  Bottom Overlay and 
-                     Pad C37-2(1190.284mil,644mil)  Bottom Layer
-   Violation between Track (1204.063mil,654.827mil)(1211.937mil,654.827mil)  Bottom Overlay and 
-                     Pad C37-2(1190.284mil,644mil)  Bottom Layer
-   Violation between Track (1130.657mil,602.827mil)(1138.531mil,602.827mil)  Bottom Overlay and 
-                     Pad C38-1(1152.31mil,592mil)  Bottom Layer
-   Violation between Track (1130.657mil,581.173mil)(1138.531mil,581.173mil)  Bottom Overlay and 
-                     Pad C38-1(1152.31mil,592mil)  Bottom Layer
-   Violation between Track (1130.657mil,602.827mil)(1138.531mil,602.827mil)  Bottom Overlay and 
-                     Pad C38-2(1116.877mil,592mil)  Bottom Layer
-   Violation between Track (1130.657mil,581.173mil)(1138.531mil,581.173mil)  Bottom Overlay and 
-                     Pad C38-2(1116.877mil,592mil)  Bottom Layer
-   Violation between Track (260.063mil,84.173mil)(267.937mil,84.173mil)  Bottom Overlay and 
-                     Pad C17-1(246.284mil,95mil)  Bottom Layer
-   Violation between Track (260.063mil,105.827mil)(267.937mil,105.827mil)  Bottom Overlay and 
-                     Pad C17-1(246.284mil,95mil)  Bottom Layer
-   Violation between Track (260.063mil,84.173mil)(267.937mil,84.173mil)  Bottom Overlay and 
-                     Pad C17-2(281.716mil,95mil)  Bottom Layer
-   Violation between Track (260.063mil,105.827mil)(267.937mil,105.827mil)  Bottom Overlay and 
-                     Pad C17-2(281.716mil,95mil)  Bottom Layer
-   Violation between Track (1132.78mil,164.173mil)(1140.653mil,164.173mil)  Bottom Overlay and 
-                     Pad C7-1(1119mil,175mil)  Bottom Layer
-   Violation between Track (1132.78mil,185.827mil)(1140.653mil,185.827mil)  Bottom Overlay and 
-                     Pad C7-1(1119mil,175mil)  Bottom Layer
-   Violation between Track (1132.78mil,164.173mil)(1140.653mil,164.173mil)  Bottom Overlay and 
-                     Pad C7-2(1154.433mil,175mil)  Bottom Layer
-   Violation between Track (1132.78mil,185.827mil)(1140.653mil,185.827mil)  Bottom Overlay and 
-                     Pad C7-2(1154.433mil,175mil)  Bottom Layer
-   Violation between Track (1032.063mil,123.827mil)(1039.937mil,123.827mil)  Bottom Overlay and 
-                     Pad C6-1(1053.716mil,113mil)  Bottom Layer
-   Violation between Track (1032.063mil,102.173mil)(1039.937mil,102.173mil)  Bottom Overlay and 
-                     Pad C6-1(1053.716mil,113mil)  Bottom Layer
-   Violation between Track (1032.063mil,123.827mil)(1039.937mil,123.827mil)  Bottom Overlay and 
-                     Pad C6-2(1018.284mil,113mil)  Bottom Layer
-   Violation between Track (1032.063mil,102.173mil)(1039.937mil,102.173mil)  Bottom Overlay and 
-                     Pad C6-2(1018.284mil,113mil)  Bottom Layer
-   Violation between Track (1065.827mil,214.063mil)(1065.827mil,221.937mil)  Bottom Overlay and 
-                     Pad C5-1(1055mil,200.284mil)  Bottom Layer
-   Violation between Track (1044.173mil,214.063mil)(1044.173mil,221.937mil)  Bottom Overlay and 
-                     Pad C5-1(1055mil,200.284mil)  Bottom Layer
-   Violation between Track (1065.827mil,214.063mil)(1065.827mil,221.937mil)  Bottom Overlay and 
-                     Pad C5-2(1055mil,235.716mil)  Bottom Layer
-   Violation between Track (1044.173mil,214.063mil)(1044.173mil,221.937mil)  Bottom Overlay and 
-                     Pad C5-2(1055mil,235.716mil)  Bottom Layer
-   Violation between Track (921.063mil,929.827mil)(928.937mil,929.827mil)  Bottom Overlay and 
-                     Pad C32-1(942.716mil,919mil)  Bottom Layer
-   Violation between Track (921.063mil,908.173mil)(928.937mil,908.173mil)  Bottom Overlay and 
-                     Pad C32-1(942.716mil,919mil)  Bottom Layer
-   Violation between Track (921.063mil,929.827mil)(928.937mil,929.827mil)  Bottom Overlay and 
-                     Pad C32-2(907.284mil,919mil)  Bottom Layer
-   Violation between Track (921.063mil,908.173mil)(928.937mil,908.173mil)  Bottom Overlay and 
-                     Pad C32-2(907.284mil,919mil)  Bottom Layer
-   Violation between Track (862.063mil,202.173mil)(869.937mil,202.173mil)  Bottom Overlay and 
-                     Pad C33-1(848.284mil,213mil)  Bottom Layer
-   Violation between Track (862.063mil,223.827mil)(869.937mil,223.827mil)  Bottom Overlay and 
-                     Pad C33-1(848.284mil,213mil)  Bottom Layer
-   Violation between Track (862.063mil,202.173mil)(869.937mil,202.173mil)  Bottom Overlay and 
-                     Pad C33-2(883.716mil,213mil)  Bottom Layer
-   Violation between Track (862.063mil,223.827mil)(869.937mil,223.827mil)  Bottom Overlay and 
-                     Pad C33-2(883.716mil,213mil)  Bottom Layer
-   Violation between Track (1028.347mil,681.716mil)(1055.906mil,681.716mil)  Bottom Overlay and 
-                     Pad C29-2(1071.654mil,664mil)  Bottom Layer
-   Violation between Track (1028.347mil,647.268mil)(1055.906mil,647.268mil)  Bottom Overlay and 
-                     Pad C29-2(1071.654mil,664mil)  Bottom Layer
-   Violation between Track (1028.347mil,681.716mil)(1055.906mil,681.716mil)  Bottom Overlay and 
-                     Pad C29-1(1012.598mil,664mil)  Bottom Layer
-   Violation between Track (1028.347mil,647.268mil)(1055.906mil,647.268mil)  Bottom Overlay and 
-                     Pad C29-1(1012.598mil,664mil)  Bottom Layer
-   Violation between Track (1026.378mil,699.173mil)(1034.252mil,699.173mil)  Bottom Overlay and 
-                     Pad C30-1(1012.598mil,710mil)  Bottom Layer
-   Violation between Track (1026.378mil,720.827mil)(1034.252mil,720.827mil)  Bottom Overlay and 
-                     Pad C30-1(1012.598mil,710mil)  Bottom Layer
-   Violation between Track (1026.378mil,699.173mil)(1034.252mil,699.173mil)  Bottom Overlay and 
-                     Pad C30-2(1048.031mil,710mil)  Bottom Layer
-   Violation between Track (1026.378mil,720.827mil)(1034.252mil,720.827mil)  Bottom Overlay and 
-                     Pad C30-2(1048.031mil,710mil)  Bottom Layer
-   Violation between Track (949.063mil,599.173mil)(956.937mil,599.173mil)  Bottom Overlay and 
-                     Pad R5-1(935.284mil,610mil)  Bottom Layer
-   Violation between Track (949.063mil,620.827mil)(956.937mil,620.827mil)  Bottom Overlay and 
-                     Pad R5-1(935.284mil,610mil)  Bottom Layer
-   Violation between Track (949.063mil,599.173mil)(956.937mil,599.173mil)  Bottom Overlay and 
-                     Pad R5-2(970.716mil,610mil)  Bottom Layer
-   Violation between Track (949.063mil,620.827mil)(956.937mil,620.827mil)  Bottom Overlay and 
-                     Pad R5-2(970.716mil,610mil)  Bottom Layer
-   Violation between Track (932.063mil,865.039mil)(939.937mil,865.039mil)  Bottom Overlay and 
-                     Pad C28-1(953.716mil,854.213mil)  Bottom Layer
-   Violation between Track (932.063mil,843.386mil)(939.937mil,843.386mil)  Bottom Overlay and 
-                     Pad C28-1(953.716mil,854.213mil)  Bottom Layer
-   Violation between Track (932.063mil,865.039mil)(939.937mil,865.039mil)  Bottom Overlay and 
-                     Pad C28-2(918.284mil,854.213mil)  Bottom Layer
-   Violation between Track (932.063mil,843.386mil)(939.937mil,843.386mil)  Bottom Overlay and 
-                     Pad C28-2(918.284mil,854.213mil)  Bottom Layer
-   Violation between Track (716.063mil,121.772mil)(723.937mil,121.772mil)  Bottom Overlay and 
-                     Pad C35-1(702.284mil,132.599mil)  Bottom Layer
-   Violation between Track (716.063mil,143.425mil)(723.937mil,143.425mil)  Bottom Overlay and 
-                     Pad C35-1(702.284mil,132.599mil)  Bottom Layer
-   Violation between Track (716.063mil,121.772mil)(723.937mil,121.772mil)  Bottom Overlay and 
-                     Pad C35-2(737.716mil,132.599mil)  Bottom Layer
-   Violation between Track (716.063mil,143.425mil)(723.937mil,143.425mil)  Bottom Overlay and 
-                     Pad C35-2(737.716mil,132.599mil)  Bottom Layer
-   Violation between Track (738mil,218mil)(778mil,218mil)  Bottom Overlay and 
-                     Pad C34-1(758mil,233.472mil)  Bottom Layer
-   Violation between Track (774.732mil,249.22mil)(774.732mil,276.779mil)  Bottom Overlay and 
-                     Pad C34-1(758mil,233.472mil)  Bottom Layer
-   Violation between Track (740.284mil,249.22mil)(740.284mil,276.779mil)  Bottom Overlay and 
-                     Pad C34-1(758mil,233.472mil)  Bottom Layer
-   Violation between Track (774.732mil,249.22mil)(774.732mil,276.779mil)  Bottom Overlay and 
-                     Pad C34-2(758mil,292.528mil)  Bottom Layer
-   Violation between Track (740.284mil,249.22mil)(740.284mil,276.779mil)  Bottom Overlay and 
-                     Pad C34-2(758mil,292.528mil)  Bottom Layer
-   Violation between Track (816.827mil,278.063mil)(816.827mil,285.937mil)  Bottom Overlay and 
-                     Pad C36-1(806mil,264.284mil)  Bottom Layer
-   Violation between Track (795.173mil,278.063mil)(795.173mil,285.937mil)  Bottom Overlay and 
-                     Pad C36-1(806mil,264.284mil)  Bottom Layer
-   Violation between Track (816.827mil,278.063mil)(816.827mil,285.937mil)  Bottom Overlay and 
-                     Pad C36-2(806mil,299.716mil)  Bottom Layer
-   Violation between Track (795.173mil,278.063mil)(795.173mil,285.937mil)  Bottom Overlay and 
-                     Pad C36-2(806mil,299.716mil)  Bottom Layer
-   Violation between Track (649.992mil,146.378mil)(649.992mil,154.252mil)  Bottom Overlay and 
-                     Pad FB1-1(660.819mil,168.031mil)  Bottom Layer
-   Violation between Track (671.646mil,146.378mil)(671.646mil,154.252mil)  Bottom Overlay and 
-                     Pad FB1-1(660.819mil,168.031mil)  Bottom Layer
-   Violation between Track (649.992mil,146.378mil)(649.992mil,154.252mil)  Bottom Overlay and 
-                     Pad FB1-2(660.819mil,132.599mil)  Bottom Layer
-   Violation between Track (671.646mil,146.378mil)(671.646mil,154.252mil)  Bottom Overlay and 
-                     Pad FB1-2(660.819mil,132.599mil)  Bottom Layer
-   Violation between Track (949.063mil,579.827mil)(956.937mil,579.827mil)  Bottom Overlay and 
-                     Pad C24-1(970.716mil,569mil)  Bottom Layer
-   Violation between Track (949.063mil,558.173mil)(956.937mil,558.173mil)  Bottom Overlay and 
-                     Pad C24-1(970.716mil,569mil)  Bottom Layer
-   Violation between Track (949.063mil,579.827mil)(956.937mil,579.827mil)  Bottom Overlay and 
-                     Pad C24-2(935.284mil,569mil)  Bottom Layer
-   Violation between Track (949.063mil,558.173mil)(956.937mil,558.173mil)  Bottom Overlay and 
-                     Pad C24-2(935.284mil,569mil)  Bottom Layer
-   Violation between Track (695.173mil,272.063mil)(695.173mil,279.937mil)  Bottom Overlay and 
-                     Pad C23-1(706mil,258.284mil)  Bottom Layer
-   Violation between Track (716.827mil,272.063mil)(716.827mil,279.937mil)  Bottom Overlay and 
-                     Pad C23-1(706mil,258.284mil)  Bottom Layer
-   Violation between Track (695.173mil,272.063mil)(695.173mil,279.937mil)  Bottom Overlay and 
-                     Pad C23-2(706mil,293.716mil)  Bottom Layer
-   Violation between Track (716.827mil,272.063mil)(716.827mil,279.937mil)  Bottom Overlay and 
-                     Pad C23-2(706mil,293.716mil)  Bottom Layer
-   Violation between Track (862.063mil,243.173mil)(869.937mil,243.173mil)  Bottom Overlay and 
-                     Pad R6-1(848.284mil,254mil)  Bottom Layer
-   Violation between Track (862.063mil,264.827mil)(869.937mil,264.827mil)  Bottom Overlay and 
-                     Pad R6-1(848.284mil,254mil)  Bottom Layer
-   Violation between Track (862.063mil,243.173mil)(869.937mil,243.173mil)  Bottom Overlay and 
-                     Pad R6-2(883.716mil,254mil)  Bottom Layer
-   Violation between Track (862.063mil,264.827mil)(869.937mil,264.827mil)  Bottom Overlay and 
-                     Pad R6-2(883.716mil,254mil)  Bottom Layer
-   Violation between Track (676.827mil,283.063mil)(676.827mil,290.937mil)  Bottom Overlay and 
-                     Pad R3-1(666mil,269.284mil)  Bottom Layer
-   Violation between Track (655.173mil,283.063mil)(655.173mil,290.937mil)  Bottom Overlay and 
-                     Pad R3-1(666mil,269.284mil)  Bottom Layer
-   Violation between Track (676.827mil,283.063mil)(676.827mil,290.937mil)  Bottom Overlay and 
-                     Pad R3-2(666mil,304.716mil)  Bottom Layer
-   Violation between Track (655.173mil,283.063mil)(655.173mil,290.937mil)  Bottom Overlay and 
-                     Pad R3-2(666mil,304.716mil)  Bottom Layer
-   Violation between Track (520.063mil,833.827mil)(527.937mil,833.827mil)  Bottom Overlay and 
-                     Pad C39-1(541.716mil,823mil)  Bottom Layer
-   Violation between Track (520.063mil,812.173mil)(527.937mil,812.173mil)  Bottom Overlay and 
-                     Pad C39-1(541.716mil,823mil)  Bottom Layer
-   Violation between Track (520.063mil,833.827mil)(527.937mil,833.827mil)  Bottom Overlay and 
-                     Pad C39-2(506.284mil,823mil)  Bottom Layer
-   Violation between Track (520.063mil,812.173mil)(527.937mil,812.173mil)  Bottom Overlay and 
-                     Pad C39-2(506.284mil,823mil)  Bottom Layer
-   Violation between Track (461.063mil,763.827mil)(468.937mil,763.827mil)  Bottom Overlay and 
-                     Pad C40-1(482.716mil,753mil)  Bottom Layer
-   Violation between Track (461.063mil,742.173mil)(468.937mil,742.173mil)  Bottom Overlay and 
-                     Pad C40-1(482.716mil,753mil)  Bottom Layer
-   Violation between Track (461.063mil,763.827mil)(468.937mil,763.827mil)  Bottom Overlay and 
-                     Pad C40-2(447.284mil,753mil)  Bottom Layer
-   Violation between Track (461.063mil,742.173mil)(468.937mil,742.173mil)  Bottom Overlay and 
-                     Pad C40-2(447.284mil,753mil)  Bottom Layer
-   Violation between Track (789.063mil,979.173mil)(796.937mil,979.173mil)  Bottom Overlay and 
-                     Pad C41-1(775.284mil,990mil)  Bottom Layer
-   Violation between Track (789.063mil,1000.827mil)(796.937mil,1000.827mil)  Bottom Overlay and 
-                     Pad C41-1(775.284mil,990mil)  Bottom Layer
-   Violation between Track (789.063mil,979.173mil)(796.937mil,979.173mil)  Bottom Overlay and 
-                     Pad C41-2(810.716mil,990mil)  Bottom Layer
-   Violation between Track (789.063mil,1000.827mil)(796.937mil,1000.827mil)  Bottom Overlay and 
-                     Pad C41-2(810.716mil,990mil)  Bottom Layer
-   Violation between Track (716.063mil,1000.827mil)(723.937mil,1000.827mil)  Bottom Overlay and 
-                     Pad C42-1(737.716mil,990mil)  Bottom Layer
-   Violation between Track (716.063mil,979.173mil)(723.937mil,979.173mil)  Bottom Overlay and 
-                     Pad C42-1(737.716mil,990mil)  Bottom Layer
-   Violation between Track (716.063mil,1000.827mil)(723.937mil,1000.827mil)  Bottom Overlay and 
-                     Pad C42-2(702.284mil,990mil)  Bottom Layer
-   Violation between Track (716.063mil,979.173mil)(723.937mil,979.173mil)  Bottom Overlay and 
-                     Pad C42-2(702.284mil,990mil)  Bottom Layer
-   Violation between Track (797.063mil,803.173mil)(804.937mil,803.173mil)  Bottom Overlay and 
-                     Pad C43-1(783.284mil,814mil)  Bottom Layer
-   Violation between Track (797.063mil,824.827mil)(804.937mil,824.827mil)  Bottom Overlay and 
-                     Pad C43-1(783.284mil,814mil)  Bottom Layer
-   Violation between Track (797.063mil,803.173mil)(804.937mil,803.173mil)  Bottom Overlay and 
-                     Pad C43-2(818.716mil,814mil)  Bottom Layer
-   Violation between Track (797.063mil,824.827mil)(804.937mil,824.827mil)  Bottom Overlay and 
-                     Pad C43-2(818.716mil,814mil)  Bottom Layer
-   Violation between Track (669.063mil,949.827mil)(676.937mil,949.827mil)  Bottom Overlay and 
-                     Pad C44-1(690.716mil,939mil)  Bottom Layer
-   Violation between Track (669.063mil,928.173mil)(676.937mil,928.173mil)  Bottom Overlay and 
-                     Pad C44-1(690.716mil,939mil)  Bottom Layer
-   Violation between Track (669.063mil,949.827mil)(676.937mil,949.827mil)  Bottom Overlay and 
-                     Pad C44-2(655.284mil,939mil)  Bottom Layer
-   Violation between Track (669.063mil,928.173mil)(676.937mil,928.173mil)  Bottom Overlay and 
-                     Pad C44-2(655.284mil,939mil)  Bottom Layer
-   Violation between Track (885.063mil,947.173mil)(892.937mil,947.173mil)  Bottom Overlay and 
-                     Pad C45-1(871.284mil,958mil)  Bottom Layer
-   Violation between Track (885.063mil,968.827mil)(892.937mil,968.827mil)  Bottom Overlay and 
-                     Pad C45-1(871.284mil,958mil)  Bottom Layer
-   Violation between Track (885.063mil,947.173mil)(892.937mil,947.173mil)  Bottom Overlay and 
-                     Pad C45-2(906.716mil,958mil)  Bottom Layer
-   Violation between Track (885.063mil,968.827mil)(892.937mil,968.827mil)  Bottom Overlay and 
-                     Pad C45-2(906.716mil,958mil)  Bottom Layer
-   Violation between Track (578.063mil,974.173mil)(585.937mil,974.173mil)  Bottom Overlay and 
-                     Pad C46-1(564.284mil,985mil)  Bottom Layer
-   Violation between Track (578.063mil,995.827mil)(585.937mil,995.827mil)  Bottom Overlay and 
-                     Pad C46-1(564.284mil,985mil)  Bottom Layer
-   Violation between Track (578.063mil,974.173mil)(585.937mil,974.173mil)  Bottom Overlay and 
-                     Pad C46-2(599.716mil,985mil)  Bottom Layer
-   Violation between Track (578.063mil,995.827mil)(585.937mil,995.827mil)  Bottom Overlay and 
-                     Pad C46-2(599.716mil,985mil)  Bottom Layer
-   Violation between Track (455.173mil,813.063mil)(455.173mil,820.937mil)  Bottom Overlay and 
-                     Pad C47-1(466mil,834.716mil)  Bottom Layer
-   Violation between Track (476.827mil,813.063mil)(476.827mil,820.937mil)  Bottom Overlay and 
-                     Pad C47-1(466mil,834.716mil)  Bottom Layer
-   Violation between Track (455.173mil,813.063mil)(455.173mil,820.937mil)  Bottom Overlay and 
-                     Pad C47-2(466mil,799.284mil)  Bottom Layer
-   Violation between Track (476.827mil,813.063mil)(476.827mil,820.937mil)  Bottom Overlay and 
-                     Pad C47-2(466mil,799.284mil)  Bottom Layer
-   Violation between Track (422.173mil,626.063mil)(422.173mil,633.937mil)  Bottom Overlay and 
-                     Pad C49-1(433mil,647.716mil)  Bottom Layer
-   Violation between Track (443.827mil,626.063mil)(443.827mil,633.937mil)  Bottom Overlay and 
-                     Pad C49-1(433mil,647.716mil)  Bottom Layer
-   Violation between Track (422.173mil,626.063mil)(422.173mil,633.937mil)  Bottom Overlay and 
-                     Pad C49-2(433mil,612.284mil)  Bottom Layer
-   Violation between Track (443.827mil,626.063mil)(443.827mil,633.937mil)  Bottom Overlay and 
-                     Pad C49-2(433mil,612.284mil)  Bottom Layer
-   Violation between Track (478.173mil,626.063mil)(478.173mil,633.937mil)  Bottom Overlay and 
-                     Pad C50-1(489mil,647.716mil)  Bottom Layer
-   Violation between Track (499.827mil,626.063mil)(499.827mil,633.937mil)  Bottom Overlay and 
-                     Pad C50-1(489mil,647.716mil)  Bottom Layer
-   Violation between Track (478.173mil,626.063mil)(478.173mil,633.937mil)  Bottom Overlay and 
-                     Pad C50-2(489mil,612.284mil)  Bottom Layer
-   Violation between Track (499.827mil,626.063mil)(499.827mil,633.937mil)  Bottom Overlay and 
-                     Pad C50-2(489mil,612.284mil)  Bottom Layer
-   Violation between Track (255.173mil,570.819mil)(255.173mil,578.693mil)  Bottom Overlay and 
-                     Pad C51-1(266mil,592.472mil)  Bottom Layer
-   Violation between Track (276.827mil,570.819mil)(276.827mil,578.693mil)  Bottom Overlay and 
-                     Pad C51-1(266mil,592.472mil)  Bottom Layer
-   Violation between Track (255.173mil,570.819mil)(255.173mil,578.693mil)  Bottom Overlay and 
-                     Pad C51-2(266mil,557.039mil)  Bottom Layer
-   Violation between Track (276.827mil,570.819mil)(276.827mil,578.693mil)  Bottom Overlay and 
-                     Pad C51-2(266mil,557.039mil)  Bottom Layer
-   Violation between Track (461.063mil,674.173mil)(468.937mil,674.173mil)  Bottom Overlay and 
-                     Pad C52-1(447.284mil,685mil)  Bottom Layer
-   Violation between Track (461.063mil,695.827mil)(468.937mil,695.827mil)  Bottom Overlay and 
-                     Pad C52-1(447.284mil,685mil)  Bottom Layer
-   Violation between Track (461.063mil,674.173mil)(468.937mil,674.173mil)  Bottom Overlay and 
-                     Pad C52-2(482.716mil,685mil)  Bottom Layer
-   Violation between Track (461.063mil,695.827mil)(468.937mil,695.827mil)  Bottom Overlay and 
-                     Pad C52-2(482.716mil,685mil)  Bottom Layer
-   Violation between Track (669.063mil,889.173mil)(676.937mil,889.173mil)  Bottom Overlay and 
-                     Pad R8-1(655.284mil,900mil)  Bottom Layer
-   Violation between Track (669.063mil,910.827mil)(676.937mil,910.827mil)  Bottom Overlay and 
-                     Pad R8-1(655.284mil,900mil)  Bottom Layer
-   Violation between Track (669.063mil,889.173mil)(676.937mil,889.173mil)  Bottom Overlay and 
-                     Pad R8-2(690.716mil,900mil)  Bottom Layer
-   Violation between Track (669.063mil,910.827mil)(676.937mil,910.827mil)  Bottom Overlay and 
-                     Pad R8-2(690.716mil,900mil)  Bottom Layer
-   Violation between Track (602.063mil,860.173mil)(609.937mil,860.173mil)  Bottom Overlay and 
-                     Pad R9-1(623.716mil,871mil)  Bottom Layer
-   Violation between Track (602.063mil,881.827mil)(609.937mil,881.827mil)  Bottom Overlay and 
-                     Pad R9-1(623.716mil,871mil)  Bottom Layer
-   Violation between Track (602.063mil,860.173mil)(609.937mil,860.173mil)  Bottom Overlay and 
-                     Pad R9-2(588.284mil,871mil)  Bottom Layer
-   Violation between Track (602.063mil,881.827mil)(609.937mil,881.827mil)  Bottom Overlay and 
-                     Pad R9-2(588.284mil,871mil)  Bottom Layer
-   Violation between Track (797.063mil,865.827mil)(804.937mil,865.827mil)  Bottom Overlay and 
-                     Pad R10-1(818.716mil,855mil)  Bottom Layer
-   Violation between Track (797.063mil,844.173mil)(804.937mil,844.173mil)  Bottom Overlay and 
-                     Pad R10-1(818.716mil,855mil)  Bottom Layer
-   Violation between Track (797.063mil,865.827mil)(804.937mil,865.827mil)  Bottom Overlay and 
-                     Pad R10-2(783.284mil,855mil)  Bottom Layer
-   Violation between Track (797.063mil,844.173mil)(804.937mil,844.173mil)  Bottom Overlay and 
-                     Pad R10-2(783.284mil,855mil)  Bottom Layer
-   Violation between Track (602.063mil,949.827mil)(609.937mil,949.827mil)  Bottom Overlay and 
-                     Pad R11-1(623.716mil,939mil)  Bottom Layer
-   Violation between Track (602.063mil,928.173mil)(609.937mil,928.173mil)  Bottom Overlay and 
-                     Pad R11-1(623.716mil,939mil)  Bottom Layer
-   Violation between Track (602.063mil,949.827mil)(609.937mil,949.827mil)  Bottom Overlay and 
-                     Pad R11-2(588.284mil,939mil)  Bottom Layer
-   Violation between Track (602.063mil,928.173mil)(609.937mil,928.173mil)  Bottom Overlay and 
-                     Pad R11-2(588.284mil,939mil)  Bottom Layer
-   Violation between Track (350.173mil,893.063mil)(350.173mil,900.937mil)  Bottom Overlay and 
-                     Pad R12-1(361mil,914.716mil)  Bottom Layer
-   Violation between Track (371.827mil,893.063mil)(371.827mil,900.937mil)  Bottom Overlay and 
-                     Pad R12-1(361mil,914.716mil)  Bottom Layer
-   Violation between Track (350.173mil,893.063mil)(350.173mil,900.937mil)  Bottom Overlay and 
-                     Pad R12-2(361mil,879.284mil)  Bottom Layer
-   Violation between Track (371.827mil,893.063mil)(371.827mil,900.937mil)  Bottom Overlay and 
-                     Pad R12-2(361mil,879.284mil)  Bottom Layer
-   Violation between Track (409.827mil,813.063mil)(409.827mil,820.937mil)  Bottom Overlay and 
-                     Pad R13-1(399mil,834.716mil)  Bottom Layer
-   Violation between Track (388.173mil,813.063mil)(388.173mil,820.937mil)  Bottom Overlay and 
-                     Pad R13-1(399mil,834.716mil)  Bottom Layer
-   Violation between Track (409.827mil,813.063mil)(409.827mil,820.937mil)  Bottom Overlay and 
-                     Pad R13-2(399mil,799.284mil)  Bottom Layer
-   Violation between Track (388.173mil,813.063mil)(388.173mil,820.937mil)  Bottom Overlay and 
-                     Pad R13-2(399mil,799.284mil)  Bottom Layer
-   Violation between Track (276.173mil,699.063mil)(276.173mil,706.937mil)  Bottom Overlay and 
-                     Pad R14-1(287mil,720.716mil)  Bottom Layer
-   Violation between Track (297.827mil,699.063mil)(297.827mil,706.937mil)  Bottom Overlay and 
-                     Pad R14-1(287mil,720.716mil)  Bottom Layer
-   Violation between Track (276.173mil,699.063mil)(276.173mil,706.937mil)  Bottom Overlay and 
-                     Pad R14-2(287mil,685.284mil)  Bottom Layer
-   Violation between Track (297.827mil,699.063mil)(297.827mil,706.937mil)  Bottom Overlay and 
-                     Pad R14-2(287mil,685.284mil)  Bottom Layer
-   Violation between Track (321.173mil,814.063mil)(321.173mil,821.937mil)  Bottom Overlay and 
-                     Pad R15-1(332mil,835.716mil)  Bottom Layer
-   Violation between Track (342.827mil,814.063mil)(342.827mil,821.937mil)  Bottom Overlay and 
-                     Pad R15-1(332mil,835.716mil)  Bottom Layer
-   Violation between Track (321.173mil,814.063mil)(321.173mil,821.937mil)  Bottom Overlay and 
-                     Pad R15-2(332mil,800.284mil)  Bottom Layer
-   Violation between Track (342.827mil,814.063mil)(342.827mil,821.937mil)  Bottom Overlay and 
-                     Pad R15-2(332mil,800.284mil)  Bottom Layer
-   Violation between Track (300.779mil,660.827mil)(308.654mil,660.827mil)  Bottom Overlay and 
-                     Pad R16-1(287mil,650mil)  Bottom Layer
-   Violation between Track (300.779mil,639.173mil)(308.654mil,639.173mil)  Bottom Overlay and 
-                     Pad R16-1(287mil,650mil)  Bottom Layer
-   Violation between Track (300.779mil,660.827mil)(308.654mil,660.827mil)  Bottom Overlay and 
-                     Pad R16-2(322.433mil,650mil)  Bottom Layer
-   Violation between Track (300.779mil,639.173mil)(308.654mil,639.173mil)  Bottom Overlay and 
-                     Pad R16-2(322.433mil,650mil)  Bottom Layer
-   Violation between Track (297.827mil,767.37mil)(297.827mil,775.244mil)  Bottom Overlay and 
-                     Pad R17-1(287mil,753.591mil)  Bottom Layer
-   Violation between Track (276.173mil,767.37mil)(276.173mil,775.244mil)  Bottom Overlay and 
-                     Pad R17-1(287mil,753.591mil)  Bottom Layer
-   Violation between Track (297.827mil,767.37mil)(297.827mil,775.244mil)  Bottom Overlay and 
-                     Pad R17-2(287mil,789.024mil)  Bottom Layer
-   Violation between Track (276.173mil,767.37mil)(276.173mil,775.244mil)  Bottom Overlay and 
-                     Pad R17-2(287mil,789.024mil)  Bottom Layer
-   Violation between Track (299.173mil,570.819mil)(299.173mil,578.693mil)  Bottom Overlay and 
-                     Pad R18-1(310mil,592.472mil)  Bottom Layer
-   Violation between Track (320.827mil,570.819mil)(320.827mil,578.693mil)  Bottom Overlay and 
-                     Pad R18-1(310mil,592.472mil)  Bottom Layer
-   Violation between Track (299.173mil,570.819mil)(299.173mil,578.693mil)  Bottom Overlay and 
-                     Pad R18-2(310mil,557.039mil)  Bottom Layer
-   Violation between Track (320.827mil,570.819mil)(320.827mil,578.693mil)  Bottom Overlay and 
-                     Pad R18-2(310mil,557.039mil)  Bottom Layer
-   Violation between Track (1258.764mil,243.063mil)(1258.764mil,250.937mil)  Bottom Overlay and 
-                     Pad C9-1(1247.937mil,229.284mil)  Bottom Layer
-   Violation between Track (1237.11mil,243.063mil)(1237.11mil,250.937mil)  Bottom Overlay and 
-                     Pad C9-1(1247.937mil,229.284mil)  Bottom Layer
-   Violation between Track (1258.764mil,243.063mil)(1258.764mil,250.937mil)  Bottom Overlay and 
-                     Pad C9-2(1247.937mil,264.716mil)  Bottom Layer
-   Violation between Track (1237.11mil,243.063mil)(1237.11mil,250.937mil)  Bottom Overlay and 
-                     Pad C9-2(1247.937mil,264.716mil)  Bottom Layer
-   Violation between Track (516.827mil,307.779mil)(516.827mil,315.654mil)  Bottom Overlay and 
-                     Pad C12-1(506mil,294mil)  Bottom Layer
-   Violation between Track (495.173mil,307.779mil)(495.173mil,315.654mil)  Bottom Overlay and 
-                     Pad C12-1(506mil,294mil)  Bottom Layer
-   Violation between Track (516.827mil,307.779mil)(516.827mil,315.654mil)  Bottom Overlay and 
-                     Pad C12-2(506mil,329.433mil)  Bottom Layer
-   Violation between Track (495.173mil,307.779mil)(495.173mil,315.654mil)  Bottom Overlay and 
-                     Pad C12-2(506mil,329.433mil)  Bottom Layer
-   Violation between Track (208.827mil,166.063mil)(208.827mil,173.937mil)  Bottom Overlay and 
-                     Pad C16-1(198mil,152.284mil)  Bottom Layer
-   Violation between Track (187.173mil,166.063mil)(187.173mil,173.937mil)  Bottom Overlay and 
-                     Pad C16-1(198mil,152.284mil)  Bottom Layer
-   Violation between Track (208.827mil,166.063mil)(208.827mil,173.937mil)  Bottom Overlay and 
-                     Pad C16-2(198mil,187.716mil)  Bottom Layer
-   Violation between Track (187.173mil,166.063mil)(187.173mil,173.937mil)  Bottom Overlay and 
-                     Pad C16-2(198mil,187.716mil)  Bottom Layer
-   Violation between Track (374.779mil,390.173mil)(382.654mil,390.173mil)  Bottom Overlay and 
-                     Pad C13-1(361mil,401mil)  Bottom Layer
-   Violation between Track (374.779mil,411.827mil)(382.654mil,411.827mil)  Bottom Overlay and 
-                     Pad C13-1(361mil,401mil)  Bottom Layer
-   Violation between Track (374.779mil,390.173mil)(382.654mil,390.173mil)  Bottom Overlay and 
-                     Pad C13-2(396.433mil,401mil)  Bottom Layer
-   Violation between Track (374.779mil,411.827mil)(382.654mil,411.827mil)  Bottom Overlay and 
-                     Pad C13-2(396.433mil,401mil)  Bottom Layer
-   Violation between Track (453.063mil,390.173mil)(460.937mil,390.173mil)  Bottom Overlay and 
-                     Pad C14-1(439.284mil,401mil)  Bottom Layer
-   Violation between Track (453.063mil,411.827mil)(460.937mil,411.827mil)  Bottom Overlay and 
-                     Pad C14-1(439.284mil,401mil)  Bottom Layer
-   Violation between Track (453.063mil,390.173mil)(460.937mil,390.173mil)  Bottom Overlay and 
-                     Pad C14-2(474.716mil,401mil)  Bottom Layer
-   Violation between Track (453.063mil,411.827mil)(460.937mil,411.827mil)  Bottom Overlay and 
-                     Pad C14-2(474.716mil,401mil)  Bottom Layer
-   Violation between Track (187.173mil,319.063mil)(187.173mil,326.937mil)  Bottom Overlay and 
-                     Pad C15-1(198mil,340.716mil)  Bottom Layer
-   Violation between Track (208.827mil,319.063mil)(208.827mil,326.937mil)  Bottom Overlay and 
-                     Pad C15-1(198mil,340.716mil)  Bottom Layer
-   Violation between Track (187.173mil,319.063mil)(187.173mil,326.937mil)  Bottom Overlay and 
-                     Pad C15-2(198mil,305.284mil)  Bottom Layer
-   Violation between Track (208.827mil,319.063mil)(208.827mil,326.937mil)  Bottom Overlay and 
-                     Pad C15-2(198mil,305.284mil)  Bottom Layer
-   Violation between Track (242.78mil,389.173mil)(250.654mil,389.173mil)  Bottom Overlay and 
-                     Pad C19-1(229mil,400mil)  Bottom Layer
-   Violation between Track (242.78mil,410.827mil)(250.654mil,410.827mil)  Bottom Overlay and 
-                     Pad C19-1(229mil,400mil)  Bottom Layer
-   Violation between Track (242.78mil,389.173mil)(250.654mil,389.173mil)  Bottom Overlay and 
-                     Pad C19-2(264.433mil,400mil)  Bottom Layer
-   Violation between Track (242.78mil,410.827mil)(250.654mil,410.827mil)  Bottom Overlay and 
-                     Pad C19-2(264.433mil,400mil)  Bottom Layer
-   Violation between Track (308.063mil,389.173mil)(315.937mil,389.173mil)  Bottom Overlay and 
-                     Pad C18-1(294.284mil,400mil)  Bottom Layer
-   Violation between Track (308.063mil,410.827mil)(315.937mil,410.827mil)  Bottom Overlay and 
-                     Pad C18-1(294.284mil,400mil)  Bottom Layer
-   Violation between Track (308.063mil,389.173mil)(315.937mil,389.173mil)  Bottom Overlay and 
-                     Pad C18-2(329.716mil,400mil)  Bottom Layer
-   Violation between Track (308.063mil,410.827mil)(315.937mil,410.827mil)  Bottom Overlay and 
-                     Pad C18-2(329.716mil,400mil)  Bottom Layer
-   Violation between Track (728.669mil,737.661mil)(741.465mil,737.661mil)  Bottom Overlay and 
-                     Pad U15-9(739.496mil,749.472mil)  Bottom Layer
-   Violation between Track (728.669mil,820.339mil)(741.465mil,820.339mil)  Bottom Overlay and 
-                     Pad U15-6(739.496mil,808.528mil)  Bottom Layer
-   Violation between Track (674.535mil,820.339mil)(687.331mil,820.339mil)  Bottom Overlay and 
-                     Pad U15-4(676.504mil,808.528mil)  Bottom Layer
-   Violation between Track (674.535mil,737.661mil)(687.331mil,737.661mil)  Bottom Overlay and 
-                     Pad U15-1(676.504mil,749.472mil)  Bottom Layer
-   Violation between Track (353.252mil,688.63mil)(384.748mil,688.63mil)  Bottom Overlay and 
-                     Pad U13-5(406.402mil,702.409mil)  Bottom Layer
-   Violation between Track (353.252mil,767.37mil)(384.748mil,767.37mil)  Bottom Overlay and 
-                     Pad U13-4(406.402mil,753.591mil)  Bottom Layer
-   Violation between Track (353.252mil,767.37mil)(384.748mil,767.37mil)  Bottom Overlay and 
-                     Pad U13-3(331.598mil,753.591mil)  Bottom Layer
-   Violation between Track (353.252mil,688.63mil)(384.748mil,688.63mil)  Bottom Overlay and 
-                     Pad U13-1(331.598mil,702.409mil)  Bottom Layer
-   Violation between Track (759.252mil,964.37mil)(790.748mil,964.37mil)  Bottom Overlay and 
-                     Pad U12-1(812.402mil,950.591mil)  Bottom Layer
-   Violation between Track (759.252mil,885.63mil)(790.748mil,885.63mil)  Bottom Overlay and 
-                     Pad U12-3(812.402mil,899.409mil)  Bottom Layer
-   Violation between Track (759.252mil,885.63mil)(790.748mil,885.63mil)  Bottom Overlay and 
-                     Pad U12-4(737.598mil,899.409mil)  Bottom Layer
-   Violation between Track (759.252mil,964.37mil)(790.748mil,964.37mil)  Bottom Overlay and 
-                     Pad U12-5(737.598mil,950.591mil)  Bottom Layer
-   Violation between Track (515.827mil,140.063mil)(515.827mil,147.937mil)  Bottom Overlay and 
-                     Pad C11-1(505mil,126.284mil)  Bottom Layer
-   Violation between Track (494.173mil,140.063mil)(494.173mil,147.937mil)  Bottom Overlay and 
-                     Pad C11-1(505mil,126.284mil)  Bottom Layer
-   Violation between Track (515.827mil,140.063mil)(515.827mil,147.937mil)  Bottom Overlay and 
-                     Pad C11-2(505mil,161.716mil)  Bottom Layer
-   Violation between Track (494.173mil,140.063mil)(494.173mil,147.937mil)  Bottom Overlay and 
-                     Pad C11-2(505mil,161.716mil)  Bottom Layer
-Rule Violations :328
+Processing Rule : Silk primitive without silk layer
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (556.488mil,-12.087mil)(867.512mil,-12.087mil)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (867.512mil,-12.087mil)(867.512mil,186.732mil)  Top Overlay
+   Violation between Silk To Board Region Clearance (Out of silkscreen region) : Track (556.488mil,-12.087mil)(556.488mil,185.748mil)  Top Overlay
+Rule Violations :3
 
-Processing Rule : Minimum Solder Mask Sliver (Gap=5mil) (All),(All)
-   Violation between Pad J1-1(660.819mil,150.315mil)  Top Layer and 
-                     Pad J1-2(686.409mil,150.315mil)  Top Layer
-   Violation between Pad J1-3(712mil,150.315mil)  Top Layer and 
-                     Pad J1-2(686.409mil,150.315mil)  Top Layer
-   Violation between Pad J1-4(737.591mil,150.315mil)  Top Layer and 
-                     Pad J1-3(712mil,150.315mil)  Top Layer
-   Violation between Pad J1-4(737.591mil,150.315mil)  Top Layer and 
-                     Pad J1-5(763.181mil,150.315mil)  Top Layer
-   Violation between Pad J1-6(837mil,45mil)  Multi-Layer and 
-                     Pad J1-6(759.244mil,45mil)  Top Layer
-   Violation between Pad J1-6(587mil,45mil)  Multi-Layer and 
-                     Pad J1-6(664.756mil,45mil)  Top Layer
-   Violation between Pad U9-2(612.575mil,378.213mil)  Top Layer and 
-                     Pad U9-1(612.575mil,397.898mil)  Top Layer
-   Violation between Pad U9-3(612.575mil,358.528mil)  Top Layer and 
-                     Pad U9-2(612.575mil,378.213mil)  Top Layer
-   Violation between Pad U9-4(612.575mil,338.842mil)  Top Layer and 
-                     Pad U9-3(612.575mil,358.528mil)  Top Layer
-   Violation between Pad U9-5(612.575mil,319.158mil)  Top Layer and 
-                     Pad U9-4(612.575mil,338.842mil)  Top Layer
-   Violation between Pad U9-6(612.575mil,299.472mil)  Top Layer and 
-                     Pad U9-5(612.575mil,319.158mil)  Top Layer
-   Violation between Pad U9-7(612.575mil,279.787mil)  Top Layer and 
-                     Pad U9-6(612.575mil,299.472mil)  Top Layer
-   Violation between Pad U9-8(612.575mil,260.102mil)  Top Layer and 
-                     Pad U9-7(612.575mil,279.787mil)  Top Layer
-   Violation between Pad U9-10(661.787mil,230.575mil)  Top Layer and 
-                     Pad U9-9(642.102mil,230.575mil)  Top Layer
-   Violation between Pad U9-11(681.472mil,230.575mil)  Top Layer and 
-                     Pad U9-10(661.787mil,230.575mil)  Top Layer
-   Violation between Pad U9-12(701.158mil,230.575mil)  Top Layer and 
-                     Pad U9-11(681.472mil,230.575mil)  Top Layer
-   Violation between Pad U9-13(720.842mil,230.575mil)  Top Layer and 
-                     Pad U9-12(701.158mil,230.575mil)  Top Layer
-   Violation between Pad U9-14(740.528mil,230.575mil)  Top Layer and 
-                     Pad U9-13(720.842mil,230.575mil)  Top Layer
-   Violation between Pad U9-15(760.213mil,230.575mil)  Top Layer and 
-                     Pad U9-14(740.528mil,230.575mil)  Top Layer
-   Violation between Pad U9-16(779.898mil,230.575mil)  Top Layer and 
-                     Pad U9-15(760.213mil,230.575mil)  Top Layer
-   Violation between Pad U9-18(809.425mil,279.787mil)  Top Layer and 
-                     Pad U9-17(809.425mil,260.102mil)  Top Layer
-   Violation between Pad U9-19(809.425mil,299.472mil)  Top Layer and 
-                     Pad U9-18(809.425mil,279.787mil)  Top Layer
-   Violation between Pad U9-20(809.425mil,319.158mil)  Top Layer and 
-                     Pad U9-19(809.425mil,299.472mil)  Top Layer
-   Violation between Pad U9-21(809.425mil,338.842mil)  Top Layer and 
-                     Pad U9-20(809.425mil,319.158mil)  Top Layer
-   Violation between Pad U9-22(809.425mil,358.528mil)  Top Layer and 
-                     Pad U9-21(809.425mil,338.842mil)  Top Layer
-   Violation between Pad U9-23(809.425mil,378.213mil)  Top Layer and 
-                     Pad U9-22(809.425mil,358.528mil)  Top Layer
-   Violation between Pad U9-24(809.425mil,397.898mil)  Top Layer and 
-                     Pad U9-23(809.425mil,378.213mil)  Top Layer
-   Violation between Pad U9-26(760.213mil,427.425mil)  Top Layer and 
-                     Pad U9-25(779.898mil,427.425mil)  Top Layer
-   Violation between Pad U9-27(740.528mil,427.425mil)  Top Layer and 
-                     Pad U9-26(760.213mil,427.425mil)  Top Layer
-   Violation between Pad U9-28(720.842mil,427.425mil)  Top Layer and 
-                     Pad U9-27(740.528mil,427.425mil)  Top Layer
-   Violation between Pad U9-29(701.158mil,427.425mil)  Top Layer and 
-                     Pad U9-28(720.842mil,427.425mil)  Top Layer
-   Violation between Pad U9-30(681.472mil,427.425mil)  Top Layer and 
-                     Pad U9-29(701.158mil,427.425mil)  Top Layer
-   Violation between Pad U9-31(661.787mil,427.425mil)  Top Layer and 
-                     Pad U9-30(681.472mil,427.425mil)  Top Layer
-   Violation between Pad U9-32(642.102mil,427.425mil)  Top Layer and 
-                     Pad U9-31(661.787mil,427.425mil)  Top Layer
-   Violation between Pad U16-6(86.764mil,410.685mil)  Top Layer and 
-                     Pad U16-1(57.236mil,410.685mil)  Top Layer
-   Violation between Pad U16-5(86.764mil,391mil)  Top Layer and 
-                     Pad U16-1(57.236mil,410.685mil)  Top Layer
-   Violation between Pad U16-2(57.236mil,391mil)  Top Layer and 
-                     Pad U16-1(57.236mil,410.685mil)  Top Layer
-   Violation between Pad U16-4(86.764mil,371.315mil)  Top Layer and 
-                     Pad U16-2(57.236mil,391mil)  Top Layer
-   Violation between Pad U16-6(86.764mil,410.685mil)  Top Layer and 
-                     Pad U16-2(57.236mil,391mil)  Top Layer
-   Violation between Pad U16-5(86.764mil,391mil)  Top Layer and 
-                     Pad U16-2(57.236mil,391mil)  Top Layer
-   Violation between Pad U16-3(57.236mil,371.315mil)  Top Layer and 
-                     Pad U16-2(57.236mil,391mil)  Top Layer
-   Violation between Pad U16-4(86.764mil,371.315mil)  Top Layer and 
-                     Pad U16-3(57.236mil,371.315mil)  Top Layer
-   Violation between Pad U16-5(86.764mil,391mil)  Top Layer and 
-                     Pad U16-3(57.236mil,371.315mil)  Top Layer
-   Violation between Pad U16-5(86.764mil,391mil)  Top Layer and 
-                     Pad U16-4(86.764mil,371.315mil)  Top Layer
-   Violation between Pad U16-6(86.764mil,410.685mil)  Top Layer and 
-                     Pad U16-5(86.764mil,391mil)  Top Layer
-   Violation between Pad B1-2(1112.11mil,451.527mil)  Top Layer and 
-                     Pad B1-1(1112.11mil,471.212mil)  Top Layer
-   Violation between Pad B1-3(1112.11mil,431.842mil)  Top Layer and 
-                     Pad B1-2(1112.11mil,451.527mil)  Top Layer
-   Violation between Pad B1-5(1145.575mil,451.527mil)  Top Layer and 
-                     Pad B1-4(1145.575mil,431.842mil)  Top Layer
-   Violation between Pad B1-6(1145.575mil,471.212mil)  Top Layer and 
-                     Pad B1-5(1145.575mil,451.527mil)  Top Layer
-   Violation between Pad U10-15(1172mil,559.195mil)  Bottom Layer and 
-                     Pad U10-16(1191.69mil,559.195mil)  Bottom Layer
-   Violation between Pad U10-14(1152.31mil,559.195mil)  Bottom Layer and 
-                     Pad U10-15(1172mil,559.195mil)  Bottom Layer
-   Violation between Pad U10-12(1120.325mil,528.69mil)  Bottom Layer and 
-                     Pad U10-13(1120.325mil,548.38mil)  Bottom Layer
-   Violation between Pad U10-11(1120.325mil,509mil)  Bottom Layer and 
-                     Pad U10-12(1120.325mil,528.69mil)  Bottom Layer
-   Violation between Pad U10-10(1120.325mil,489.31mil)  Bottom Layer and 
-                     Pad U10-11(1120.325mil,509mil)  Bottom Layer
-   Violation between Pad U10-9(1120.325mil,469.62mil)  Bottom Layer and 
-                     Pad U10-10(1120.325mil,489.31mil)  Bottom Layer
-   Violation between Pad U10-7(1172mil,458.805mil)  Bottom Layer and 
-                     Pad U10-8(1152.31mil,458.805mil)  Bottom Layer
-   Violation between Pad U10-6(1191.69mil,458.805mil)  Bottom Layer and 
-                     Pad U10-7(1172mil,458.805mil)  Bottom Layer
-   Violation between Pad U10-4(1223.675mil,489.31mil)  Bottom Layer and 
-                     Pad U10-5(1223.675mil,469.62mil)  Bottom Layer
-   Violation between Pad U10-3(1223.675mil,509mil)  Bottom Layer and 
-                     Pad U10-4(1223.675mil,489.31mil)  Bottom Layer
-   Violation between Pad U10-2(1223.675mil,528.69mil)  Bottom Layer and 
-                     Pad U10-3(1223.675mil,509mil)  Bottom Layer
-   Violation between Pad U10-1(1223.675mil,548.38mil)  Bottom Layer and 
-                     Pad U10-2(1223.675mil,528.69mil)  Bottom Layer
-   Violation between Pad U11-2(414.787mil,914.205mil)  Bottom Layer and 
-                     Pad U11-1(414.787mil,888.614mil)  Bottom Layer
-   Violation between Pad U11-3(414.787mil,939.795mil)  Bottom Layer and 
-                     Pad U11-2(414.787mil,914.205mil)  Bottom Layer
-   Violation between Pad U11-4(414.787mil,965.386mil)  Bottom Layer and 
-                     Pad U11-3(414.787mil,939.795mil)  Bottom Layer
-   Violation between Pad U11-7(513.213mil,914.205mil)  Bottom Layer and 
-                     Pad U11-8(513.213mil,888.614mil)  Bottom Layer
-   Violation between Pad U11-6(513.213mil,939.795mil)  Bottom Layer and 
-                     Pad U11-7(513.213mil,914.205mil)  Bottom Layer
-   Violation between Pad U11-5(513.213mil,965.386mil)  Bottom Layer and 
-                     Pad U11-6(513.213mil,939.795mil)  Bottom Layer
-   Violation between Pad U15-8(739.496mil,769.158mil)  Bottom Layer and 
-                     Pad U15-9(739.496mil,749.472mil)  Bottom Layer
-   Violation between Pad U15-7(739.496mil,788.842mil)  Bottom Layer and 
-                     Pad U15-8(739.496mil,769.158mil)  Bottom Layer
-   Violation between Pad U15-6(739.496mil,808.528mil)  Bottom Layer and 
-                     Pad U15-7(739.496mil,788.842mil)  Bottom Layer
-   Violation between Pad U15-3(676.504mil,788.842mil)  Bottom Layer and 
-                     Pad U15-4(676.504mil,808.528mil)  Bottom Layer
-   Violation between Pad U15-2(676.504mil,769.158mil)  Bottom Layer and 
-                     Pad U15-3(676.504mil,788.842mil)  Bottom Layer
-   Violation between Pad U15-1(676.504mil,749.472mil)  Bottom Layer and 
-                     Pad U15-2(676.504mil,769.158mil)  Bottom Layer
-   Violation between Pad U13-2(331.598mil,728mil)  Bottom Layer and 
-                     Pad U13-3(331.598mil,753.591mil)  Bottom Layer
-   Violation between Pad U13-1(331.598mil,702.409mil)  Bottom Layer and 
-                     Pad U13-2(331.598mil,728mil)  Bottom Layer
-   Violation between Pad U12-2(812.402mil,925mil)  Bottom Layer and 
-                     Pad U12-1(812.402mil,950.591mil)  Bottom Layer
-   Violation between Pad U12-3(812.402mil,899.409mil)  Bottom Layer and 
-                     Pad U12-2(812.402mil,925mil)  Bottom Layer
-Rule Violations :77
-
-Processing Rule : Hole To Hole Clearance (Gap=10mil) (All),(All)
+Processing Rule : Net Antennae (Tolerance=0mil) (All)
 Rule Violations :0
 
-Processing Rule : Height Constraint (Min=0mil) (Max=1000mil) (Prefered=500mil) (All)
-Rule Violations :0
-
-Processing Rule : Hole Size Constraint (Min=1mil) (Max=100mil) (All)
-Rule Violations :0
-
-Processing Rule : Hole Size Constraint (Min=1mil) (Max=100mil) (All)
-Rule Violations :0
-
-Processing Rule : Hole Size Constraint (Min=8mil) (Max=251mil) (All)
-Rule Violations :0
-
-Processing Rule : Minimum Annular Ring (Minimum=5mil) (All)
-Rule Violations :0
-
-Processing Rule : Un-Routed Net Constraint ( (All) )
-Rule Violations :0
-
-Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
-Rule Violations :0
-
-Processing Rule : Power Plane Connect Rule(Relief Connect )(Expansion=10mil) (Conductor Width=8mil) (Air Gap=10mil) (Entries=4) (All)
-Rule Violations :0
-
-Processing Rule : Width Constraint (Min=6mil) (Max=100mil) (Preferred=10mil) (All)
-Rule Violations :0
-
-Processing Rule : Clearance Constraint (Gap=6mil) (All),(All)
+Processing Rule : Modified Polygon (Allow modified: No), (Allow shelved: No)
 Rule Violations :0
 
 
-Violations Detected : 412
-Time Elapsed        : 00:00:01
+Violations Detected : 410
+Time Elapsed        : 00:00:02
