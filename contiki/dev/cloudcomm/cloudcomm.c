@@ -34,7 +34,6 @@ static bool    sending_data_store_empty = true;
 static bool    urlSet = false;
 static uint8_t urlIndex = 0;
 
-
 //Cloudcomm operation/shutdown parameters
 static void     (*cc_done_callback)();
 static vtimer    cc_vtimer;
@@ -44,7 +43,7 @@ static bool on = false; // should we be scanning on ble
 static bool sleep = false;
 static bool connecting = false; // currently attempting to connect
 static bool connected = false; // connected to phone
-static bool device_setup = false; // nrf8001 setup complete
+static bool device_setup_done = false; // nrf8001 setup complete
 static bool sending = false; // currently sending data on ble_chip
 static bool ble_credited = true; // need both this and data_acked to keep sending
 static bool ble_acked = true; // need both this and data_credited to keep sending
@@ -91,9 +90,7 @@ static uint8_t get_bit_pos(uint8_t pos) {
 
 /*************************** NRF8001 CALLBACKS ********************************/
 
-static void sleep_callback() {
-	process_poll(&ble_sleep_process);
-}
+static void sleep_callback() {}
 
 static void device_started_callback(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	if(payload_length > 0) {
@@ -101,8 +98,13 @@ static void device_started_callback(uint8_t event, uint8_t payload_length, uint8
 			nrf8001_setup();
 		}
 		else if(payload[0] == 0x03) {
-			device_setup = true;
-			process_poll(&ble_connect_process);
+			device_setup_done = true;
+			if(on) {
+				process_poll(&ble_connect_process);
+			} else {
+				sleep = true;
+				nrf8001_sleep();
+			}
 		}
 	}
 }
@@ -237,8 +239,10 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		if(!connecting && on && (req_count > 0 || data_store_index > 0 || flash_pages_stored > 0) && device_setup) {
+		if(!connecting && on && (req_count > 0 || data_store_index > 0 || flash_pages_stored > 0) && device_setup_done) {
+			// User has turned cloudcomm on and there is data to offload.
 			if(sleep) {
+				// First make sure BLE chip is awake.
 				sleep = false;
 				nrf8001_wakeup();
 			}
@@ -263,9 +267,13 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 				nrf8001_connect(0,32);
 			}
 		}
-		else if(device_setup) {
-			sleep = true;
-			nrf8001_sleep();
+		else {
+			// User has turned cloudcomm on but there is no data to offload
+			// We make sure the BLE chip is asleep, then we call cc_done_callback
+			if(!sleep) {
+				nrf8001_sleep()
+			}
+			(*cc_done_callback)();
 		}
 	}
 	PROCESS_END();
