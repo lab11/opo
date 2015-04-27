@@ -2,7 +2,8 @@
 
 PROCESS(ble_connect_process, "BleConnect");
 PROCESS(ble_sleep_process, "BleSleep");
-
+PROCESS(open_ccready_rx_pipe, "CCReadyPipe");
+PROCESS(open_cc_incoming_data_rx_pipe, "CCIncPipe");
 PROCESS(cloudcomm_manager, "CCData");
 
 // Destination hostname
@@ -67,6 +68,7 @@ static uint8_t ccida_bit_pos = 0;
 static cloudcomm_callback_t callbacks[CLOUDCOMM_REQ_QUEUE_LENGTH];
 
 static void default_callback(uint8_t packet[30], uint8_t len) {}
+static void default_cc_callback() {};
 
 static uint8_t get_byte_pos(uint8_t pos) {
 	// get byte pos for a pipe in the pipe status array
@@ -103,12 +105,16 @@ static void device_started_callback(uint8_t event, uint8_t payload_length, uint8
 				process_poll(&ble_connect_process);
 			} else {
 				sleep = true;
-				nrf8001_sleep();
+				process_poll(&ble_sleep_process);
 			}
 		}
 	}
 }
-
+/**
+   Indicates that we have connected to the phone. However, we can't really do
+	 anything until the nrf8001 tells us it's pipes are open, so PIPE_STATUS_HANDLER
+	 is functionally our connected handler.
+*/
 static void connected_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	connected = true;
 	connecting = false;
@@ -123,6 +129,7 @@ static void disconnected_handler(uint8_t event, uint8_t payload_length, uint8_t 
 	tried_open_ready = false;
 	tried_open_data = false;
 	urlSet = false;
+	cc_done_callback = default_cc_callback;
 	if(on && (!sending_data_store_empty || req_count > 0)) {
 		process_poll(&ble_connect_process);
 	} else {
@@ -131,21 +138,24 @@ static void disconnected_handler(uint8_t event, uint8_t payload_length, uint8_t 
 	}
 }
 
+/**
+   Updates us as to what "pipes", ie data channels, are open for use.
+	 This is functionally our ble connection established callback.
+	 We first make sure that the our RX pipes are available. TX pipe availability
+	 is determined by the phone. Then we call CLOUDCOMM_MANAGER, which handles
+	 communication with the phone.
+*/
 static void pipe_status_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	if(connected && on) {
 		if(payload[ccra_byte_pos] & ccra_bit_pos) {}
 
-		if(!(payload[ccra_byte_pos] & ccra_bit_pos)) {
-			if(tried_open_ready == false) {
-				tried_open_ready = true;
-				nrf8001_open_remote_pipe(PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX_ACK_AUTO);
-			}
+		if(!(payload[ccra_byte_pos] & ccra_bit_pos) && tried_open_ready) {
+			tried_open_ready = true;
+			process_poll(&open_ccready_rx_pipe);
 		}
-		else if(!(payload[ccida_byte_pos] & ccida_bit_pos)) {
-			if(tried_open_data == false) {
-				tried_open_data = true;
-				nrf8001_open_remote_pipe(PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX_ACK_AUTO);
-			}
+		else if(!(payload[ccida_byte_pos] & ccida_bit_pos) && tried_open_data) {
+			tried_open_data = true;
+			process_poll(&open_cc_incoming_data_rx_pipe);
 		}
 		else {
 			process_poll(&cloudcomm_manager);
@@ -153,6 +163,10 @@ static void pipe_status_handler(uint8_t event, uint8_t payload_length, uint8_t p
 	}
 }
 
+/**
+   The nrf8001 operates using data_credits. We get them when we first connect
+	 to the phone, and when each data transmission completes.
+*/
 static void data_credit_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	if(connected) {
 		ble_credited = true;
@@ -230,28 +244,58 @@ PROCESS_THREAD(ble_sleep_process, ev, data) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 		nrf8001_sleep();
 		(*cc_done_callback)();
+		cc_done_callback = default_cc_callback;
 	}
 	PROCESS_END();
 }
 
+PROCESS_THREAD(open_ccready_rx_pipe, ev, data) {
+	// Setup the BLE chip
+	PROCESS_BEGIN();
+	while(1) {
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+		nrf8001_open_remote_pipe(PIPE_CLOUDCOMM_CLOUDCOMMREADY_RX_ACK_AUTO);
+	}
+	PROCESS_END();
+}
+
+PROCESS_THREAD(open_cc_incoming_data_rx_pipe, ev, data) {
+	// Setup the BLE chip
+	PROCESS_BEGIN();
+	while(1) {
+		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+		nrf8001_open_remote_pipe(PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX_ACK_AUTO);
+	}
+	PROCESS_END();
+}
+
+/**
+   Determines if Cloducomm should initiate a BLE connection. Checks to
+	 see if user turned cloudcomm on, if we are already connecting, if nrf8001
+	 setup is done, and if we have anything to send / any data to request. If not,
+	 we put teh chip to sleep
+*/
 PROCESS_THREAD(ble_connect_process, ev, data) {
-	// Orders nrf8001 to start connection process.
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 		if(!connecting && on && (req_count > 0 || data_store_index > 0 || flash_pages_stored > 0) && device_setup_done) {
-			// User has turned cloudcomm on and there is data to offload.
+			// User has turned cloudcomm on, there is data to upload or metadata to collect, and setup is done
 			if(sleep) {
 				// First make sure BLE chip is awake.
 				sleep = false;
 				nrf8001_wakeup();
 			}
 			else {
+				// Chip is awake. We check to see if there is data in DATA_STORE, and
+				// if so copy it to SENDING_DATA_STORE. If not, check if there is data
+				// in flash, and if so, copy some into SENDING_DATA_STORE.
 				if(sending_data_store_empty) {
 					if(data_store_index > 0) {
-						sending_data_store_end = data_store_index - 1;
+						sending_data_store_end = data_store_index - 1; // data_store_index is the first empty index, so set SENDING_DATA_STORE_END to that - 1
 						sending_data_store_empty = false;
-						sending_data_store_index = 0;
+						sending_data_store_index = 0; // reset SENDING_DATA_STORE read index
+						next_packet_index = cc_packet_length;
 						memcpy(&sending_data_store, &data_store, 256);
 					}
 					else if(flash_pages_stored > 0) {
@@ -259,11 +303,11 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 							sending_data_store_end = max_data_store_length;
 							sending_data_store_empty = false;
 							sending_data_store_index = 0;
+							next_packet_index = cc_packet_length;
 						}
 					}
 				}
 				connecting = true;
-				ble_ant_enable();
 				nrf8001_connect(0,32);
 			}
 		}
@@ -271,7 +315,7 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 			// User has turned cloudcomm on but there is no data to offload
 			// We make sure the BLE chip is asleep, then we call cc_done_callback
 			if(!sleep) {
-				nrf8001_sleep()
+				nrf8001_sleep();
 			}
 			(*cc_done_callback)();
 		}
@@ -283,120 +327,105 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 
 /*************************** CLOUDCOMM PROCESSES ******************************/
 
-/*
- * Manages sending data to the phone and shutting down the ble module when we are done
- * We should already be connected to the phone.
+/**
+   Helper function for CLOUDCOMM_MANAGER which extracts data fragments from a buffer and fills the BLE fragment with it
+   plus a sequence number.
+
+   CURRENT_DATA_INDEX: current read index for our data buffer. we update this while uploading data.
+   FINAL_DATA_INDEX: ending index number of the current data packet. DATA_BUFFER can contain multiple packets.
+*/
+static void send_ble_packet(uint8_t *current_data_index, uint8_t final_data_index, uint8_t *data_buffer) {
+	uint8_t i = 0; // for loop helper
+	sending = true;
+	ble_acked = false; // lets us know when
+	ble_credited = false; // lets us know when the nrf8001 can service more transmissions.
+	uint8_t remaining_data = final_data_index+1 - *current_data_index; // +1 since we assume data_buffer is zero indexed
+	uint8_t payload_length = remaining_data > CC_MAX_DATA_LENGTH ? CC_MAX_DATA_LENGTH : remaining_data; // Calculate data fragment length.
+	if(remaining_data == payload_length) { // we're at the end of a data packet.
+		sending_packet[0] = 0xFF; // set sequence byte to special ending byte
+		sequence_num = 1; // reset sequence_num
+	}
+	else { // we're within a data packet.
+		sending_packet[0] = sequence_num; // update sequence byte
+		sequence_num += 1; // update sequence_num.
+	}
+	for(i=0;i<payload_length;i++) { sending_packet[i+1] = data_buffer[*current_data_index + i]; } // Load URL into ble packet
+
+	last_sequence_num = sending_packet[0]; // keep track of sequence num for acks.
+	*current_data_index += payload_length; // update current_data_index to the next UNREAD index in the data_buffer
+
+	nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMDATA_TX_ACK, payload_length + 1, &sending_packet[0]);
+}
+
+/**
+   Manages data offloading and other communcation to the phone.
+	 We first send over the URL we would like to upload data to and any
+	 other metainfo regarding our node to the phone.
+	 Next we service requests for metadata, such as the current time.
+	 Finally we offload whatever data we have. The phone then attempts to upload
+	 this data to the cloud.
+
+	 Data packets are fragmented into <20 byte blobs, with the first byte
+	 in each BLE packet reserved for state. If the first byte is 0xFF, the
+	 phone defragments all currently held fragments and uploads it to the cloud.
+
 */
 PROCESS_THREAD(cloudcomm_manager, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		if(!sending && phone_ready && ble_credited && ble_acked && connected) {
+		if(!sending && phone_ready && ble_credited && ble_acked && connected) { // first send URL to phone
 			if(!urlSet && (req_count > 0 || !sending_data_store_empty)) {
-				uint8_t i = 0;
-				uint8_t remaining_data = metainfo.dest_len - urlIndex;
-				uint8_t ble_packet_length = remaining_data > CLOUDCOMM_MAX_DATA_LENGTH ? CLOUDCOMM_MAX_DATA_LENGTH : remaining_data;
-				if(remaining_data == ble_packet_length) {
-					sending_packet[0] = 0xFF; // set sequence byte to special ending byte
-					sequence_num = 1;
-				}
-				else {
-					sending_packet[0] = sequence_num; // update sequence byte
-					sequence_num += 1;
-				}
-
-				for(i=0;i<ble_packet_length;i++) {
-					sending_packet[i+1] = metainfo.dest[urlIndex + i];
-				}
-
-				last_sequence_num = sending_packet[0];
-				urlIndex += ble_packet_length;
-
-				if(sending_packet[0] == 0xFF) {
-					urlSet = true;
-				}
-				sending = true;
-				ble_acked = false;
-				ble_credited = false;
-				nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMDATA_TX_ACK,
-					              ble_packet_length + 1, // gotta account for sequence num
-					              &sending_packet[0]);
+				send_ble_packet(&urlIndex, metainfo.dest_len-1, (uint8_t *)metainfo.dest); // fill BLE packet with data fragment
+				if(sending_packet[0] == 0xFF) {urlSet = true;}
 			}
-			else if(req_count > 0) {
-				// Deal with requests for metainfo first
-				uint8_t i = 0;
-				sending = true;
-				ble_acked = false;
-				ble_credited = false;
+			else if(req_count > 0) { // Deal with metainfo like time next.
+				uint8_t i;
 				for(i=0;i<CLOUDCOMM_REQ_QUEUE_LENGTH;i++) {
-					if(req_queue[i]) {
-						nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMREQUESTS_TX_ACK,
-										  1,
-										  &i);
+					if(req_queue[i]) { // REQ_QUEUE keeps track of what metainfo we want.
+						nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMREQUESTS_TX_ACK,1,&i); // send metainfo requests to phone
 						break;
 					}
 				}
 			}
-			else if (!sending_data_store_empty) {
-				// Keep sending data until we are out of data.
-				uint8_t i = 0;
-				if(next_packet_index == 0) {
-					next_packet_index = cc_packet_length;
-				}
-
-				uint8_t remaining_data = next_packet_index - sending_data_store_index;
-				uint8_t ble_packet_length = remaining_data > CLOUDCOMM_MAX_DATA_LENGTH ? CLOUDCOMM_MAX_DATA_LENGTH : remaining_data;
-
-				if(remaining_data == ble_packet_length) {
-					sending_packet[0] = 0xFF; // set sequence byte to special ending byte
-					sequence_num = 1;
-				}
-				else {
-					sending_packet[0] = sequence_num; // update sequence byte
-					sequence_num += 1;
-				}
-
-				last_sequence_num = sending_packet[0];
-
-				for(i=0;i<ble_packet_length;i++) {
-					sending_packet[i+1] = sending_data_store[sending_data_store_index+i];
-				}
-
-				sending_data_store_index += ble_packet_length;
-
+			else if (!sending_data_store_empty) { // Offload data to phone
+				// Check for unuploaded data in SENDING_DATA_STORE. If SENDING_DATA_STORE_INDEX has exceeded the last
+				// index with valid data, check to see if there is any more data in flash. Note that
+				// SENDING_DATA_STORE_INDEX will exceed SENDING_DATA_STORE_END because SEND_BLE_PACKET updates
+				// SENDING_DATA_STORE_INDEX to the next unread index.
 				if(sending_data_store_index >= sending_data_store_end) {
-					// Current data store has been exhausted, check flash chip for more data
 					uint8_t ss_state = simplestore_read_next_page(&sending_data_store, max_data_store_length);
 					sending_data_store_index = 0;
 					sequence_num = 1;
 					next_packet_index = 0;
 
-					if(ss_state == SIMPLESTORE_SUCCESS) {
+					if(ss_state == SIMPLESTORE_SUCCESS) { // successfully read more data
 						sending_data_store_empty = false;
 						sending_data_store_end = max_data_store_length;
 					}
-					else if(ss_state == SIMPLESTORE_FULL) {
-						sending_data_store_empty = true;
-						sending_data_store_end = 0;
+					else if(ss_state == SIMPLESTORE_READ_FULL) { // We've already read all data fromn flash
+						simplestore_clear_flash_chip();
 					}
-					else if(ss_state == SIMPLESTORE_FAIL) {
+
+					// There is no more flash data or something went wrong communicating with the flash chip.
+					// Either way, disconnect and return control to other applications.s
+					if(ss_state == SIMPLESTORE_FAIL || ss_state == SIMPLESTORE_READ_FULL) {
 						sending_data_store_empty = true;
 						sending_data_store_end = 0;
+						on = false;
+						nrf8001_disconnect(0x01);
+						continue;
 					}
 				}
+				// If there is more data in the buffer, check to see if we are the end of our current data packet
 				else if(sending_data_store_index == next_packet_index) {
-					// update packet end byte
-					next_packet_index += cc_packet_length;
+					next_packet_index += cc_packet_length; // update data packet demarcater
 				}
 
-				sending = true;
-				ble_acked = false;
-				ble_credited = false;
-				nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMDATA_TX_ACK,
-					              ble_packet_length + 1, // gotta account for sequence num
-					              &sending_packet[0]);
+				send_ble_packet(&sending_data_store_index, next_packet_index-1, &sending_data_store[0]);
 			}
-			else {
+			else { // Nothing left to do. Time to disconnect and return control to user;
+				on = false;
 				nrf8001_disconnect(0x01);
 			}
 		}
@@ -430,10 +459,13 @@ void cloudcomm_init() {
 	simplestore_config();
 	flash_pages_stored = simplestore_pages_stored();
 	cc_vtimer = get_vtimer(cc_vtimer_callback);
+	cc_done_callback = default_cc_callback;
 
 	process_start(&ble_connect_process, NULL);
 	process_start(&cloudcomm_manager, NULL);
 	process_start(&ble_sleep_process, NULL);
+	process_start(&open_ccready_rx_pipe, NULL);
+	process_start(&open_cc_incoming_data_rx_pipe, NULL);
 	nrf8001_register_callback(NRF8001_DEVICE_STARTED_EVENT, (nrf8001_callback_t) device_started_callback);
 	nrf8001_register_callback(NRF8001_CONNECTED_EVENT, (nrf8001_callback_t) connected_handler);
 	nrf8001_register_callback(NRF8001_DISCONNECTED_EVENT, (nrf8001_callback_t) disconnected_handler);
@@ -447,12 +479,17 @@ void cloudcomm_init() {
 	nrf8001_enable();
 	nrf8001_reset();
 }
-
+/**
+   Turn on cloudcomm and try to offload data. Data is offloaded to URl set
+	 through CLOUDCOMM_SET_METAINFO. Users provide both a callback and a
+	 timeout. If no phone has been found before the timeout, Cloudcomm
+	 shuts down and returns control to the user.
+*/
 void cloudcomm_on(void *callback, uint16_t ontime) {
-	on = true;
-	cc_done_callback = callback;
-	schedule_vtimer(&cc_vtimer, VTIMER_SECOND/1000 * ontime);
-	process_poll(&ble_connect_process);
+	on = true; // Change state to ON
+	cc_done_callback = callback; // Set callback
+	schedule_vtimer(&cc_vtimer, VTIMER_SECOND/1000 * ontime); // Set timetout
+	process_poll(&ble_connect_process); // Initiate BLE connection
 }
 
 void cloudcomm_set_metainfo(cloudcomm_meta_t *new_metainfo) {
@@ -465,27 +502,30 @@ void cloudcomm_set_packet_length(uint8_t len) {
 	max_data_store_length = len * (256/len);
 }
 
+/**
+   Users pass data to Cloudcomm through this function. Cloudcomm buffers this
+	 data in DATA_STORE. When the buffer fills up based on CC_PACKET_LENGTH,
+	 Cloducomm flushes the data to flash.
+*/
 uint8_t cloudcomm_store(void *data) {
-	uint8_t i = 0;
-	uint8_t *data_ptr = (uint8_t *)data;
-	if(data_store_index + cc_packet_length < 256) {
-		for(i=0;i < cc_packet_length;i++) {
-			data_store[data_store_index+i] = data_ptr[i];
-		}
-		data_store_index += cc_packet_length;
+	uint8_t i = 0; // for loop helper value
+	uint8_t *data_ptr = (uint8_t *)data; // UINT8_T ptr to user data
+
+	for(i=0;i < cc_packet_length;i++) {
+		data_store[data_store_index+i] = data_ptr[i]; // Copy data into DATA_STORE buffer
 	}
-	else {
+	data_store_index += cc_packet_length; // Update DATA_STORE write index
+
+	// Check to see if DATA_STORE can hold another packet. If not, flush to flash.
+	if(data_store_index + cc_packet_length < 255) {
 		if(simplestore_write_next_page((void *)&data_store, data_store_index) != SIMPLESTORE_SUCCESS) {
-			return 0;
+			return 0; // Flash chip full.
 		}
-		flash_pages_stored += 1;
-		data_store_index = 0;
-		for(i=0;i<cc_packet_length;i++) {
-			data_store[data_store_index+i] = data_ptr[i];
-		}
-		data_store_index += cc_packet_length;
+		flash_pages_stored += 1; // Update cloudcomm's knowledge of how much data is in flash
+		data_store_index = 0; // Reset DATA_STORE
 	}
-	return 1;
+
+	return 1; // everything went smoothly
 }
 
 uint8_t request_cloudcomm_data(uint8_t req) {

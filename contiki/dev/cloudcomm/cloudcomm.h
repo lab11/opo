@@ -22,7 +22,7 @@
 #define CLOUDCOMM_REQ_TIME 			0
 #define CLOUDCOMM_REQ_LOC			1
 #define CLOUDCOMM_REQ_STEPS			2 // Needs a time parameter
-#define CLOUDCOMM_MAX_DATA_LENGTH	19
+#define CC_MAX_DATA_LENGTH	19
 #define CLOUDCOMM_REQ_QUEUE_LENGTH  3
 
 typedef void (* cloudcomm_callback_t)(uint8_t packet[30], uint8_t len);
