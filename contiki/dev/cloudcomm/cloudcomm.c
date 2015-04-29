@@ -37,7 +37,8 @@ static uint8_t urlIndex = 0;
 
 //Cloudcomm operation/shutdown parameters
 static void     (*cc_done_callback)();
-static vtimer    cc_vtimer;
+static vtimer    cc_timeout_vtimer;
+static vtimer    cc_failsafe_vtimer;
 
 //Cloudcomm ble state
 static bool on = false; // should we be scanning on ble
@@ -52,6 +53,7 @@ static bool phone_ready = false; // Phone has to first tell us it's ready and wi
 static bool tried_open_ready = false; // Signifies that we have already tried to open the CCReady pipe
 static bool tried_open_data = false; // Signifies that we have already tried to open the CCIncomingData pipe
 static bool open_pipes[NUMBER_OF_PIPES];
+static bool failsafe = false; // Used to indicate that the phone connection has gone awry
 
 //Cloudcomm ready pipe byte and bit positions
 static uint8_t ccra_byte_pos = 0;
@@ -88,6 +90,18 @@ static uint8_t get_bit_pos(uint8_t pos) {
 	return pos % 8;
 }
 
+static void reset_state() {
+	connected = false;
+	connecting = false;
+	ble_credited = true;
+	ble_acked = true;
+	phone_ready = false;
+	tried_open_ready = false;
+	tried_open_data = false;
+	urlSet = false;
+	failsafe = false;
+}
+
 
 
 /*************************** NRF8001 CALLBACKS ********************************/
@@ -104,7 +118,6 @@ static void device_started_callback(uint8_t event, uint8_t payload_length, uint8
 			if(on) {
 				process_poll(&ble_connect_process);
 			} else {
-				sleep = true;
 				process_poll(&ble_sleep_process);
 			}
 		}
@@ -121,19 +134,10 @@ static void connected_handler(uint8_t event, uint8_t payload_length, uint8_t pay
 }
 
 static void disconnected_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
-	connected = false;
-	connecting = false;
-	ble_credited = true;
-	ble_acked = true;
-	phone_ready = false;
-	tried_open_ready = false;
-	tried_open_data = false;
-	urlSet = false;
-	cc_done_callback = default_cc_callback;
+	reset_state();
 	if(on && (!sending_data_store_empty || req_count > 0)) {
 		process_poll(&ble_connect_process);
 	} else {
-		sleep = true;
 		process_poll(&ble_sleep_process);
 	}
 }
@@ -242,9 +246,15 @@ PROCESS_THREAD(ble_sleep_process, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		nrf8001_sleep();
-		(*cc_done_callback)();
-		cc_done_callback = default_cc_callback;
+		if(!sleep) {
+			nrf8001_sleep();
+			cancel_vtimer(&cc_failsafe_vtimer);
+			cancel_vtimer(&cc_timeout_vtimer);
+			sleep = true;
+			reset_state();
+			(*cc_done_callback)();
+			cc_done_callback = default_cc_callback;
+		}
 	}
 	PROCESS_END();
 }
@@ -315,9 +325,12 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 			// User has turned cloudcomm on but there is no data to offload
 			// We make sure the BLE chip is asleep, then we call cc_done_callback
 			if(!sleep) {
-				nrf8001_sleep();
+				cancel_vtimer(&cc_timeout_vtimer);
+				on=false;
+				process_poll(&ble_sleep_process);
+			} else {
+				(*cc_done_callback)();
 			}
-			(*cc_done_callback)();
 		}
 	}
 	PROCESS_END();
@@ -374,6 +387,12 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+		if(failsafe) { // Check to see if our connection has gone bonkers. If so, disconnect from the phone.
+			nrf8001_disconnect(0x01);
+		}
+
+		schedule_vtimer(&cc_failsafe_vtimer, 10000);
+
 		if(!sending && phone_ready && ble_credited && ble_acked && connected) { // first send URL to phone
 			if(!urlSet && (req_count > 0 || !sending_data_store_empty)) {
 				send_ble_packet(&urlIndex, metainfo.dest_len-1, (uint8_t *)metainfo.dest); // fill BLE packet with data fragment
@@ -434,11 +453,17 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 }
 
 /*************************** END CLOUDCOMM PROCESSES **************************/
-static void cc_vtimer_callback() {
+static void cc_timeout_vtimer_callback() {
 	on = false;
 	if(!connected) {
+		reset_state();
 		process_poll(&ble_sleep_process);
 	}
+}
+static void cc_failsafe_vtimer_callback() {
+	on = false;
+	failsafe = true;
+	process_poll(&cloudcomm_manager);
 }
 
 void cloudcomm_init() {
@@ -458,7 +483,8 @@ void cloudcomm_init() {
 
 	simplestore_config();
 	flash_pages_stored = simplestore_pages_stored();
-	cc_vtimer = get_vtimer(cc_vtimer_callback);
+	cc_timeout_vtimer = get_vtimer(cc_timeout_vtimer_callback);
+	cc_failsafe_vtimer = get_vtimer(cc_failsafe_vtimer_callback);
 	cc_done_callback = default_cc_callback;
 
 	process_start(&ble_connect_process, NULL);
@@ -488,7 +514,7 @@ void cloudcomm_init() {
 void cloudcomm_on(void *callback, uint16_t ontime) {
 	on = true; // Change state to ON
 	cc_done_callback = callback; // Set callback
-	schedule_vtimer(&cc_vtimer, VTIMER_SECOND/1000 * ontime); // Set timetout
+	schedule_vtimer(&cc_timeout_vtimer, VTIMER_SECOND/1000 * ontime); // Set timetout
 	process_poll(&ble_connect_process); // Initiate BLE connection
 }
 
