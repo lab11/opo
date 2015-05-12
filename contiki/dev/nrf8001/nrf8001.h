@@ -96,6 +96,7 @@
 #define ACI_STATUS_ERROR_PEER_ATT_ERROR			0x92
 #define ACI_STATUS_ERROR_PIPE_TYPE_INVALID      0x95
 #define ACI_STATUS_ERROR_PIPE_STATE_INVALID		0x96
+#define ACI_STATUS_ERROR_DEVICE_STATE_INVALID	0x83
 
 // NRF event packet
 typedef struct{
@@ -114,6 +115,14 @@ typedef struct {
 	uint8_t debug;
 	uint8_t payload[0x30];
 } nrf8001_setup_msg_t;
+
+typedef struct{
+	uint32_t debug;
+	uint8_t my_id;
+	uint8_t handler; // id of the handler the message is sent from
+	uint8_t status;
+	uint32_t throwaway; // We use Opo's transmit functinality, which writes a delta timestamp here
+} nrf8001_debug_t;
 
 typedef void (* nrf8001_callback_t)(uint8_t event, uint8_t payload_length, uint8_t payload[30]);
 
@@ -138,6 +147,10 @@ void nrf8001_change_timing_request(uint16_t interval_min,
 								   uint16_t timeout);
 void nrf8001_send_data(uint8_t pipe, uint8_t packet_length, uint8_t *packet);
 void nrf8001_open_remote_pipe(uint8_t pipe);
-nrf8001_event_packet nrf8001_get_event();
+
+
+uint8_t nrf8001_check_rdyn();
+void nrf8001_event_callback(uint8_t port, uint8_t pin);
+void nrf8001_cmd_callback(uint8_t port, uint8_t pin);
 
 #endif

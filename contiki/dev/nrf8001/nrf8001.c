@@ -1,13 +1,27 @@
 #include "nrf8001.h"
 #include "cpu.h"
+#include "cc2538-rf.h"
+#include <stdbool.h>
+#include <stdio.h>
 static nrf8001_command_packet nrf8001_cmd = {0};
-static nrf8001_event_packet nrf8001_ep = {0};
 static nrf8001_setup_msg_t setup_msgs[NB_SETUP_MESSAGES] = SETUP_MESSAGES_CONTENT;
 static uint8_t setup_counter = 0;
 
 static nrf8001_callback_t callbacks[15];
 static uint8_t callback_tracker[15] = {0};
 static void (*sleep_callback)();
+static uint8_t callback_state = 0;
+static uint8_t command_credit = 1; // Make sure the previous command has been processed before sending the next one
+enum  nrf8001_state {
+	IDLE,
+	COMMAND,
+	EVENT
+} mstate = IDLE;
+
+// Debug stuff
+static uint8_t current_command = 0;
+static bool meh = false;
+static bool debug_clear = true;
 
 PROCESS(nrf8001_cmd_process, "BleCmd");
 PROCESS(nrf8001_event_process, "BleEvent");
@@ -56,6 +70,7 @@ static inline uint8_t reverse_bits(uint8_t b) {
 }
 
 static void default_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {}
+static void default_sleep_handler() {return;}
 
 void nrf8001_register_callback(uint8_t event, nrf8001_callback_t c) {
 	callbacks[event - 0x80] = c;
@@ -71,23 +86,28 @@ static inline void reverse_nrf8001_cmd() {
 	nrf8001_cmd.command = reverse_table[nrf8001_cmd.command];
 }
 
-static inline void REQN_SET() {
-	SPI_CS_SET(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
+static inline void REQN_SET() { SPI_CS_SET(NRF8001_REQN_PORT, NRF8001_REQN_PIN); }
+static inline void REQN_CLR() { SPI_CS_CLR(NRF8001_REQN_PORT, NRF8001_REQN_PIN); }
+static inline void RESET_SET() { GPIO_SET_PIN(NRF8001_RESET_PORT_BASE, NRF8001_RESET_PIN_MASK); }
+static inline void RESET_CLR() { GPIO_CLR_PIN(NRF8001_RESET_PORT_BASE, NRF8001_RESET_PIN_MASK); }
+
+/**
+   Helper function to disable RDYN pin
+*/
+static inline void disable_and_clear_rdyn() {
+	GPIO_DISABLE_INTERRUPT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+    GPIO_CLEAR_INTERRUPT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+    GPIO_DISABLE_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
+    GPIO_CLEAR_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
 }
 
-static inline void REQN_CLR() {
-	SPI_CS_CLR(NRF8001_REQN_PORT, NRF8001_REQN_PIN);
+static inline void enable_rdyn() {
+	GPIO_ENABLE_INTERRUPT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+	GPIO_ENABLE_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
 }
 
-static inline void RESET_SET() {
-    GPIO_SET_PIN(NRF8001_RESET_PORT_BASE, NRF8001_RESET_PIN_MASK);
-}
-
-static inline void RESET_CLR() {
-    GPIO_CLR_PIN(NRF8001_RESET_PORT_BASE, NRF8001_RESET_PIN_MASK);
-}
-
-static void nrf8001_event_callback(uint8_t port, uint8_t pin) {
+void nrf8001_event_callback(uint8_t port, uint8_t pin) {
+	disable_and_clear_rdyn();
 	process_poll(&nrf8001_event_process);
 }
 
@@ -95,49 +115,44 @@ PROCESS_THREAD(nrf8001_event_process, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		INTERRUPTS_DISABLE();
 		uint8_t rdyn_state = 1;
 		rdyn_state = GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
-		if(rdyn_state == 0) {
-			uint8_t debug = 0;
-			uint8_t i = 0;
-			nrf8001_ep.length = 0;
-			nrf8001_ep.event = 0;
-			for(i=0;i<30;i++) {
-				nrf8001_ep.packet[i] = 0;
-			}
-			spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
-			SPI_FLUSH();
-			REQN_CLR();
-			SPI_READ(debug);
-			SPI_READ(nrf8001_ep.length);
-			if(nrf8001_ep.length > 0) {
+		nrf8001_event_packet nrf8001_ep = {0};
+		INTERRUPTS_DISABLE();
+			if(rdyn_state == 0) {
+				uint8_t debug = 0;
+				uint8_t i = 0;
+				nrf8001_ep.length = 0;
+				nrf8001_ep.event = 0;
+				for(i=0;i<30;i++) { nrf8001_ep.packet[i] = 0; }
+				spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
+				SPI_FLUSH();
+				REQN_CLR();
+				SPI_READ(debug);
+				SPI_READ(nrf8001_ep.length);
 				SPI_READ(nrf8001_ep.event);
-				nrf8001_ep.length = reverse_table[nrf8001_ep.length];
-				for(i=0; i < nrf8001_ep.length-1; i++) {
-					SPI_READ(nrf8001_ep.packet[i]);
-				}
-				nrf8001_ep.event = reverse_table[nrf8001_ep.event];
-				for(i=0; i < nrf8001_ep.length-1;i++) {
-					nrf8001_ep.packet[i] = reverse_table[nrf8001_ep.packet[i]];
-				}
-			}
-			while(1) {
-				if(!(REG(SSI0_BASE + SSI_SR) & SSI_SR_BSY)) {
-					break;
-				}
-			}
-			REQN_SET();
 
+				nrf8001_ep.length = reverse_table[nrf8001_ep.length];
+				if(nrf8001_ep.length > 0 && nrf8001_ep.length < 30) {
+					for(i=0; i < nrf8001_ep.length-1; i++) { SPI_READ(nrf8001_ep.packet[i]); }
+					nrf8001_ep.event = reverse_table[nrf8001_ep.event];
+					for(i=0; i < nrf8001_ep.length-1;i++) { nrf8001_ep.packet[i] = reverse_table[nrf8001_ep.packet[i]]; }
+				}
+				else if(nrf8001_ep.length > 30) { leds_on(LEDS_RED); }
+				REQN_SET();
+				while(REG(SSI0_BASE + SSI_SR) & SSI_SR_BSY) {}
+			}
+		INTERRUPTS_ENABLE();
+		if(rdyn_state == 0 && nrf8001_ep.length > 0 && nrf8001_ep.length < 30) {
 			// Handle continuation cases for user. Right now only works fo setup
 			if(nrf8001_ep.event == NRF8001_COMMAND_RESPONSE_EVENT) {
 				uint8_t cmd_op_code = nrf8001_ep.packet[0];
 				uint8_t cmd_status = nrf8001_ep.packet[1];
 				if(cmd_status == ACI_STATUS_TRANSACTION_CONTINUE) {
-					if(cmd_op_code == NRF8001_SETUP) {
-						nrf8001_setup();
-					}
-				} else if(cmd_status == ACI_STATUS_TRANSACTION_COMPLETE) {}
+					if(cmd_op_code == NRF8001_SETUP) { nrf8001_setup(); }
+				}
+				else if(cmd_status == ACI_STATUS_ERROR_DEVICE_STATE_INVALID) {}
+
 			}
 			else {
 				if (nrf8001_ep.event >= 0x80) {
@@ -148,13 +163,18 @@ PROCESS_THREAD(nrf8001_event_process, ev, data) {
 				}
 			}
 		}
-		INTERRUPTS_ENABLE();
+		if(nrf8001_cmd.command != 0) {
+			gpio_register_callback( (gpio_callback_t) nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+			REQN_CLR();
+		}
+		enable_rdyn();
 	}
-
 	PROCESS_END();
 }
 
-static void nrf8001_nrf8001_cmd_callback(uint8_t port, uint8_t pin) {
+void nrf8001_cmd_callback(uint8_t port, uint8_t pin) {
+	current_command = 0;
+    disable_and_clear_rdyn();
 	process_poll(&nrf8001_cmd_process);
 }
 
@@ -172,24 +192,35 @@ PROCESS_THREAD(nrf8001_cmd_process, ev, data) {
 			SPI_FLUSH();
 			SPI_WRITE(nrf8001_cmd.length);
 			SPI_WRITE(nrf8001_cmd.command);
-			for(i=0;i < plength;i++) {
-				SPI_WRITE(nrf8001_cmd.packet[i]);
-			}
+			for(i=0;i < plength;i++) { SPI_WRITE(nrf8001_cmd.packet[i]); }
+            callback_state = 0;
 			gpio_register_callback( (gpio_callback_t) nrf8001_event_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 			REQN_SET();
-			if(reverse_table[nrf8001_cmd.command] == NRF8001_SLEEP) {
-				(*sleep_callback)();
-			}
+			nrf8001_cmd.command = 0;
 		}
 		INTERRUPTS_ENABLE();
-
+		if(reverse_table[nrf8001_cmd.command] == NRF8001_SLEEP && rdyn_state == 0) {
+			for(i=0;i<2;i++) { clock_delay_usec(40000); }
+			(*sleep_callback)();
+		}
+		else {
+			if(reverse_table[nrf8001_cmd.command] == NRF8001_WAKEUP && rdyn_state == 0) {
+				for(i=0;i<2;i++) { clock_delay_usec(40000); }
+				GPIO_CLEAR_INTERRUPT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+				if(GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK) == 0) {
+					process_poll(&nrf8001_event_process);
+				}
+			}
+		}
+		enable_rdyn();
 	}
 	PROCESS_END();
 }
 
 static inline void set_command() {
 	reverse_nrf8001_cmd();
-	gpio_register_callback( (gpio_callback_t) nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+    callback_state = 1;
+	gpio_register_callback( (gpio_callback_t) nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }
 
@@ -202,12 +233,12 @@ static int config_event_callback(int type, int value) {
 	GPIO_DETECT_EDGE(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
 	GPIO_TRIGGER_SINGLE_EDGE(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
 	GPIO_DETECT_FALLING(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
-	GPIO_ENABLE_INTERRUPT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
 	GPIO_POWER_UP_ON_FALLING(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
-	GPIO_ENABLE_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
-	ioc_set_over(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN, IOC_OVERRIDE_DIS);
-	nvic_interrupt_enable(NRF8001_RDYN_PORT);
+	ioc_set_over(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN, IOC_OVERRIDE_PUE);
 	gpio_register_callback( (gpio_callback_t) nrf8001_event_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	GPIO_ENABLE_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
+	GPIO_ENABLE_INTERRUPT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+    nvic_interrupt_enable(NRF8001_RDYN_PORT);
 	return 0;
 }
 
@@ -221,14 +252,13 @@ void nrf8001_init() {
 	GPIO_SOFTWARE_CONTROL(NRF8001_RESET_PORT_BASE, NRF8001_RESET_PIN_MASK);
 	GPIO_SET_OUTPUT(NRF8001_RESET_PORT_BASE, NRF8001_RESET_PIN_MASK);
 	GPIO_SET_PIN(NRF8001_RESET_PORT_BASE, NRF8001_RESET_PIN_MASK);
-	ioc_set_over(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN, IOC_OVERRIDE_DIS);
+	ioc_set_over(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN, IOC_OVERRIDE_PUE);
 	ioc_set_over(NRF8001_REQN_PORT, NRF8001_REQN_PIN, IOC_OVERRIDE_DIS);
 
 	REQN_SET();
 
-	for(i=0;i<15;i++) {
-		callbacks[i] = (nrf8001_callback_t) default_handler;
-	}
+	for(i=0;i<15;i++) { callbacks[i] = (nrf8001_callback_t) default_handler; }
+    sleep_callback = default_sleep_handler;
 	process_start(&nrf8001_cmd_process, NULL);
 	process_start(&nrf8001_event_process, NULL);
 }
@@ -236,11 +266,9 @@ void nrf8001_init() {
 // Enable nrf8001 functionality.
 void nrf8001_enable() {
 	uint8_t rdyn_state = 1;
-	config_event_callback(0,0);
+	config_event_callback(0,0); // Set up nrf8001 EVENT event callback
 	rdyn_state = GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
-	if (rdyn_state == 0) {
-		nrf8001_event_callback(0,0);
-	}
+	if (rdyn_state == 0) { nrf8001_event_callback(0,0); }
 }
 
 void nrf8001_reset() {
@@ -258,7 +286,7 @@ void nrf8001_test(uint8_t test_type) {
 	nrf8001_cmd.command = NRF8001_TEST;
 	nrf8001_cmd.packet[0] = test_type;
 	reverse_nrf8001_cmd();
-	gpio_register_callback( (gpio_callback_t) nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	gpio_register_callback( (gpio_callback_t) nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }
 
@@ -273,7 +301,7 @@ void nrf8001_echo(uint8_t packet_length, uint8_t *packet) {
 		nrf8001_cmd.packet[i] = packet[i];
 	}
 	reverse_nrf8001_cmd();
-	gpio_register_callback( (gpio_callback_t) nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	gpio_register_callback( (gpio_callback_t) nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }
 
@@ -281,14 +309,10 @@ void nrf8001_setup() {
 	int i = 0;
 	nrf8001_cmd.length = setup_msgs[setup_counter].payload[0];
 	nrf8001_cmd.command = NRF8001_SETUP;
-	for(i=2;i < setup_msgs[setup_counter].payload[0]+1;i++) {
-		nrf8001_cmd.packet[i-2] = setup_msgs[setup_counter].payload[i];
-	}
+	for(i=2;i < setup_msgs[setup_counter].payload[0]+1;i++) { nrf8001_cmd.packet[i-2] = setup_msgs[setup_counter].payload[i]; }
 	reverse_nrf8001_cmd();
-	if(setup_counter+1 < NB_SETUP_MESSAGES) {
-		setup_counter++;
-	}
-	gpio_register_callback( (gpio_callback_t) nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	if(setup_counter+1 < NB_SETUP_MESSAGES) { setup_counter++; }
+	gpio_register_callback( (gpio_callback_t) nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }
 
@@ -299,8 +323,10 @@ void nrf8001_connect(uint16_t timeout, uint16_t ad_interval) {
 	nrf8001_cmd.packet[1] = timeout >> 8;
 	nrf8001_cmd.packet[2] = ad_interval & 0x00ff;
 	nrf8001_cmd.packet[3] = ad_interval >> 8;
+	current_command = NRF8001_CONNECT;
 	reverse_nrf8001_cmd();
-	gpio_register_callback( (gpio_callback_t) nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	meh = true;
+	gpio_register_callback( (gpio_callback_t) nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }
 
@@ -312,7 +338,7 @@ void nrf8001_bond(uint16_t timeout, uint16_t ad_interval) {
 	nrf8001_cmd.packet[2] = ad_interval & 0x00ff;
 	nrf8001_cmd.packet[3] = ad_interval >> 8;
 	reverse_nrf8001_cmd();
-	gpio_register_callback( (gpio_callback_t) nrf8001_nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
+	gpio_register_callback( (gpio_callback_t) nrf8001_cmd_callback, NRF8001_RDYN_PORT, NRF8001_RDYN_PIN);
 	REQN_CLR();
 }
 
@@ -325,6 +351,8 @@ void nrf8001_sleep() {
 void nrf8001_wakeup() {
 	nrf8001_cmd.length = 1;
 	nrf8001_cmd.command = NRF8001_WAKEUP;
+	current_command = NRF8001_WAKEUP;
+	enable_rdyn();
 	set_command();
 }
 
@@ -414,9 +442,7 @@ void nrf8001_set_key(uint8_t key[6]) {
 	nrf8001_cmd.length = 8;
 	nrf8001_cmd.command = NRF8001_SET_KEY;
 	nrf8001_cmd.packet[0] = 0x01;
-	for(i=0; i < 6;i++) {
-		nrf8001_cmd.packet[i+1] = key[i];
-	}
+	for(i=0; i < 6;i++) { nrf8001_cmd.packet[i+1] = key[i]; }
 	set_command();
 }
 
@@ -424,9 +450,7 @@ void nrf8001_open_adv_pipe(uint8_t pipe[8]) {
 	uint8_t i = 0;
 	nrf8001_cmd.length = 9;
 	nrf8001_cmd.command = NRF8001_OPEN_ADV_PIPE;
-	for(i=0; i < 8;i++) {
-		nrf8001_cmd.packet[i] = pipe[i];
-	}
+	for(i=0; i < 8;i++) { nrf8001_cmd.packet[i] = pipe[i]; }
 	set_command();
 }
 
@@ -464,9 +488,7 @@ void nrf8001_set_local_data(uint8_t pipe, uint8_t packet_length, uint8_t *packet
 	nrf8001_cmd.length = packet_length + 1;
 	nrf8001_cmd.command = NRF8001_SET_LOCAL_DATA;
 	nrf8001_cmd.packet[0] = pipe;
-	for(i=0;i<packet_length;i++) {
-		nrf8001_cmd.packet[i+1] = packet[i];
-	}
+	for(i=0;i<packet_length;i++) { nrf8001_cmd.packet[i+1] = packet[i]; }
 	set_command();
 }
 
@@ -475,9 +497,7 @@ void nrf8001_send_data(uint8_t pipe, uint8_t packet_length, uint8_t *packet) {
 	nrf8001_cmd.length = packet_length + 2;
 	nrf8001_cmd.command = NRF8001_SEND_DATA;
 	nrf8001_cmd.packet[0] = pipe;
-	for(i=0;i<packet_length;i++) {
-		nrf8001_cmd.packet[i+1] = packet[i];
-	}
+	for(i=0;i<packet_length;i++) { nrf8001_cmd.packet[i+1] = packet[i]; }
 	set_command();
 }
 
@@ -502,23 +522,10 @@ void nrf8001_send_data_nack(uint8_t pipe, uint8_t error_code) {
 	set_command();
 }
 
-// Event accessor function
-nrf8001_event_packet nrf8001_get_event() {
-	nrf8001_event_packet r;
-	uint8_t i = 0;
-	r.length = nrf8001_ep.length;
-	r.event = nrf8001_ep.event;
-	for(i=0;i<30;i++) {
-		r.packet[i] = nrf8001_ep.packet[i];
-	}
-	nrf8001_ep.length = 0;
-	nrf8001_ep.event = 0;
-	for(i=0;i<30;i++) {
-		nrf8001_ep.packet[i] = 0;
-	}
-	return r;
-}
-
 void nrf8001_register_sleep_callback(void *callback) {
 	sleep_callback = callback;
+}
+
+uint8_t nrf8001_check_rdyn() {
+    return GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
 }
