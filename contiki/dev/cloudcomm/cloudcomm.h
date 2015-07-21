@@ -26,6 +26,7 @@
 #define CLOUDCOMM_REQ_STEPS			2 // Needs a time parameter
 #define CC_MAX_DATA_LENGTH	        19
 #define CLOUDCOMM_REQ_QUEUE_LENGTH  3
+#define CLOUDCOMM_PAGE_SIZE         254 // Flash page size - metadata size
 
 typedef void (* cloudcomm_callback_t)(uint8_t packet[30], uint8_t len);
 
@@ -43,5 +44,6 @@ void register_cloudcomm_callback(cloudcomm_callback_t callback, uint8_t req);
 void cloudcomm_set_metainfo(cloudcomm_meta_t *metainfo);
 void cloudcomm_set_packet_length(uint8_t len);
 uint8_t cloudcomm_store(void *data);
-uint8_t request_cloudcomm_data(uint8_t req);
-void set_cloudcomm_rx_callback();
+uint8_t cloudcomm_request_data(uint8_t req);
+void cloudcomm_set_rx_callback();
+void cloudcomm_clear_data();
