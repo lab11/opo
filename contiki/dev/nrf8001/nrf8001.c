@@ -9,25 +9,19 @@ static nrf8001_setup_msg_t setup_msgs[NB_SETUP_MESSAGES] = SETUP_MESSAGES_CONTEN
 static uint8_t setup_counter = 0;
 
 static nrf8001_callback_t callbacks[16];
-static uint8_t callback_tracker[16] = {0};
-static bool event_callback_needed[16];
-static nrf8001_event_packet event_data;
+static uint8_t callback_tracker[16] = {0}; // checks to see if a callback has been set
 static void (*sleep_callback)();
-static uint8_t command_credit = 1; // Make sure the previous command has been processed before sending the next one
+static bool sleep = false;
 enum  nrf8001_state {
 	IDLE,
-	COMMAND,
-	EVENT
+	COMMAND, // Pending command.
+	EVENT // Pending event. Takes priority over commands
 } mstate = IDLE;
-
-// Debug stuff
-static uint8_t current_command = 0;
-static bool meh = false;
-static bool debug_clear = true;
-static bool sleep = false;
 
 PROCESS(nrf8001_cmd_process, "BleCmd");
 PROCESS(nrf8001_event_process, "BleEvent");
+
+static bool completed = false;
 
 static const uint8_t reverse_table[] = {
         0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
@@ -94,46 +88,24 @@ static inline void RESET_CLR() { GPIO_CLR_PIN(NRF8001_RESET_PORT_BASE, NRF8001_R
 */
 static inline void disable_and_clear_rdyn() {
 	GPIO_DISABLE_INTERRUPT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+	GPIO_DISABLE_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
     GPIO_CLEAR_INTERRUPT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
-    GPIO_DISABLE_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
     GPIO_CLEAR_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
 }
 
 static inline void enable_rdyn() {
 	GPIO_ENABLE_INTERRUPT(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
 	GPIO_ENABLE_POWER_UP_INTERRUPT(NRF8001_RDYN_PORT, NRF8001_RDYN_PIN_MASK);
+	uint8_t rdyn_state = GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
+	if (rdyn_state == 0) {
+		nrf8001_event_callback(0,0);
+	}
 }
 
 void nrf8001_event_callback(uint8_t port, uint8_t pin) {
 	disable_and_clear_rdyn();
 	mstate = EVENT;
 	process_poll(&nrf8001_event_process);
-	/*uint8_t rdyn_state = GPIO_READ_PIN(NRF8001_RDYN_PORT_BASE, NRF8001_RDYN_PIN_MASK);
-	if(rdyn_state == 0) {
-		nrf8001_event_packet nrf8001_ep = {0};
-		nrf8001_ep.length = 0;
-		nrf8001_ep.event = 0;
-		spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
-		SPI_FLUSH();
-		REQN_CLR();
-		SPI_READ(debug);
-		SPI_READ(nrf8001_ep.length);
-		SPI_READ(nrf8001_ep.event);
-		nrf8001_ep.length = reverse_table[nrf8001_ep.length];
-		if(nrf8001_ep.length > 0 && nrf8001_ep.length < 30) {
-			for(i=0; i < nrf8001_ep.length-1; i++) { SPI_READ(nrf8001_ep.packet[i]); }
-			nrf8001_ep.event = reverse_table[nrf8001_ep.event];
-			for(i=0; i < nrf8001_ep.length-1;i++) { nrf8001_ep.packet[i] = reverse_table[nrf8001_ep.packet[i]]; }
-			event_callback_needed[nrf8001_ep.event - 0x80] = true;
-			event_data = nrf8001_ep;
-			process_poll(&nrf8001_event_process);
-		}
-		REQN_SET();
-		while(REG(SSI0_BASE + SSI_SR) & SSI_SR_BSY) {}
-	}
-	else {
-		enable_rdyn();
-	} */
 }
 
 PROCESS_THREAD(nrf8001_event_process, ev, data) {
@@ -164,6 +136,7 @@ PROCESS_THREAD(nrf8001_event_process, ev, data) {
 			else if(nrf8001_ep.length > 30) {rdyn_state = 1;}
 			REQN_SET();
 			while(REG(SSI0_BASE + SSI_SR) & SSI_SR_BSY) {}
+
 		}
 		INTERRUPTS_ENABLE();
 		if(rdyn_state == 0 && nrf8001_ep.length > 0 && nrf8001_ep.length < 30 && !sleep) {
@@ -174,20 +147,20 @@ PROCESS_THREAD(nrf8001_event_process, ev, data) {
 				if(cmd_status == ACI_STATUS_TRANSACTION_CONTINUE) {
 					if(cmd_op_code == NRF8001_SETUP) { nrf8001_setup(); }
 				}
+				else if(cmd_status == ACI_STATUS_TRANSACTION_COMPLETE) {
+					completed = true;
+				}
 				else if(cmd_status == ACI_STATUS_ERROR_DEVICE_STATE_INVALID) {}
 			}
 			else {
-				if (nrf8001_ep.event >= 0x80) {
+				if (nrf8001_ep.event >= 0x80 && nrf8001_ep.event <= 0x8F) {
 					uint8_t e = nrf8001_ep.event - 0x80;
 					if(callback_tracker[e] == 1) { callbacks[e](nrf8001_ep.event, nrf8001_ep.length - 1, nrf8001_ep.packet); }
 				}
 			}
 		}
-		if(mstate == COMMAND) {
-			process_poll(&nrf8001_cmd_process);
-		} else {
-			mstate = IDLE;
-		}
+		if(mstate == COMMAND) { process_poll(&nrf8001_cmd_process); }
+		else { mstate = IDLE; }
 		enable_rdyn();
 	}
 	PROCESS_END();
@@ -218,7 +191,9 @@ PROCESS_THREAD(nrf8001_cmd_process, ev, data) {
 			REQN_SET();
 			current_cmd = reverse_table[nrf8001_cmd.command];
 			nrf8001_cmd.command = 0;
-			if(current_cmd == NRF8001_SLEEP) { send_rf_debug_msg("NRF8001 SLEEP"); }
+			if(current_cmd == NRF8001_SLEEP) {
+				//send_rf_debug_msg("NRF8001 SLEEP");
+			}
 			INTERRUPTS_ENABLE();
 			if(current_cmd == NRF8001_SLEEP) {
 				for(i=0;i<2;i++) { clock_delay_usec(40000); }
@@ -279,10 +254,7 @@ void nrf8001_init() {
 
 	REQN_SET();
 
-	for(i=0;i<15;i++) {
-		callbacks[i] = (nrf8001_callback_t) default_handler;
-		event_callback_needed[i] = false;
-	}
+	for(i=0;i<15;i++) { callbacks[i] = (nrf8001_callback_t) default_handler; }
     sleep_callback = default_sleep_handler;
 	process_start(&nrf8001_cmd_process, NULL);
 	process_start(&nrf8001_event_process, NULL);
@@ -299,6 +271,7 @@ void nrf8001_enable() {
 void nrf8001_reset() {
     RESET_CLR();
     clock_delay_usec(10);
+    setup_counter = 0;
     RESET_SET();
 }
 
@@ -342,7 +315,6 @@ void nrf8001_connect(uint16_t timeout, uint16_t ad_interval) {
 	nrf8001_cmd.packet[1] = timeout >> 8;
 	nrf8001_cmd.packet[2] = ad_interval & 0x00ff;
 	nrf8001_cmd.packet[3] = ad_interval >> 8;
-	current_command = NRF8001_CONNECT;
 	set_command();
 }
 
@@ -366,7 +338,6 @@ void nrf8001_sleep() {
 void nrf8001_wakeup() {
 	nrf8001_cmd.length = 1;
 	nrf8001_cmd.command = NRF8001_WAKEUP;
-	current_command = NRF8001_WAKEUP;
 	sleep = false;
 	enable_rdyn();
 	set_command();
