@@ -13,9 +13,9 @@ static uint8_t req_count = 0;
 static bool    req_queue[CLOUDCOMM_REQ_QUEUE_LENGTH] = {0};
 
 // Data storage shit
-static uint8_t  cc_packet_length = 0;
+static uint16_t  cc_packet_length = 0;
 static uint8_t  data_store[300] = {0};
-static uint8_t  data_store_index = 0;
+static uint16_t  data_store_index = 0;
 static uint32_t flash_pages_stored = 0;
 
 // Stuff for sending data;
@@ -24,16 +24,16 @@ static uint8_t sequence_num = 1; // 1 starts a new packet to be sent to the clou
 static uint8_t last_sequence_num = 0;
 static uint8_t sending_packet[20] = {0}; // packet we use to send shit to the phone
 static uint8_t sending_data_store[300] = {0};
-static uint8_t sending_data_store_index = 0; // how much data is in our sending buffer
-static uint8_t next_packet_index = 0; // demarcates next data packet
-static uint8_t last_packet_index = 0; // keep track of rollback index in case of disconnect
-static uint8_t sending_data_store_end = 0;
-static uint8_t max_data_store_length = 0;
+static uint16_t sending_data_store_index = 0; // how much data is in our sending buffer
+static uint16_t next_packet_index = 0; // demarcates next data packet
+static uint16_t last_packet_index = 0; // keep track of rollback index in case of disconnect
+static uint16_t sending_data_store_end = 0;
+static uint16_t max_data_store_length = 0;
 static bool    sending_data_store_empty = true;
 
 // Stuff for sending over the url
 static bool    urlSet = false;
-static uint8_t urlIndex = 0;
+static uint16_t urlIndex = 0;
 
 //Cloudcomm operation/shutdown parameters
 static void     (*cc_done_callback)();
@@ -58,7 +58,6 @@ static bool failsafe = true; // Used to indicate that the phone connection has g
 static bool device_started = false; // When false, in sleep/setup mode. When true, in standby/connected mode.
 static bool bad_state = false; // Tracks if our wakeup command fails to actually wake the chip up.
 static bool user_control_returned = false;
-static bool data_from_flash = false;
 
 //Cloudcomm ready pipe byte and bit positions
 static uint8_t ccra_byte_pos = 0;
@@ -195,7 +194,7 @@ static void connected_handler(uint8_t event, uint8_t payload_length, uint8_t pay
 static void disconnected_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	INTERRUPTS_DISABLE();
 	reset_state();
-	if(cc_ontime == 0 && (!sending_data_store_empty || req_count > 0)) {
+	if(cc_ontime == 0 && should_connect()) {
 		/* User does not control to return until CC has finished processing all requests*/
 		send_rf_debug_msg("NRF8001_DISCONNECTED: reconnect\n");
 		on = true;
@@ -304,15 +303,20 @@ static void data_received_handler(uint8_t event, uint8_t payload_length, uint8_t
 				sending = false;
 				if(last_sequence_num == 0xFF) {
 					if(urlSet) {
-						if(sending_data_store_index > sending_data_store_end) {
+						if(sending_data_store_index == sending_data_store_end) {
+							send_rf_debug_msg("NRF8001_RX: Sending data store empty\n");
 							sending_data_store_empty = true;
 						}
 						else {
+							send_rf_debug_msg("NRF8001_RX: Next packet\n");
 							last_packet_index = next_packet_index;
 							next_packet_index += cc_packet_length;
 						}
 					}
-					else {urlSet = true;}
+					else {
+						send_rf_debug_msg("NRF8001_RX: urlSet\n");
+						urlSet = true;
+					}
 				}
 				if(ble_credited) {
 					send_rf_debug_msg("NRF8001_RX: Data acked, credited\n");
@@ -434,13 +438,17 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 
 /*************************** CLOUDCOMM PROCESSES ******************************/
 
-static void packet_rf_debug(uint8_t payload_length) {
+static void packet_rf_debug(uint16_t payload_length, uint16_t current_data_index, uint8_t final_data_index) {
 	char buffer[100] = "BLE Data Packet: ";
 	char *buf_ptr = &buffer[17];
 	uint8_t i = 0;
 	for(i=0; i < payload_length; i++) {
 		buf_ptr += sprintf(buf_ptr, "%02x", sending_packet[i]);
 	}
+	send_rf_debug_msg(buffer);
+	snprintf(buffer, 100, "Ble Data Packet: len=%u, current_index=%u, final_index=%u\n",payload_length, current_data_index, final_data_index);
+	send_rf_debug_msg(buffer);
+	snprintf(buffer, 100, "Ble Data Packet: sdata_store_index=%u sdata_store_end=%u\n", sending_data_store_index, sending_data_store_end);
 	send_rf_debug_msg(buffer);
 }
 
@@ -450,7 +458,7 @@ static void packet_rf_debug(uint8_t payload_length) {
   * FINAL_DATA_INDEX: ending index number of the current data packet.
   * DATA_BUFFER: Contains 1 or more packets of data ready for upload
 */
-static void send_ble_packet(uint8_t *current_data_index, uint8_t final_data_index, uint8_t *data_buffer) {
+static void send_ble_packet(uint16_t *current_data_index, uint16_t final_data_index, uint8_t *data_buffer) {
 
 	uint8_t i = 0;
 	uint8_t remaining_data = final_data_index+1 - *current_data_index;
@@ -473,12 +481,11 @@ static void send_ble_packet(uint8_t *current_data_index, uint8_t final_data_inde
 	sending = true;
 	ble_acked = false;
 	ble_credited = false;
-	packet_rf_debug(payload_length);
 	nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMDATA_TX_ACK, payload_length + 1, &sending_packet[0]);
 }
 
 /* Wrapper function for send_ble_apcket() used to make sure current_data_index doesn't exceed sending_data_store_end */
-static void send_cc_data_packet(uint8_t *current_data_index, uint8_t final_data_index, uint8_t *data_buffer) {
+static void send_cc_data_packet(uint16_t *current_data_index, uint16_t final_data_index, uint8_t *data_buffer) {
 	send_ble_packet(current_data_index, final_data_index, data_buffer);
 	if(*current_data_index > sending_data_store_end) {*current_data_index = sending_data_store_end;}
 }
@@ -507,34 +514,44 @@ static void get_metadata() {
 
 /* Use data from cloudcomm ram buffer. This is the most recent data, so we use this first. */
 static void load_ble_buffer_from_ram() {
-	sending_data_store_end = data_store_index - 1; // data_store_index is the first empty index, so set SENDING_DATA_STORE_END to that - 1
+	sending_data_store_end = data_store_index - 1; // data_store_index is the first empty index in our ram buffer
 	sending_data_store_empty = false;
 	sending_data_store_index = 0; // reset SENDING_DATA_STORE read index
+
+	sequence_num = 1;
 	last_packet_index = 0;
-	next_packet_index = cc_packet_length;
-	data_from_flash = false;
+	next_packet_index = cc_packet_length-1;
+
+	data_store_index = 0;
 	memcpy(&sending_data_store, &data_store, 256);
 }
 
 /* use data from flash for cloud upload. We do this in order from oldest to newest. */
 static void load_ble_buffer_from_flash() {
 	sending_data_store_index = 0;
+
 	sequence_num = 1;
 	last_packet_index = 0;
-	next_packet_index = 0;
-	data_from_flash = false;
-	sending_data_store_end = 0;
+	next_packet_index = cc_packet_length-1;
+
 	uint8_t status = simplestore_read_next_page(&sending_data_store, max_data_store_length);
 	if(status == SIMPLESTORE_SUCCESS) {
-		sending_data_store_end = max_data_store_length;
+		send_rf_debug_msg("CC_UPLOAD_DATA: load from flash success\n");
+		sending_data_store_end = max_data_store_length-1;
 		sending_data_store_empty = false;
-		sending_data_store_index = 0;
 		flash_pages_stored -= 1;
-		next_packet_index = cc_packet_length;
-		data_from_flash = true;
 	}
 	else if (status == SIMPLESTORE_READ_FULL) {
+		send_rf_debug_msg("CC_UPLOAD_DATA: nothing left in flash\n");
+		sending_data_store_end = 0;
+		sending_data_store_empty = true;
+		flash_pages_stored = 0;
 		simplestore_clear_flash_chip();
+	}
+	else {
+		send_rf_debug_msg("CC_UPLOAD_DATA: flash error\n");
+		sending_data_store_end = 0;
+		sending_data_store_empty = true;
 		flash_pages_stored = 0;
 	}
 }
@@ -557,7 +574,7 @@ static void upload_data() {
 	if(!sending_data_store_empty) {
 		send_rf_debug_msg("CC_UPLOAD_DATA: upload data\n");
 		schedule_cc_failsafe_vtimer(15);
-		send_cc_data_packet(&sending_data_store_index, next_packet_index-1, sending_data_store);
+		send_cc_data_packet(&sending_data_store_index, next_packet_index, sending_data_store);
 	}
 	/* No data left, Cloudcomm is done */
 	else {
@@ -706,12 +723,12 @@ void cloudcomm_set_packet_length(uint8_t len) {
 uint8_t cloudcomm_store(void *data) {
 	uint8_t *data_ptr = (uint8_t *)data;
 	uint8_t i = 0;
-	// Add data to our buffer
+
 	for(i=0;i < cc_packet_length;i++) { data_store[data_store_index+i] = data_ptr[i]; }
 	data_store_index += cc_packet_length;
-	// If buffer is full, flush data to flash
-	if( (uint32_t)data_store_index + (uint32_t)cc_packet_length > 255) {
-		uint8_t data_size = data_store_index;
+
+	if( (uint32_t)data_store_index + (uint32_t)cc_packet_length > 256) {
+		uint16_t data_size = data_store_index;
 		flash_pages_stored += 1; // Update cloudcomm's knowledge of how much data is in flash
 		data_store_index = 0; // Reset DATA_STORE
 		if(simplestore_write_next_page((void *)data_store, data_size) != SIMPLESTORE_SUCCESS) {
