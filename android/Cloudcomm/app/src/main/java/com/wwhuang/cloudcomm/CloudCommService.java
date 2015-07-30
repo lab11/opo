@@ -74,12 +74,12 @@ public class CloudCommService extends Service {
     private String CCACKSTRING = "00002b05-0000-1000-8000-00805F9B34FB";
     private String CccDescriptorUUIDString = "00002902-0000-1000-8000-00805F9B34FB";
 
-    private UUID CCUUID = UUID.fromString(CCUUIDSTRING);
-    private UUID CCDATAUUID = UUID.fromString(CCDATAUUIDSTRING);
+    private UUID CCUUID = UUID.fromString(CCUUIDSTRING); // Cloudcomm Service UUID
+    private UUID CCDATAUUID = UUID.fromString(CCDATAUUIDSTRING); // Peripheral uploads data on this Characteristic
     private UUID CCMETAUUID = UUID.fromString(CCMETAUUIDSTRING);
-    private UUID CCREQUUID = UUID.fromString(CCREQUUIDSTRING);
-    private UUID CCINCUUID = UUID.fromString(CCINCUUIDSTRING);
-    private UUID CCREADYUUID = UUID.fromString(CCREADYSTRING);
+    private UUID CCREQUUID = UUID.fromString(CCREQUUIDSTRING); // Peripheral requests metadata using this Characteristic
+    private UUID CCINCUUID = UUID.fromString(CCINCUUIDSTRING); // Phone sends data using this Characteristic
+    private UUID CCREADYUUID = UUID.fromString(CCREADYSTRING); // Phone sends acks using this Characteristic
     private UUID CCACKUUID = UUID.fromString(CCACKSTRING);
     private UUID CCCDESCUUID = UUID.fromString(CccDescriptorUUIDString);
 
@@ -212,12 +212,38 @@ public class CloudCommService extends Service {
                ccReadyChar.setValue(msg.arg1, BluetoothGattCharacteristic.FORMAT_UINT8, 0);
                Log.v("ccReadyCharVal", Integer.toString(msg.arg1));
                ccReadyChar.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
-               try {
-                   Thread.sleep(600);
-               } catch (InterruptedException e) {}
+               try { Thread.sleep(100); } catch (InterruptedException e) {}
                failHandler.postDelayed(failRunner, failTime);
                if(!(mGatt.writeCharacteristic(ccReadyChar))) {
                    Log.v("BleCharWrite", "failed");
+               }
+           }
+           else if(msg.what == 6) {
+               BluetoothGatt mGatt = (BluetoothGatt) msg.obj;
+               BluetoothGattCharacteristic ccReqChar = mGatt.getService(CCUUID).getCharacteristic(CCREQUUID);
+               Log.v("BleReq", "Time to Read!");
+               failHandler.postDelayed(failRunner, failTime);
+               mGatt.readCharacteristic(ccReqChar);
+           }
+           else if(msg.what == 7) {
+               BluetoothGatt mGatt = (BluetoothGatt) msg.obj;
+               BluetoothGattCharacteristic ccIncChar = mGatt.getService(CCUUID).getCharacteristic(CCINCUUID);
+               byte[] senddata = new byte[5];
+               senddata[0] = 0;
+               int ctime = (int)(System.currentTimeMillis() / 1000L);
+               senddata[1] = (byte)(ctime >>> 24);
+               senddata[2] = (byte)(ctime >>> 16);
+               senddata[3] = (byte)(ctime >>> 8);
+               senddata[4] = (byte)(ctime);
+               ccIncChar.setValue(senddata);
+               Log.v("ccIngCharVal", Integer.toString(ctime));
+               ccIncChar.setWriteType(BluetoothGattCharacteristic.WRITE_TYPE_DEFAULT);
+               try {
+                   Thread.sleep(100);
+               } catch (InterruptedException e) {}
+               failHandler.postDelayed(failRunner, failTime);
+               if(!(mGatt.writeCharacteristic(ccIncChar))) {
+                   Log.v("BleIncCharWrite", "failed");
                }
            }
            return true;
@@ -327,15 +353,25 @@ public class CloudCommService extends Service {
                             } catch (IOException e) {
                                 Log.v("ccHpException", "IO exception");
                             }
-                            dataBuilder.clear();
                         }
+                        dataBuilder.clear();
                     }
                     Log.v("seqnum", Integer.toString(seq_num));
+                    Log.v("cData", bytesToHex(cData));
                     Message m = Message.obtain(BLHandler, 5, seq_num, 0, gatt);
                     BLHandler.sendMessage(m);
                 }
                 else if (characteristic.getUuid().equals(CCMETAUUID)) {}
-                else if (characteristic.getUuid().equals(CCREQUUID)) {}
+                else if (characteristic.getUuid().equals(CCREQUUID)) {
+                    failHandler.removeCallbacks(failRunner);
+                    byte[] cData = characteristic.getValue();
+                    int reqnum = cData[0];
+                    Log.v("CCREQ", Integer.toString(reqnum));
+                    if(reqnum == 0) {
+                        Message m = Message.obtain(BLHandler, 7, 0, 0, gatt);
+                        BLHandler.sendMessage(m);
+                    }
+                }
             }
 
             @Override
@@ -343,13 +379,23 @@ public class CloudCommService extends Service {
                 super.onCharacteristicWrite(gatt, characteristic, status);
                 if (characteristic.getUuid().equals(CCREADYUUID)) {
                     if(status != BluetoothGatt.GATT_SUCCESS) {
-                        failHandler.removeCallbacks(failRunner);
                         Log.v("ccOnCharWrite", "CCREADY write failed");
-                    } else {
+                    }
+                    else {
+                        failHandler.removeCallbacks(failRunner);
                         Log.v("ccOnCharWrite", "CCREADY WRITE SUCESS");
                     }
                 }
-                if (characteristic.getUuid().equals(CCACKUUID)) {}
+                else if(characteristic.getUuid().equals(CCINCUUID)) {
+                    if(status != BluetoothGatt.GATT_SUCCESS) {
+                        Log.v("ccOnCharWrite", "CINC write failed");
+                    }
+                    else {
+                        failHandler.removeCallbacks(failRunner);
+                        Log.v("ccOnCharWrite", "CINC WRITE SUCESS");
+                    }
+                }
+                else if (characteristic.getUuid().equals(CCACKUUID)) {}
             }
 
             @Override
@@ -359,7 +405,10 @@ public class CloudCommService extends Service {
                     Message m = Message.obtain(BLHandler, 4, gatt);
                     BLHandler.sendMessage(m);
                 }
-
+                else if(characteristic.getUuid().equals(CCREQUUID)) {
+                    Message m = Message.obtain(BLHandler, 6, gatt);
+                    BLHandler.sendMessage(m);
+                }
             }
 
             @Override
@@ -388,7 +437,6 @@ public class CloudCommService extends Service {
                         dataDesc.setValue(BluetoothGattDescriptor.ENABLE_INDICATION_VALUE);
                         failHandler.postDelayed(failRunner, failTime);
                         gatt.writeDescriptor(dataDesc);
-
                     } else if (descriptor.getCharacteristic().getUuid().equals(CCMETAUUID)) {
                         Message m = Message.obtain(BLHandler, 3, gatt);
                         BLHandler.sendMessage(m);
