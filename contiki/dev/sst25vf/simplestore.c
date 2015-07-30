@@ -17,7 +17,7 @@ void simplestore_turn_off_flash() {
 	sst25vf_turn_off();
 }
 
-uint8_t simplestore_write_next_page(void *txBuffer, uint8_t tx_len) {
+uint8_t simplestore_write_next_page(void *txBuffer, uint16_t tx_len) {
 	if(write_head < max_page) {
 		if(!sst25vf_program(write_head * 256, txBuffer, (uint32_t) tx_len)) {
 			return SIMPLESTORE_FAIL;
@@ -30,15 +30,22 @@ uint8_t simplestore_write_next_page(void *txBuffer, uint8_t tx_len) {
 	}
 }
 
-uint8_t simplestore_read_next_page(void *rxBuffer, uint8_t rx_len) {
+uint8_t simplestore_read_next_page(void *rxBuffer, uint16_t rx_len) {
 	if(read_head == write_head) {
-		return SIMPLESTORE_FULL;
+		return SIMPLESTORE_READ_FULL; // Nothing more to be read.
 	}
 
 	if(!sst25vf_read_page(read_head * 256, rxBuffer, (uint32_t) rx_len)) {
-		return SIMPLESTORE_FAIL;
+		return SIMPLESTORE_FAIL; // Something went wrong with the SPI operation.
 	}
 	read_head++;
+	return SIMPLESTORE_SUCCESS;
+}
+
+uint8_t simplestore_mark_last_page_done() {
+	if(read_head == 0) { return SIMPLESTORE_FAIL; }
+	uint8_t done = SIMPLESTORE_PAGE_DONE;
+	sst25vf_program(read_head * 256 - 1, &done, 1);
 	return SIMPLESTORE_SUCCESS;
 }
 
@@ -82,24 +89,15 @@ void simplestore_config() {
 	uint32_t counter = 0;
 	uint8_t rbuf[256] = {0};
 	uint16_t i = 0;
-	bool auton = false;
-	if(!on) {
-		auton = true;
-		sst25vf_turn_on();
-	}
+
+	sst25vf_turn_on();
 	for(pc=0;pc<max_page;pc++) {
 		sst25vf_read_page(pc*256, rbuf, 256);
-		for(i=0;i<256;i++) {
-			counter += rbuf[i];
-		}
-		if(counter == 255 * 256) {
-			break;
-		}
+		for(i=0;i<255;i++) { counter += rbuf[i]; }
+		if(rbuf[255] == SIMPLESTORE_PAGE_DONE) {read_head = pc + 1;}
+		if(counter == 255 * 255) { break; }
 		counter = 0;
 	}
-	if(auton) {
-		sst25vf_turn_off();
-	}
+	sst25vf_turn_off();
 	write_head = pc;
 }
-

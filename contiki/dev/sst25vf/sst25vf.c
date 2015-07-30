@@ -2,6 +2,7 @@
 #include "sst25vf.h"
 #include "spi-arch.h"
 #include "spi.h"
+#include "ssi.h"
 #include "dev/ssi.h"
 #include "dev/gpio.h"
 #include "dev/ioc.h"
@@ -10,6 +11,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cpu.h"
+#include "cc2538-rf.h"
+#include "cloudcomm.h"
 
 static enum {CHIP_ERASE_DONE,
 	  		 SMALL_BLOCK_ERASE_DONE,
@@ -57,34 +60,35 @@ static inline void enable_writes() {
 
 
 static inline void runSpiByteRx(uint8_t *cmdBuffer, void *rxBuffer, uint32_t rx_len) {
-	INTERRUPTS_DISABLE();
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
 	clr_flash_cs();
-	for(i = 0; i < 4; i++) {
-		SPI_WRITE(cmdBuffer[i]);
+	uint32_t j;
+	for(j = 0; j < 4; j++) {
+		SPI_WRITE(cmdBuffer[j]);
+		SPI_FLUSH();
 	}
-	SPI_FLUSH();
-	for(i = 0; i < rx_len; i++) {
-		SPI_READ(((uint8_t *)rxBuffer)[i]);
+	for(j = 0; j < rx_len; j++) {
+		SPI_READ(((uint8_t *)rxBuffer)[j]);
+		SPI_FLUSH();
 	}
 	set_flash_cs();
-	INTERRUPTS_ENABLE();
 }
 
-static inline void runSpiByteTx(uint8_t *cmdBuffer, void *txBuffer, uint32_t tx_len) {
-	INTERRUPTS_DISABLE();
+static void runSpiByteTx(uint8_t *cmdBuffer, void *txBuffer, uint32_t tx_len) {
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
 	clr_flash_cs();
-	for(i = 0; i < 4; i++) {
-		SPI_WRITE(cmdBuffer[i]);
+	uint32_t j;
+	for(j = 0; j < 4; j++) {
+		SPI_WRITE(cmdBuffer[j]);
+		SPI_FLUSH();
 	}
-	for(i = 0; i < tx_len; i++) {
-		SPI_WRITE(((uint8_t *)txBuffer)[i]);
+	for(j = 0; j < tx_len; j++) {
+		SPI_WRITE(((uint8_t *)txBuffer)[j]);
+		SPI_FLUSH();
 	}
 	set_flash_cs();
-	INTERRUPTS_ENABLE();
 }
 
 static inline void shiftPageAddr(uint32_t user_addr) {
@@ -94,13 +98,12 @@ static inline void shiftPageAddr(uint32_t user_addr) {
 }
 
 static inline void runSingleCommand(uint8_t cmd) {
-	INTERRUPTS_DISABLE();
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
 	clr_flash_cs();
 	SPI_WRITE(cmd);
+	SPI_FLUSH();
 	set_flash_cs();
-	INTERRUPTS_ENABLE();
 }
 
 void sst25vf_turn_on() {
@@ -120,22 +123,17 @@ void sst25vf_turn_off() {
 }
 
 uint8_t sst25vf_read_page(uint32_t addr, void *rxBuffer, uint32_t rx_len) {
-	uint8_t cmdBuffer[4];
 	bool auton = false;
-
+	INTERRUPTS_DISABLE();
 	if(!on) {
 		auton = true;
 		sst25vf_turn_on();
 	}
 
-	while(1) {
-		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
-			break;
-		}
-		clock_delay_usec(5000);
-	}
+	while(sst25vf_read_status_register() & STATUS_BUSY) { clock_delay_usec(500); }
 
 	shiftPageAddr(addr);
+	uint8_t cmdBuffer[4];
 	cmdBuffer[0] = READ;
 	cmdBuffer[1] = m_addr[0];
 	cmdBuffer[2] = m_addr[1];
@@ -143,16 +141,10 @@ uint8_t sst25vf_read_page(uint32_t addr, void *rxBuffer, uint32_t rx_len) {
 
 	runSpiByteRx(&cmdBuffer[0], rxBuffer, rx_len);
 
-	while(1) {
-		clock_delay_usec(2600);
-		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
-			break;
-		}
-	}
+	while(sst25vf_read_status_register() & STATUS_BUSY) { clock_delay_usec(500); }
 
-	if(auton) {
-		sst25vf_turn_off();
-	}
+	if(auton) { sst25vf_turn_off(); }
+	INTERRUPTS_ENABLE();
 
 	return 1;
 }
@@ -172,6 +164,7 @@ void sst25vf_read_sid(uint8_t addr, void *rxBuffer, uint8_t rx_len) {
 	for(i = 0; i < rx_len; i++) {
 		SPI_READ(((uint8_t *)rxBuffer)[i]);
 	}
+	SPI_FLUSH();
 	set_flash_cs();
 }
 
@@ -196,7 +189,6 @@ void sst25vf_program_sid(uint8_t addr, void *txBuffer, uint8_t tx_len) {
 }
 
 uint8_t sst25vf_read_status_register() {
-	INTERRUPTS_DISABLE();
 	uint8_t status_buffer = 0;
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
@@ -204,8 +196,8 @@ uint8_t sst25vf_read_status_register() {
 	SPI_WRITE(RDSR);
 	SPI_FLUSH();
 	SPI_READ(status_buffer);
+	SPI_FLUSH();
 	set_flash_cs();
-	INTERRUPTS_ENABLE();
 	return status_buffer;
 
 }
@@ -218,25 +210,16 @@ void sst25vf_write_disable() {
 	runSingleCommand(WRDI);
 }
 
-
-uint8_t sst25vf_program(uint32_t addr,
-				        void *txBuffer,
-				        uint32_t tx_len) {
+uint8_t sst25vf_program(uint32_t addr, void *txBuffer, uint32_t tx_len) {
 	uint8_t cmdBuffer[4];
 	bool auton = false;
 
+	INTERRUPTS_DISABLE();
 	if(!on) {
 		auton = true;
 		sst25vf_turn_on();
 	}
-
-	while(1) {
-		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
-			break;
-		}
-		clock_delay_usec(5000);
-	}
-
+	while((sst25vf_read_status_register() & STATUS_BUSY)) { clock_delay_usec(500); }
 	shiftPageAddr(addr);
 	cmdBuffer[0] = PAGE_PROGRAM;
 	cmdBuffer[1] = m_addr[0];
@@ -244,24 +227,19 @@ uint8_t sst25vf_program(uint32_t addr,
 	cmdBuffer[3] = m_addr[2];
 
 	enable_writes();
+	while(sst25vf_read_status_register() != STATUS_WEL) { clock_delay_usec(500); }
 	runSpiByteTx(&cmdBuffer[0], txBuffer, tx_len);
+	clock_delay_usec(3000);
+	while(sst25vf_read_status_register() & STATUS_BUSY) { clock_delay_usec(500); }
+	SPI_FLUSH();
 
-	while(1) {
-		clock_delay_usec(2600);
-		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
-			break;
-		}
-	}
-
-	if(auton) {
-		sst25vf_turn_off();
-	}
+	if(auton) { sst25vf_turn_off(); }
+	INTERRUPTS_ENABLE();
 
 	return 1;
 }
 
 uint8_t sst25vf_chip_erase() {
-	uint8_t cmd = CHIP_ERASE;
 	bool auton = false;
 
 	if(!on) {
@@ -269,25 +247,13 @@ uint8_t sst25vf_chip_erase() {
 		sst25vf_turn_on();
 	}
 
-	while(1) {
-		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
-			break;
-		}
-		clock_delay_usec(5000);
-	}
+	while(sst25vf_read_status_register() & STATUS_BUSY) { clock_delay_usec(500); }
 
 	enable_writes();
-	runSingleCommand(cmd);
-
-	while(1) {
-		clock_delay_usec(26000);
-		if(!(sst25vf_read_status_register() & STATUS_BUSY)) {
-			break;
-		}
-	}
-	if(auton) {
-		sst25vf_turn_off();
-	}
+	runSingleCommand(CHIP_ERASE);
+	clock_delay_usec(51000);
+	while(sst25vf_read_status_register() & STATUS_BUSY) { clock_delay_usec(500); }
+	if(auton) { sst25vf_turn_off(); }
 
 	return 1;
 }
