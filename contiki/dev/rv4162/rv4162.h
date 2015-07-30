@@ -6,7 +6,7 @@
 #ifndef RV4162_H
 #define RV4162_H
 
-#define hS          0x00   // Tenhs and 100ths of seconds
+#define hS          0x00   // Tens and 100ths of seconds
 #define SEC         0x01
 #define MIN         0x02
 #define HR          0x03
@@ -24,9 +24,13 @@
 
 #define RV4162_BCD_TO_BINARY(v) ((v & 0x0F) + (((v & 0x10)>>4)*10) + (((v & 0x20)>>5)*20) + (((v & 0x40)>>6)*40))
 
-void rv4162_read_full_time(uint8_t *full_time); // Read the time
-time_t get_unixtime();
-void set_unixtime(time_t time);
+#ifndef INIT_UNIXTIME
+	#define INIT_UNIXTIME 1427414400
+#endif
+
+void   rv4162_read_full_time(uint8_t *full_time); // Read the time
+time_t rv4162_get_unixtime();
+void   rv4162_set_unixtime(time_t time);
 
 void rv4162_set_time(uint8_t *full_time); // Set the time
 

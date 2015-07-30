@@ -34,8 +34,27 @@ uint8_t rv4162_binary_to_bcd (uint8_t binary) {
 	return out;
 }
 
+/* https://gmbabar.wordpress.com/2010/12/01/mktime-slow-use-custom-function/ */
+static time_t time_to_epoch ( const struct tm *ltm, int utcdiff) {
+   const int mon_days [] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+   long tyears, tdays, leaps, utc_hrs;
+   int i;
+
+   tyears = ltm->tm_year - 70 ; // tm->tm_year is from 1900.
+   leaps = (tyears + 2) / 4; // no of next two lines until year 2100.
+   //i = (ltm->tm_year - 100) / 100;
+   //leaps -= ( (i/4)*3 + i%4 );
+   tdays = 0;
+   for (i=0; i < ltm->tm_mon; i++) tdays += mon_days[i];
+
+   tdays += ltm->tm_mday-1; // days of month passed.
+   tdays = tdays + (tyears * 365) + leaps;
+
+   utc_hrs = ltm->tm_hour + utcdiff; // for your time zone.
+   return (tdays * 86400) + (utc_hrs * 3600) + (ltm->tm_min * 60) + ltm->tm_sec;
+}
+
 static time_t convert_to_unixtime(uint8_t *t) {
-	time_t ut;
 	struct tm cal_t;
 	cal_t.tm_sec = t[1];
 	cal_t.tm_min = t[2];
@@ -43,8 +62,7 @@ static time_t convert_to_unixtime(uint8_t *t) {
 	cal_t.tm_mday = t[5];
 	cal_t.tm_mon = t[6] - 1;
 	cal_t.tm_year = 2000 + (uint32_t)t[7] - 1900;
-	ut = mktime(&cal_t);
-	return ut;
+	return time_to_epoch(&cal_t, 0);
 }
 
 void rv4162_read_full_time(uint8_t *full_time) {
@@ -68,13 +86,13 @@ void rv4162_read_full_time(uint8_t *full_time) {
     }
 }
 
-time_t get_unixtime() {
+time_t rv4162_get_unixtime() {
 	uint8_t temp[8] = {0};
 	rv4162_read_full_time(&temp[0]);
 	return convert_to_unixtime(&temp[0]);
 }
 
-void set_unixtime(time_t t) {
+void rv4162_set_unixtime(time_t t) {
 	struct tm *raw = gmtime(&t);
 	uint8_t tbuf[8];
 	tbuf[0] = 0; // subsecond
@@ -99,6 +117,8 @@ void rv4162_set_time(uint8_t *full_time) {
 		write_buffer[i+1] = rv4162_binary_to_bcd(full_time[i]) & set_time_masks[i];
 	}
 	write_buffer[5] |= 0x10;
+	ioc_set_over(I2C_SDA_PORT_NUM, I2C_SDA_PIN_NUM, IOC_OVERRIDE_PUE);
+  	ioc_set_over(I2C_SCL_PORT_NUM, I2C_SCL_PIN_NUM, IOC_OVERRIDE_PUE);
 	i2c_init(I2C_SDA_PORT_NUM, I2C_SDA_PIN_NUM, I2C_SCL_PORT_NUM, I2C_SCL_PIN_NUM, I2C_SCL_NORMAL_BUS_SPEED);
 	i2c_master_set_slave_address(rv4162_slave_addr, I2C_SEND);
 	i2c_master_data_put(write_buffer[0]);
@@ -109,7 +129,6 @@ void rv4162_set_time(uint8_t *full_time) {
 		i2c_master_command(I2C_MASTER_CMD_BURST_SEND_CONT);
 		while(i2c_master_busy()) {}
 	}
-
 	i2c_master_data_put(write_buffer[8]);
 	i2c_master_command(I2C_MASTER_CMD_BURST_SEND_FINISH);
 	while(i2c_master_busy()) {}
@@ -129,5 +148,5 @@ void rv4162_disable_clkout() {
 }
 
 void rv4162_init() {
-	set_unixtime(INIT_UNIXTIME);
+	rv4162_set_unixtime(INIT_UNIXTIME);
 }
