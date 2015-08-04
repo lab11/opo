@@ -145,7 +145,7 @@ int main(void) {
 
   rf_switch_init();
 
-  sst25vf_init();
+  //sst25vf_init();
 
   INTERRUPTS_ENABLE();
 
@@ -156,8 +156,8 @@ int main(void) {
   set_rf_params();
   netstack_init();
 
-  nrf8001_init();
-  cloudcomm_init();
+  //nrf8001_init();
+  //cloudcomm_init();
 
   opo_init();
   NETSTACK_MAC.off(0);
