@@ -80,14 +80,19 @@ set_rf_params(void)
     NETSTACK_RADIO.set_object(RADIO_PARAM_64BIT_ADDR, ext_addr, 8);
 }
 
+/* Disables all pull up resistors EXCEPT the FTDI related ones */
 static void disable_all_ioc_override() {
   uint8_t portnum = 0;
   uint8_t pinnum = 0;
-  for(portnum = 0; portnum < 4; portnum++) {
+  for(portnum = 1; portnum < 4; portnum++) {
       for(pinnum = 0; pinnum < 8; pinnum++) {
           ioc_set_over(portnum, pinnum, IOC_OVERRIDE_DIS);
       }
   }
+  ioc_set_over(GPIO_A_NUM, 0, IOC_OVERRIDE_PDE);
+  ioc_set_over(GPIO_A_NUM, 1, IOC_OVERRIDE_PDE);
+  ioc_set_over(GPIO_A_NUM, 2, IOC_OVERRIDE_PUE);
+  for(pinnum = 3; pinnum < 8; pinnum++) {ioc_set_over(GPIO_A_NUM, pinnum, IOC_OVERRIDE_DIS);}
 }
 /*---------------------------------------------------------------------------*/
 /**
@@ -122,9 +127,6 @@ int main(void) {
   leds_init();
 
   clock_init();
-  for(i=0;i<100;i++) {
-    clock_delay_usec(30000);
-  }
   nvic_init();
 
   ioc_init();
@@ -150,7 +152,6 @@ int main(void) {
   random_init(0); // we use a hardware rng, so seed doesn't matter
 
   udma_init();
-  process_start(&etimer_process, NULL);
 
   set_rf_params();
   netstack_init();
@@ -158,20 +159,13 @@ int main(void) {
   nrf8001_init();
   cloudcomm_init();
 
-  //rv4162_init();
   opo_init();
-
+  NETSTACK_MAC.off(0);
   autostart_start(autostart_processes);
-
-#if WATCHDOG_CONF_ENABLE
-  //watchdog_start();
-#endif
 
   while(1) {
     uint8_t r;
     do {
-      /* Reset watchdog and handle polls and events */
-      //watchdog_periodic();
       r = process_run();
     } while(r > 0);
 

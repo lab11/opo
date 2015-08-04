@@ -66,7 +66,7 @@ void
 leds_arch_set(unsigned char leds)
 {
   GPIO_WRITE_PIN(GPIO_B_BASE, (LEDS_BLUE | LEDS_RED), ~leds);
-  GPIO_WRITE_PIN(GPIO_D_BASE, LEDS_GREEN);
+  GPIO_WRITE_PIN(GPIO_D_BASE, LEDS_GREEN, ~leds);
 }
 /*---------------------------------------------------------------------------*/
 
