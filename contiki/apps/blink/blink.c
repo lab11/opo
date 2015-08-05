@@ -1,7 +1,7 @@
 
 #include "contiki.h"
 #include "dev/leds.h"
-#include "cloudcomm.h"
+//#include "cloudcomm.h"
 #include "dev/gpio.h"
 #include "net/netstack.h"
 
