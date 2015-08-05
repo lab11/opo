@@ -4,7 +4,7 @@ ifndef CONTIKI
   $(error CONTIKI not defined! You must specify where CONTIKI resides!)
 endif
 
-CONTIKI_TARGET_DIRS = . dev ../../dev/opo ../../dev/nrf8001 ../../dev/rv4162 ../../dev/sst25vf ../../net ../../dev/cloudcomm ../../dev/vtimer ../../dev/cc2538-rf-debug
+CONTIKI_TARGET_DIRS = . dev ../../dev/opo ../../dev/nrf8001 ../../dev/rv4162 ../../dev/sst25vf ../../net ../../dev/cloudcomm ../../dev/cc2538-rf-debug
 
 CONTIKI_TARGET_SOURCEFILES += leds.c leds-arch.c
 CONTIKI_TARGET_SOURCEFILES += contiki-main.c
