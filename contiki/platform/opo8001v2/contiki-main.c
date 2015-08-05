@@ -40,9 +40,9 @@
 #include "cloudcomm.h"
 #include "sst25vf.h"
 #include "simplestore.h"
-#include "opo.h"
+//#include "opo.h"
 #include "rv4162.h"
-#include "vtimer.h"
+//#include "vtimer.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -137,7 +137,7 @@ int main(void) {
   sys_ctrl_init();
 
   lpm_init();
-  vtimer_init();
+  //vtimer_init();
   process_init();
 
   watchdog_init();
@@ -159,7 +159,7 @@ int main(void) {
   //nrf8001_init();
   //cloudcomm_init();
 
-  opo_init();
+  //opo_init();
   NETSTACK_MAC.off(0);
   autostart_start(autostart_processes);
 

@@ -297,7 +297,7 @@ void(*const vectors[])(void) =
   cc2538_rf_err_isr,          /* 158 RFCORE Error */
   default_handler,            /* 159 AES */
   default_handler,            /* 160 PKA */
-  vtimer_isr,                 /* 161 SM Timer */
+  default_handler,                 /* 161 SM Timer */
   default_handler,            /* 162 MACTimer */
 };
 /*---------------------------------------------------------------------------*/
