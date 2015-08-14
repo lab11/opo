@@ -68,7 +68,7 @@ static void wakeup_callback(uint8_t port, uint8_t pin) {
 	GPIO_CLEAR_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
 	ul_wakeup_time = VTIMER_NOW();
 	sfd_time = 0;
-	//leds_on(LEDS_RED);
+
 	if(opo_state == OPO_IDLE) {
 		opo_state = OPO_RX;
 		process_poll(&opo_rx);
@@ -118,6 +118,7 @@ PROCESS_THREAD(opo_rx, ev, data) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 		if(opo_state == OPO_RX) {
 				if(!transmission_noise) {
+					leds_on(LEDS_RED);
 					cc2538_ant_enable();
 					packetbuf_clear();
 					NETSTACK_MAC.on();
@@ -127,7 +128,7 @@ PROCESS_THREAD(opo_rx, ev, data) {
 				packetbuf_clear();
 				NETSTACK_MAC.off(0);
 				opo_state = OPO_IDLE;
-				//leds_off(LEDS_RED);
+				leds_off(LEDS_RED);
 				if(rf_packet_received == true) {
 					uint32_t diff = (uint32_t) (sfd_time - ul_wakeup_time);
 					if(diff < rxmsg_storage.ul_rf_dt) {
@@ -240,6 +241,8 @@ PROCESS_THREAD(opo_restart, ev, data) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 		if(opo_state == OPO_RX_SETUP) {
 			opo_state = OPO_IDLE;
+			GPIO_CLEAR_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
+			GPIO_CLEAR_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
 			GPIO_ENABLE_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
 			GPIO_ENABLE_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
 		}
