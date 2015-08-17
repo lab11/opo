@@ -124,6 +124,15 @@
 #define OPO_COMP2_PIN_NUM	7
 #define OPO_GPT_COMP2_PIN	7
 
+#define OPO_INT_NVIC       NVIC_INT_GPIO_PORT_C
+#define OPO_COMP1_NVIC     NVIC_INT_GPIO_PORT_C
+#define OPO_RX_NVIC        OPO_INT_NVIC
+
+#define OPO_RX_PORT_BASE   OPO_COMP1_PORT_BASE
+#define OPO_RX_PORT_NUM    OPO_COMP1_PORT_NUM
+#define OPO_RX_PIN_MASK    OPO_COMP1_PIN_MASK
+#define OPO_RX_PIN_NUM     OPO_COMP1_PIN_NUM
+
 // TX PWM Pins
 #define OPO_PWM_PORT_BASE	GPIO_A_BASE
 #define OPO_PWM_PORT_NUM	GPIO_A_NUM
@@ -150,8 +159,7 @@
 #define GPIO_D_CLR_MASK    0x27
 #define GPIO_D_SET_MASK    0xD8
 
-#define OPO_INT_NVIC       NVIC_INT_GPIO_PORT_C
-#define OPO_COMP1_NVIC     NVIC_INT_GPIO_PORT_C
+
 
 /** @} */
 /*---------------------------------------------------------------------------*/

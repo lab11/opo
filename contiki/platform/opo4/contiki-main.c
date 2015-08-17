@@ -37,8 +37,12 @@
 #include "nrf8001.h"
 #include "rf_switch.h"
 #include "simple_sfd_handler.h"
- #include "cloudcomm.h"
-//#include "lib/sensors.h"
+#include "cloudcomm.h"
+#include "sst25vf.h"
+#include "simplestore.h"
+#include "opo.h"
+#include "rv4162.h"
+#include "vtimer.h"
 
 #include <stdint.h>
 #include <string.h>
@@ -87,12 +91,10 @@ static void disable_all_ioc_override() {
 }
 /*---------------------------------------------------------------------------*/
 /**
- * \brief Main routine for the cc2538dk platform
+ * \brief Main routine for the opo 4 platform
  */
-int
-main(void)
-{
-
+int main(void) {
+  uint8_t i = 0;
   gpio_init();
 
   // Set up GPIO pins. Gotta stop that current leakage yo
@@ -100,6 +102,7 @@ main(void)
   GPIO_SET_INPUT(GPIO_A_BASE, GPIO_A_INPUT_MASK);
   GPIO_CLR_PIN(GPIO_A_BASE, GPIO_A_CLR_MASK);
   GPIO_SET_PIN(GPIO_A_BASE, GPIO_A_SET_MASK);
+  GPIO_SOFTWARE_CONTROL(GPIO_A_BASE, 0xFB);
 
   GPIO_SET_OUTPUT(GPIO_B_BASE, GPIO_B_OUTPUT_MASK);
   GPIO_SET_INPUT(GPIO_B_BASE, GPIO_B_INPUT_MASK);
@@ -116,90 +119,57 @@ main(void)
   GPIO_CLR_PIN(GPIO_D_BASE, GPIO_D_CLR_MASK);
   GPIO_SET_PIN(GPIO_D_BASE, GPIO_D_SET_MASK);
 
-
-  nvic_init();
-  ioc_init();
-  sys_ctrl_init();
-  clock_init();
-  lpm_init();
-  rtimer_init();
-
   leds_init();
+  clock_init();
+  for(i=0;i<100;i++) {
+    clock_delay_usec(30000);
+  }
+  nvic_init();
 
-  process_init();
-
-  watchdog_init();
-  spi_init();
-  nrf8001_init();
-  rf_switch_init();
-  cloudcomm_init();
-
+  ioc_init();
   disable_all_ioc_override();
   ioc_set_over(I2C_SDA_PORT_NUM, I2C_SDA_PIN_NUM, IOC_OVERRIDE_PUE);
   ioc_set_over(I2C_SCL_PORT_NUM, I2C_SCL_PIN_NUM, IOC_OVERRIDE_PUE);
 
-  /*
-   * Character I/O Initialization.
-   * When the UART receives a character it will call serial_line_input_byte to
-   * notify the core. The same applies for the USB driver.
-   *
-   * If slip-arch is also linked in afterwards (e.g. if we are a border router)
-   * it will overwrite one of the two peripheral input callbacks. Characters
-   * received over the relevant peripheral will be handled by
-   * slip_input_byte instead
-   */
-#if UART_CONF_ENABLE
-  uart_init(0);
-  uart_init(1);
-  uart_set_input(SERIAL_LINE_CONF_UART, serial_line_input_byte);
-#endif
+  sys_ctrl_init();
 
-#if USB_SERIAL_CONF_ENABLE
-  usb_serial_init();
-  usb_serial_set_input(serial_line_input_byte);
-#endif
+  lpm_init();
+  vtimer_init();
+  process_init();
 
-  serial_line_init();
+  watchdog_init();
+  spi_init();
+
+  rf_switch_init();
+
+  sst25vf_init();
 
   INTERRUPTS_ENABLE();
 
-  PUTS(CONTIKI_VERSION_STRING);
-  PUTS(BOARD_STRING);
-
-  /* Initialise the H/W RNG engine. */
-  random_init(0);
+  random_init(0); // we use a hardware rng, so seed doesn't matter
 
   udma_init();
-
   process_start(&etimer_process, NULL);
-  ctimer_init();
 
   set_rf_params();
   netstack_init();
 
-#if UIP_CONF_IPV6
-  memcpy(&uip_lladdr.addr, &linkaddr_node_addr, sizeof(uip_lladdr.addr));
-  queuebuf_init();
-  process_start(&tcpip_process, NULL);
-#endif /* UIP_CONF_IPV6 */
-
-  //process_start(&sensors_process, NULL);
-
-  energest_init();
-  ENERGEST_ON(ENERGEST_TYPE_CPU);
+  nrf8001_init();
+  cloudcomm_init();
+  rv4162_init();
+  opo_init();
 
   autostart_start(autostart_processes);
 
 #if WATCHDOG_CONF_ENABLE
-  watchdog_start();
+  //watchdog_start();
 #endif
 
   while(1) {
     uint8_t r;
     do {
       /* Reset watchdog and handle polls and events */
-      watchdog_periodic();
-
+      //watchdog_periodic();
       r = process_run();
     } while(r > 0);
 

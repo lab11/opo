@@ -42,6 +42,7 @@
 #include "sys-ctrl.h"
 #include "uart.h"
 #include "gptimer.h"
+#include "vtimer-arch.h"
 
 
 #include <stdint.h>
@@ -293,7 +294,7 @@ void(*const vectors[])(void) =
   cc2538_rf_err_isr,          /* 158 RFCORE Error */
   default_handler,            /* 159 AES */
   default_handler,            /* 160 PKA */
-  rtimer_isr,                 /* 161 SM Timer */
+  vtimer_isr,                 /* 161 SM Timer */
   default_handler,            /* 162 MACTimer */
 };
 /*---------------------------------------------------------------------------*/

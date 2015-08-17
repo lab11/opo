@@ -178,6 +178,18 @@
 
 #define OPO_INT_NVIC       NVIC_INT_GPIO_PORT_C
 
+//I2C Pins
+#define I2C_SDA_PORT_NUM   GPIO_C_NUM
+#define I2C_SDA_PIN_NUM	   3
+
+#define I2C_SCL_PORT_NUM   GPIO_C_NUM
+#define I2C_SCL_PIN_NUM	   2
+
+// flash
+#define SST25VF_CS_PORT_NUM					GPIO_B_NUM
+#define SST25VF_CS_PIN_NUM					1
+#define SST25VF_FLASH_POWER_PORT_BASE		GPIO_B_BASE
+#define SST25VF_FLASH_POWER_PIN_MASK		0x01
 
 /** @} */
 /*---------------------------------------------------------------------------*/
@@ -189,21 +201,29 @@
  * @{
  */
 
+#define RADIO_SELECT_PORT_BASE  GPIO_D_BASE
+#define RADIO_SELECT_PIN_MASK   0x04
 #define RADIO_SELECT_PORT		GPIO_D_NUM
 #define RADIO_SELECT_PIN		2
 #define RADIO_SELECT_VECTOR		NVIC_INT_GPIO_PORT_D
 
 #define NRF8001_RDYN_PORT       GPIO_B_NUM
+#define NRF8001_RDYN_PORT_BASE	GPIO_B_BASE
 #define NRF8001_RDYN_PIN        7
+#define NRF8001_RDYN_PIN_MASK	0x80
 #define NRF8001_RDYN_VECTOR     NVIC_INT_GPIO_PORT_B
 
 #define NRF8001_REQN_PORT 		GPIO_B_NUM
+#define NRF8001_REQN_PORT_BASE	GPIO_B_BASE
 #define NRF8001_REQN_PIN		4
+#define NRF8001_REQN_PIN_MASK	0x10
 #define NRF8001_REQN_VECTOR 	NVIC_INT_GPIO_PORT_B
 
- #define NRF8001_ACTIVE_PORT	GPIO_B_NUM
- #define NRF8001_ACTIVE_PIN		2
- #define NRF8001_ACTIVE_VECTOR	NVIC_INT_GPIO_PORT_B
+#define NRF8001_ACTIVE_PORT		 GPIO_B_NUM
+#define NRF8001_ACTIVE_PORT_BASE GPIO_B_BASE
+#define NRF8001_ACTIVE_PIN		 2
+#define NRF8001_ACTIVE_PIN_MASK	 0x04
+#define NRF8001_ACTIVE_VECTOR	 NVIC_INT_GPIO_PORT_B
 /** @} */
 
 /*---------------------------------------------------------------------------*/

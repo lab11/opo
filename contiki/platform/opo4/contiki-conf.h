@@ -24,7 +24,7 @@
  * Those values are not meant to be modified by the user
  * @{
  */
-#define CLOCK_CONF_SECOND 1000
+#define CLOCK_CONF_SECOND 128
 
 /* Compiler configurations */
 #define CCIF
@@ -99,7 +99,7 @@ typedef uint32_t rtimer_clock_t;
 #define USB_ARCH_WRITE_NOTIFY       0
 
 #ifndef USB_ARCH_CONF_DMA
-#define USB_ARCH_CONF_DMA           1 /**< Change to Enable/Disable USB DMA */
+#define USB_ARCH_CONF_DMA           0 /**< Change to Enable/Disable USB DMA */
 
 #endif
 /** @} */
@@ -136,7 +136,7 @@ typedef uint32_t rtimer_clock_t;
  * @{
  */
 #ifndef UART_CONF_ENABLE
-#define UART_CONF_ENABLE            1 /**< Enable/Disable UART I/O */
+#define UART_CONF_ENABLE            0 /**< Enable/Disable UART I/O */
 #endif
 
 #ifndef UART_CONF_BAUD_RATE
@@ -193,17 +193,8 @@ typedef uint32_t rtimer_clock_t;
 /* Turn off example-provided putchars */
 #define SLIP_BRIDGE_CONF_NO_PUTCHAR 1
 #define SLIP_RADIO_CONF_NO_PUTCHAR  1
+#define SLIP_ARCH_CONF_ENABLED 0
 
-#ifndef SLIP_ARCH_CONF_ENABLED
-/*
- * Determine whether we need SLIP
- * This will keep working while UIP_FALLBACK_INTERFACE and CMD_CONF_OUTPUT
- * keep using SLIP
- */
-#if defined (UIP_FALLBACK_INTERFACE) || defined (CMD_CONF_OUTPUT)
-#define SLIP_ARCH_CONF_ENABLED      1
-#endif
-#endif
 
 /*
  * When set, the radio turns off address filtering and sends all captured
@@ -221,7 +212,7 @@ typedef uint32_t rtimer_clock_t;
  * energy savings. The USB will not be initialised either
  */
 #ifndef CC2538_CONF_QUIET
-#define CC2538_CONF_QUIET           0
+#define CC2538_CONF_QUIET           1
 #endif
 
 /* CC2538_CONF_QUIET is hard and overrides all other related defines */
@@ -293,24 +284,21 @@ typedef uint32_t rtimer_clock_t;
  *
  * @{
  */
+
 #ifndef NETSTACK_CONF_NETWORK
 #if UIP_CONF_IPV6
 #define NETSTACK_CONF_NETWORK sicslowpan_driver
 #else
-#define NETSTACK_CONF_NETWORK rime_driver
+#define NETSTACK_CONF_NETWORK simple_network_driver
 #endif /* UIP_CONF_IPV6 */
 #endif /* NETSTACK_CONF_NETWORK */
 
 #ifndef NETSTACK_CONF_MAC
-#define NETSTACK_CONF_MAC     csma_driver
+#define NETSTACK_CONF_MAC     nullmac_driver
 #endif
 
 #ifndef NETSTACK_CONF_RDC
 #define NETSTACK_CONF_RDC     nullrdc_driver
-#endif
-
-#ifndef NETSTACK_CONF_NETWORK
-#define NETSTACK_CONF_NETWORK simple_network_driver
 #endif
 
 #define SFD_INT_USED  1
@@ -320,8 +308,8 @@ typedef uint32_t rtimer_clock_t;
 #define RF_TXDONE_HANDLER simple_rf_txdone_handler
 
 /* Configure NullRDC for when it's selected */
-#define NULLRDC_802154_AUTOACK                  1
-#define NULLRDC_802154_AUTOACK_HW               1
+#define NULLRDC_802154_AUTOACK                  0
+#define NULLRDC_802154_AUTOACK_HW               0
 
 /* Configure ContikiMAC for when it's selected */
 #define CONTIKIMAC_CONF_WITH_CONTIKIMAC_HEADER  0
@@ -347,6 +335,8 @@ typedef uint32_t rtimer_clock_t;
 #define LPM_CONF_ENABLE       1 /**< Set to 0 to disable LPM entirely */
 #endif
 
+#define LPM_CONF_ALLOW_INTERRUPT_ONLY_WAKEUP  1
+
 /**
  * \brief Maximum PM
  *
@@ -354,7 +344,7 @@ typedef uint32_t rtimer_clock_t;
  * 0 for PM0, 1 for PM1 and 2 for PM2
  */
 #ifndef LPM_CONF_MAX_PM
-#define LPM_CONF_MAX_PM       1
+#define LPM_CONF_MAX_PM       2
 #endif
 
 #ifndef LPM_CONF_STATS
