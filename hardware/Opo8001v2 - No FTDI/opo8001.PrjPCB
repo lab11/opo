@@ -364,199 +364,95 @@ DocumentPath=Project Outputs for opo8001\BOM\Bill of Materials-opo8001.xlsx
 DItemRevisionGUID=
 
 [GeneratedDocument2]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\comp_+_bot\components
-DItemRevisionGUID=
-
-[GeneratedDocument3]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\comp_+_top\components
-DItemRevisionGUID=
-
-[GeneratedDocument4]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\eda\data
-DItemRevisionGUID=
-
-[GeneratedDocument5]
 DocumentPath=Project Outputs for opo8001\Design Rule Check - opo8001.html
 DItemRevisionGUID=
 
-[GeneratedDocument6]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\bottom\features
-DItemRevisionGUID=
-
-[GeneratedDocument7]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\bottomoverlay\features
-DItemRevisionGUID=
-
-[GeneratedDocument8]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\bottompaste\features
-DItemRevisionGUID=
-
-[GeneratedDocument9]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\bottomsolder\features
-DItemRevisionGUID=
-
-[GeneratedDocument10]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\comp_+_bot\features
-DItemRevisionGUID=
-
-[GeneratedDocument11]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\comp_+_top\features
-DItemRevisionGUID=
-
-[GeneratedDocument12]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\drill\features
-DItemRevisionGUID=
-
-[GeneratedDocument13]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\keepout\features
-DItemRevisionGUID=
-
-[GeneratedDocument14]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\mechanical1\features
-DItemRevisionGUID=
-
-[GeneratedDocument15]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\mechanical13\features
-DItemRevisionGUID=
-
-[GeneratedDocument16]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\mechanical15\features
-DItemRevisionGUID=
-
-[GeneratedDocument17]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\mid1\features
-DItemRevisionGUID=
-
-[GeneratedDocument18]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\mid2\features
-DItemRevisionGUID=
-
-[GeneratedDocument19]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\mid3\features
-DItemRevisionGUID=
-
-[GeneratedDocument20]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\mid4\features
-DItemRevisionGUID=
-
-[GeneratedDocument21]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\top\features
-DItemRevisionGUID=
-
-[GeneratedDocument22]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\topoverlay\features
-DItemRevisionGUID=
-
-[GeneratedDocument23]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\toppaste\features
-DItemRevisionGUID=
-
-[GeneratedDocument24]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\topsolder\features
-DItemRevisionGUID=
-
-[GeneratedDocument25]
+[GeneratedDocument3]
 DocumentPath=Project Outputs for opo8001\ODB\odb\matrix\matrix
 DItemRevisionGUID=
 
-[GeneratedDocument26]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\netlists\cadnet\netlist
-DItemRevisionGUID=
-
-[GeneratedDocument27]
+[GeneratedDocument4]
 DocumentPath=Project Outputs for opo8001\NC Drill\opo8001.DRR
 DItemRevisionGUID=
 
-[GeneratedDocument28]
+[GeneratedDocument5]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.EXTREP
 DItemRevisionGUID=
 
-[GeneratedDocument29]
+[GeneratedDocument6]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.G1
 DItemRevisionGUID=
 
-[GeneratedDocument30]
+[GeneratedDocument7]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.G2
 DItemRevisionGUID=
 
-[GeneratedDocument31]
+[GeneratedDocument8]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.G3
 DItemRevisionGUID=
 
-[GeneratedDocument32]
+[GeneratedDocument9]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.G4
 DItemRevisionGUID=
 
-[GeneratedDocument33]
+[GeneratedDocument10]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.GBL
 DItemRevisionGUID=
 
-[GeneratedDocument34]
+[GeneratedDocument11]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.GBO
 DItemRevisionGUID=
 
-[GeneratedDocument35]
+[GeneratedDocument12]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.GBP
 DItemRevisionGUID=
 
-[GeneratedDocument36]
+[GeneratedDocument13]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.GBS
 DItemRevisionGUID=
 
-[GeneratedDocument37]
+[GeneratedDocument14]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.GKO
 DItemRevisionGUID=
 
-[GeneratedDocument38]
+[GeneratedDocument15]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.GTL
 DItemRevisionGUID=
 
-[GeneratedDocument39]
+[GeneratedDocument16]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.GTO
 DItemRevisionGUID=
 
-[GeneratedDocument40]
+[GeneratedDocument17]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.GTP
 DItemRevisionGUID=
 
-[GeneratedDocument41]
+[GeneratedDocument18]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.GTS
 DItemRevisionGUID=
 
-[GeneratedDocument42]
+[GeneratedDocument19]
 DocumentPath=Project Outputs for opo8001\NC Drill\opo8001.LDP
 DItemRevisionGUID=
 
-[GeneratedDocument43]
+[GeneratedDocument20]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.REP
 DItemRevisionGUID=
 
-[GeneratedDocument44]
+[GeneratedDocument21]
 DocumentPath=Project Outputs for opo8001\ODB\opo8001.REP
 DItemRevisionGUID=
 
-[GeneratedDocument45]
+[GeneratedDocument22]
 DocumentPath=Project Outputs for opo8001\Gerber\opo8001.RUL
 DItemRevisionGUID=
 
-[GeneratedDocument46]
+[GeneratedDocument23]
 DocumentPath=Project Outputs for opo8001\NC Drill\opo8001.TXT
 DItemRevisionGUID=
 
-[GeneratedDocument47]
+[GeneratedDocument24]
 DocumentPath=Project Outputs for opo8001\Pick Place\Pick Place for opo8001.txt
-DItemRevisionGUID=
-
-[GeneratedDocument48]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\profile
-DItemRevisionGUID=
-
-[GeneratedDocument49]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\stephdr
-DItemRevisionGUID=
-
-[GeneratedDocument50]
-DocumentPath=Project Outputs for opo8001\ODB\odb\steps\pcb\layers\drill\tools
 DItemRevisionGUID=
 
 [Configuration1]
