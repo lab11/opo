@@ -12,7 +12,7 @@
 #include <stdbool.h>
 #include "cpu.h"
 #include "cc2538-rf.h"
-#include "cloudcomm.h"
+//#include "cloudcomm.h"
 
 static enum {CHIP_ERASE_DONE,
 	  		 SMALL_BLOCK_ERASE_DONE,
