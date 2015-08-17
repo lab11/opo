@@ -8,3 +8,5 @@ SMALL = 0
 
 CONTIKI = ../../../../contiki
 include $(CONTIKI)/Makefile.include
+CFLAGS += -DINIT_UNIXTIME=1424460031
+CFLAGS += -DOPO_ID=1

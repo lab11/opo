@@ -1,8 +1,12 @@
 DEFINES+=PROJECT_CONF_H=\"project-conf.h\"
-CONTIKI_PROJECT = spi-test
+CONTIKI_PROJECT = simplestore-test
 
 all: $(CONTIKI_PROJECT)
 TARGETDIRS += ../../platform
 
-CONTIKI = /home/wwhuang/Dropbox/git/contiki
+SMALL = 0
+
+CONTIKI = ../../../../contiki
 include $(CONTIKI)/Makefile.include
+CFLAGS += -DINIT_UNIXTIME=1424460031
+CFLAGS += -DOPO_ID=1

@@ -23,9 +23,10 @@ uint32_t test_cfg = 0;
 
 void test_func(uint8_t timer, uint8_t subtimer, uint8_t i, uint32_t gpt_time) {
 	leds_on(LEDS_YELLOW);
-	//printf("Test func\n");
-	//printf("gpt %lu\n", gpt_time);
-	//printf("-----------------\n");
+	printf("Test func\n");
+	printf("gpt %lu\n", gpt_time);
+	printf("-----------------\n");
+	nvic_interrupt_enable(NVIC_INT_GPTIMER_1A);
 }
 
 void info_func(uint8_t port, uint8_t pin) {
@@ -81,8 +82,6 @@ PROCESS_THREAD(spi_test, ev, data) {
 	stat += gpt_register_callback(&test_func, GPTIMER_1, GPTIMER_SUBTIMER_A, GPTIMER_CAPTURE_EVENT);
 	stat += gpt_enable_event(GPTIMER_1, GPTIMER_SUBTIMER_A);
 	stat += gpt_enable_interrupt(GPTIMER_1, GPTIMER_SUBTIMER_A, GPTIMER_CAPTURE_EVENT_INT);
-
-	gpt_register_test_callback(&test_func);
 
 	REG(IOC_GPT1OCP1) = 20;
 /*

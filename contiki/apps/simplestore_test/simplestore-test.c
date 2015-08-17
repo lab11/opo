@@ -7,62 +7,48 @@
 #include <stdbool.h>
 #include "sys/clock.h"
 #include "simplestore.h"
+#include "vtimer.h"
+#include "opo.h"
 
 #define CC2538_RF_CONF_CHANNEL 21
 
 PROCESS(flash_test, "flash-test");
-PROCESS(flash_flash, "flashflash");
 AUTOSTART_PROCESSES(&flash_test);
 
-static uint8_t wbuf[120] = {0};
-static uint8_t rbuf[120] = {0};
+static uint8_t wbuf[140] = {0};
+static uint8_t rbuf[140] = {0};
 
-static void erase_callback() {
-	simplestore_write_next_page(&wbuf, 120);
-}
-
-static void program_callback() {
-	uint8_t i = 0;
-	bool meh = true;
-	leds_on(LEDS_RED);
-	simplestore_read_next_page(&rbuf, 120);
-	for(i=0;i<120;i++) {
-		if(rbuf[i] != wbuf[i]) {
-			meh = false;
-			break;
-		}
-	}
-	if(meh) {
-		leds_on(LEDS_BLUE);
-	}
-	else {
-		leds_on(LEDS_GREEN);
-	}
-}
-
-PROCESS_THREAD(flash_flash, ev, data) {
-	PROCESS_BEGIN();
-	while(1) {
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-
-	}
-	PROCESS_END();
+static vtimer vt;
+static void vtcallback() {
+	process_poll(&flash_test);
 }
 
 PROCESS_THREAD(flash_test, ev, data) {
 	PROCESS_BEGIN();
 	uint8_t i = 0;
+	bool tester = true;
 	for(i=0;i<120;i++) {
 		wbuf[i] = i;
+    rbuf[i] = 0;
 	}
+	vt = get_vtimer(vtcallback);
+  simplestore_clear_flash_chip();
 
-  	process_start(&flash_flash, NULL);
-  	simplestore_set_flash_erase_callback(erase_callback);
-  	simplestore_set_flash_program_callback(program_callback);
-  	simplestore_turn_on_flash();
+  uint8_t w = simplestore_write_next_page(&wbuf[0], 120);
+  uint8_t r = simplestore_read_next_page(&rbuf[0], 120);
 
-  	simplestore_config();
-  	simplestore_clear_flash_chip();
+  for(i=0;i<120;i++) {
+  	if(wbuf[i] != rbuf[i]) {
+  		tester = false;
+  		break;
+  	}
+  }
+
+  if(tester) {
+  	leds_on(LEDS_GREEN);
+  } else {
+    leds_on(LEDS_RED);
+  }
 
 	PROCESS_END();
 }

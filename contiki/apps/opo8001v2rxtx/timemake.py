@@ -20,10 +20,12 @@ for line in rmake:
 
 base = "CFLAGS += -D{0}={1}\n"
 wmake.write(base.format('INIT_UNIXTIME', today.timestamp))
-wmake.write(base.format('OPO_ID'), m_id)
+wmake.write(base.format('OPO_ID', m_id))
+wmake.write(base.format("CC2538_RF_PRINT",0))
+wmake.write(base.format("RF_DEBUG_ID", m_id))
 
 wmake.close()
-m = sh.make("opo2", "opo4rx.upload")
+sh.make("clean")
+m = sh.make("opo8001rxtx.upload")
 print m.stdout
 print m.stderr
-
