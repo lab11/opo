@@ -2,15 +2,13 @@
 #include "net/netstack.h"
 #include "dev/leds.h"
 
-static void (*m_callback)();
+static void default_callback() {}
+static void (*m_callback)() = default_callback;
 
 
-static void init(void) {
-
-}
+static void init(void) {}
 
 static void input(void) {
-	leds_toggle(LEDS_GREEN);
 	(*m_callback)();
 }
 
