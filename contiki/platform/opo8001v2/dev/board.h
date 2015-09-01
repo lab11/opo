@@ -123,20 +123,27 @@
 #define OPO_PWM_PIN_MASK	0x08
 #define OPO_PWM_PIN_NUM	    3
 
+// Plug in detect
+#define PLUG_DETECT_PORT_BASE	GPIO_A_BASE
+#define PLUG_DETECT_PORT_NUM	GPIO_A_NUM
+#define PLUG_DETECT_PIN_MASK	0x20
+#define PLUG_DETECT_PIN_NUM	    5
+
+// Initial input/output masks
 #define GPIO_A_OUTPUT_MASK 0xda
 #define GPIO_A_INPUT_MASK  0x25
 #define GPIO_A_CLR_MASK    0xff
 #define GPIO_A_SET_MASK    0x00 // I think UART line should be clear..?
 
-#define GPIO_B_OUTPUT_MASK 0xfb
-#define GPIO_B_INPUT_MASK  0x04
+#define GPIO_B_OUTPUT_MASK 0xff
+#define GPIO_B_INPUT_MASK  0x00
 #define GPIO_B_CLR_MASK	   0xfc
 #define GPIO_B_SET_MASK    0x03
 
 #define GPIO_C_OUTPUT_MASK 0xdb
 #define GPIO_C_INPUT_MASK  0x24
-#define GPIO_C_CLR_MASK    0xf7
-#define GPIO_C_SET_MASK    0x08
+#define GPIO_C_CLR_MASK    0xa4
+#define GPIO_C_SET_MASK    0x5b
 
 #define GPIO_D_OUTPUT_MASK 0x7b
 #define GPIO_D_INPUT_MASK  0x84
@@ -255,11 +262,19 @@
  * @{
  */
 #define SPI_CLK_PORT             GPIO_A_NUM
+#define SPI_CLK_PORT_BASE		 GPIO_A_BASE
 #define SPI_CLK_PIN              6
+#define SPI_CLK_PIN_MASK		 0x40
+
 #define SPI_MOSI_PORT            GPIO_D_NUM
+#define SPI_MOSI_PORT_BASE		 GPIO_D_BASE
 #define SPI_MOSI_PIN             1
+#define SPI_MOSI_PIN_MASK		 0x02
+
 #define SPI_MISO_PORT            GPIO_D_NUM
+#define SPI_MISO_PORT_BASE		 GPIO_D_BASE
 #define SPI_MISO_PIN             2
+#define SPI_MISO_PIN_MASK		 0x04
 
 #define I2C_SDA_PORT_NUM   GPIO_C_NUM
 #define I2C_SDA_PIN_NUM	   1

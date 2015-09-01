@@ -409,7 +409,7 @@ typedef uint32_t rtimer_clock_t;
 #endif
 
 #ifndef CC2538_RF_CONF_RX_USE_DMA
-#define CC2538_RF_CONF_RX_USE_DMA            1 /**< RF RX over DMA */
+#define CC2538_RF_CONF_RX_USE_DMA            0 /**< RF RX over DMA */
 #endif
 /** @} */
 /*---------------------------------------------------------------------------*/

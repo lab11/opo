@@ -107,7 +107,6 @@ int main(void) {
   GPIO_SET_INPUT(GPIO_A_BASE, GPIO_A_INPUT_MASK);
   GPIO_CLR_PIN(GPIO_A_BASE, GPIO_A_CLR_MASK);
   GPIO_SET_PIN(GPIO_A_BASE, GPIO_A_SET_MASK);
-  GPIO_SOFTWARE_CONTROL(GPIO_A_BASE, 0xFB);
 
   GPIO_SET_OUTPUT(GPIO_B_BASE, GPIO_B_OUTPUT_MASK);
   GPIO_SET_INPUT(GPIO_B_BASE, GPIO_B_INPUT_MASK);
@@ -142,8 +141,6 @@ int main(void) {
 
   watchdog_init();
   spi_init();
-
-  rf_switch_init();
 
   sst25vf_init();
 
