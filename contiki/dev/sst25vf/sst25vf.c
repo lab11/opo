@@ -59,7 +59,7 @@ static inline void enable_writes() {
 }
 
 
-static inline void runSpiByteRx(uint8_t *cmdBuffer, void *rxBuffer, uint32_t rx_len) {
+static inline void runSpiByteRx(uint8_t cmdBuffer[4], void *rxBuffer, uint32_t rx_len) {
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
 	clr_flash_cs();
@@ -75,7 +75,7 @@ static inline void runSpiByteRx(uint8_t *cmdBuffer, void *rxBuffer, uint32_t rx_
 	set_flash_cs();
 }
 
-static void runSpiByteTx(uint8_t *cmdBuffer, void *txBuffer, uint32_t tx_len) {
+static void runSpiByteTx(uint8_t cmdBuffer[4], void *txBuffer, uint32_t tx_len) {
 	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
 	SPI_FLUSH();
 	clr_flash_cs();
@@ -84,9 +84,11 @@ static void runSpiByteTx(uint8_t *cmdBuffer, void *txBuffer, uint32_t tx_len) {
 		SPI_WRITE(cmdBuffer[j]);
 		SPI_FLUSH();
 	}
-	for(j = 0; j < tx_len; j++) {
-		SPI_WRITE(((uint8_t *)txBuffer)[j]);
-		SPI_FLUSH();
+	if (txBuffer != NULL) {
+		for(j = 0; j < tx_len; j++) {
+			SPI_WRITE(((uint8_t *)txBuffer)[j]);
+			SPI_FLUSH();
+		}
 	}
 	set_flash_cs();
 }
@@ -139,7 +141,7 @@ uint8_t sst25vf_read_page(uint32_t addr, void *rxBuffer, uint32_t rx_len) {
 	cmdBuffer[2] = m_addr[1];
 	cmdBuffer[3] = m_addr[2];
 
-	runSpiByteRx(&cmdBuffer[0], rxBuffer, rx_len);
+	runSpiByteRx(cmdBuffer, rxBuffer, rx_len);
 
 	while(sst25vf_read_status_register() & STATUS_BUSY) { clock_delay_usec(500); }
 
@@ -228,7 +230,7 @@ uint8_t sst25vf_program(uint32_t addr, void *txBuffer, uint32_t tx_len) {
 
 	enable_writes();
 	while(sst25vf_read_status_register() != STATUS_WEL) { clock_delay_usec(500); }
-	runSpiByteTx(&cmdBuffer[0], txBuffer, tx_len);
+	runSpiByteTx(cmdBuffer, txBuffer, tx_len);
 	clock_delay_usec(3000);
 	while(sst25vf_read_status_register() & STATUS_BUSY) { clock_delay_usec(500); }
 	SPI_FLUSH();
@@ -298,7 +300,7 @@ uint8_t sst25vf_4kb_erase(uint32_t addr) {
 	cmdBuffer[3] = m_addr[2];
 
 	enable_writes();
-	runSpiByteTx(&cmdBuffer[0], NULL, 0);
+	runSpiByteTx(cmdBuffer, NULL, 0);
 
 	status = SECTOR_ERASE_DONE;
 	return 1;
@@ -318,7 +320,7 @@ uint8_t sst25vf_32kb_erase(uint32_t addr) {
 	cmdBuffer[3] = m_addr[2];
 
 	enable_writes();
-	runSpiByteTx(&cmdBuffer[0], NULL, 0);
+	runSpiByteTx(cmdBuffer, NULL, 0);
 
 	status = SMALL_BLOCK_ERASE_DONE;
 	return 1;
@@ -338,7 +340,7 @@ uint8_t sst25vf_64kb_erase(uint32_t addr) {
 	cmdBuffer[3] = m_addr[2];
 
 	enable_writes();
-	runSpiByteTx(&cmdBuffer[0], NULL, 0);
+	runSpiByteTx(cmdBuffer, NULL, 0);
 
 	status = LARGE_BLOCK_ERASE_DONE;
 	return 1;
