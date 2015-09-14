@@ -31,7 +31,7 @@ uint8_t simplestore_write_next_page(void *txBuffer, uint16_t tx_len) {
 }
 
 uint8_t simplestore_read_next_page(void *rxBuffer, uint16_t rx_len) {
-	if(read_head == write_head) {
+	if(read_head == write_head || read_head >= max_page) {
 		return SIMPLESTORE_READ_FULL; // Nothing more to be read.
 	}
 
