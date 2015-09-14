@@ -12,19 +12,17 @@
 typedef uint32_t vtimer_clock_t;
 
 typedef struct vtimer {
-	void (*callback)();
-	uint32_t scheduled_time;
-	uint32_t ticks;
-	bool is_set;
-	bool is_scheduled;
+	void (*callback)(); // callback function called on vtimer trigger
+	uint32_t scheduled_time; // hardware time the vtimer should execute at. 0 if vtimer is not in the queue
+	bool is_set; // Checks that this vt is the next to run. Guards against vtimer_cancel edge cases
+	bool in_queue; // Checks if this vt is already in the queue when scheduling.
 	struct vtimer *next;
 	struct vtimer *prev;
-	uint8_t debug_counter;
 } vtimer;
 
 vtimer get_vtimer(void *callback);
 void schedule_vtimer(vtimer *v, uint32_t ticks); // Schedule a timer for x ticks in the future
-void schedule_high_priority(vtimer *v, uint32_t ticks); // Schedules this timer ahead of all others.
+void schedule_vtimer_ms(vtimer *v, uint32_t time); // Schedule a timer for x ms in the future
 void cancel_vtimer(vtimer *v); // cancel vtimer associated with a callback
 void vtimer_init();
 void vtimer_run_next();
