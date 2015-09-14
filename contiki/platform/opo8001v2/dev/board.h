@@ -262,19 +262,13 @@
  * @{
  */
 #define SPI_CLK_PORT             GPIO_A_NUM
-#define SPI_CLK_PORT_BASE		 GPIO_A_BASE
 #define SPI_CLK_PIN              6
-#define SPI_CLK_PIN_MASK		 0x40
 
 #define SPI_MOSI_PORT            GPIO_D_NUM
-#define SPI_MOSI_PORT_BASE		 GPIO_D_BASE
 #define SPI_MOSI_PIN             1
-#define SPI_MOSI_PIN_MASK		 0x02
 
 #define SPI_MISO_PORT            GPIO_D_NUM
-#define SPI_MISO_PORT_BASE		 GPIO_D_BASE
 #define SPI_MISO_PIN             2
-#define SPI_MISO_PIN_MASK		 0x04
 
 #define I2C_SDA_PORT_NUM   GPIO_C_NUM
 #define I2C_SDA_PIN_NUM	   1
