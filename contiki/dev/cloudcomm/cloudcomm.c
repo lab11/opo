@@ -14,25 +14,26 @@ static bool    req_queue[CLOUDCOMM_REQ_QUEUE_LENGTH] = {0};
 
 // Data storage shit
 static uint16_t  cc_packet_length = 0;
-static uint8_t  data_store[300] = {0};
+static uint8_t   data_store[300] = {0};
 static uint16_t  data_store_index = 0;
-static uint32_t flash_pages_stored = 0;
+static uint32_t  flash_pages_stored = 0;
 
 // Stuff for sending data;
 
-static uint8_t sequence_num = 1; // 1 starts a new packet to be sent to the cloud. 255 ends the packet.
-static uint8_t last_sequence_num = 0;
-static uint8_t sending_packet[20] = {0}; // packet we use to send shit to the phone
-static uint8_t sending_data_store[300] = {0};
-static uint16_t sending_data_store_index = 0; // how much data is in our sending buffer
-static uint16_t next_packet_index = 0; // demarcates next data packet
-static uint16_t last_packet_index = 0; // keep track of rollback index in case of disconnect
-static uint16_t sending_data_store_end = 0;
-static uint16_t max_data_store_length = 0;
-static bool    sending_data_store_empty = true;
+static uint8_t  sequence_num = 1;                // 1 starts a new packet to be sent to the cloud. 255 ends the packet.
+static uint8_t  last_sequence_num = 0;           // Used for data ACKS from the phone
+static uint8_t  sending_packet[20] = {0};        // Transmit buffer 
+static uint8_t  sending_data_store[300] = {0};   // Buffer where data is stored while being sent to the phone
+static uint16_t sending_data_store_index = 0;    // How much data is in our sending buffer
+static uint16_t next_packet_index = 0;           // Demarcates next data packet
+static uint16_t last_packet_index = 0;           // Rollback index to handle unexpected disconnect
+static uint16_t sending_data_store_end = 0;      // Demarcates end of valid data in our data buffer
+static uint16_t max_data_store_length = 0;       // Bytes of valid data per flash page
+static bool     sending_data_store_empty = true;
+static bool     sent_data_from_flash = false;    // Checks if the data sent was from flash. If so, mark that page done to prevent retransmissions
 
 // Stuff for sending over the url
-static bool    urlSet = false;
+static bool     urlSet = false;                  
 static uint16_t urlIndex = 0;
 
 //Cloudcomm operation/shutdown parameters
@@ -41,22 +42,22 @@ static vtimer    cc_failsafe_vtimer;
 static uint16_t  cc_ontime = 0;
 
 //Cloudcomm ble state
-static bool on = false; // should we be scanning on ble
+static bool on = false;                // should we be scanning on ble
 static bool sleep = false;
-static bool connecting = false; // currently attempting to connect
-static bool connected = false; // connected to phone
-static bool pipes_ready = false; // NRf8001 ready to do shit after connection
+static bool connecting = false;        // currently attempting to connect
+static bool connected = false;         // connected to phone
+static bool pipes_ready = false;       // NRf8001 ready to do shit after connection
 static bool device_setup_done = false; // nrf8001 setup complete
-static bool sending = false; // currently sending data on ble_chip
-static bool ble_credited = true; // need both this and data_acked to keep sending
-static bool ble_acked = true; // need both this and data_credited to keep sending
-static bool phone_ready = false; // Phone has to first tell us it's ready and willing
-static bool tried_open_ready = false; // Signifies that we have already tried to open the CCReady pipe
-static bool tried_open_data = false; // Signifies that we have already tried to open the CCIncomingData pipe
+static bool sending = false;           // currently sending data on ble_chip
+static bool ble_credited = true;       // need both this and data_acked to keep sending
+static bool ble_acked = true;          // need both this and data_credited to keep sending
+static bool phone_ready = false;       // Phone has to first tell us it's ready and willing
+static bool tried_open_ready = false;  // Signifies that we have already tried to open the CCReady pipe
+static bool tried_open_data = false;   // Signifies that we have already tried to open the CCIncomingData pipe
 static bool open_pipes[NUMBER_OF_PIPES];
-static bool failsafe = true; // Used to indicate that the phone connection has gone awry
-static bool device_started = false; // When false, in sleep/setup mode. When true, in standby/connected mode.
-static bool bad_state = false; // Tracks if our wakeup command fails to actually wake the chip up.
+static bool failsafe = true;           // Used to indicate that the phone connection has gone awry
+static bool device_started = false;    // When false, in sleep/setup mode. When true, in standby/connected mode.
+static bool bad_state = false;         // Tracks if our wakeup command fails to actually wake the chip up.
 static bool user_control_returned = false;
 
 //Cloudcomm ready pipe byte and bit positions
@@ -83,10 +84,8 @@ static uint8_t get_byte_pos(uint8_t pos) {
 	return 0;
 }
 
-static uint8_t get_bit_pos(uint8_t pos) {
-	// get bit position for a pipe in the pipe status array
-	return pos % 8;
-}
+/* Get bit position for a pipe in the array returned in a pipe status event */
+static uint8_t get_bit_pos(uint8_t pos) { return pos % 8; }
 
 /* Cleanup function for cloudcomm. Resets all relevent state variables for next cc connection. */
 static void reset_state() {
@@ -136,9 +135,10 @@ static bool cancel_cc_failsafe_vtimer() {
 	return false;
 }
 
-static void schedule_cc_failsafe_vtimer(uint8_t t) {
+/* Helper function to schedule failsafe timer in */
+static void schedule_cc_failsafe_vtimer(uint32_t t) {
 	failsafe = true;
-	schedule_vtimer(&cc_failsafe_vtimer, VTIMER_SECOND * t);
+	schedule_vtimer_ms(&cc_failsafe_vtimer, t);
 }
 
 static void return_control_to_user() {
@@ -327,7 +327,7 @@ static void data_received_handler(uint8_t event, uint8_t payload_length, uint8_t
 				}
 			} else {
 				send_rf_debug_msg("NRF8001_RX: error\n");
-				schedule_cc_failsafe_vtimer(15);
+				schedule_cc_failsafe_vtimer(15000);
 				bad_state = true;
 				nrf8001_disconnect(0x01);
 			}
@@ -364,8 +364,8 @@ PROCESS_THREAD(ble_sleep_process, ev, data) {
 				send_rf_debug_msg("CC_BLE_SLEEP_PROC: connected\n");
 				on = false;
 				bad_state = true;
-				schedule_cc_failsafe_vtimer(15);
 				INTERRUPTS_ENABLE();
+				schedule_cc_failsafe_vtimer(8000);
 				nrf8001_disconnect(0x01);
 				continue;
 			}
@@ -406,7 +406,7 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 			if(sleep) {
 				send_rf_debug_msg("CC_BLE_CONNECT_PROC: asleep\n");
 				sleep = false;
-				schedule_cc_failsafe_vtimer(10);
+				schedule_cc_failsafe_vtimer(10000);
 				nrf8001_wakeup();
 			}
 			/* Connect to the phone */
@@ -415,13 +415,13 @@ PROCESS_THREAD(ble_connect_process, ev, data) {
 				/* Connect based on user set ontime */
 				if(cc_ontime != 0) {
 					send_rf_debug_msg("CC_BLE_CONNECT_PROC: limited connect\n");
-					schedule_cc_failsafe_vtimer(cc_ontime/1000 + 30);
-					nrf8001_connect(cc_ontime/1000, 32);
+					schedule_cc_failsafe_vtimer(cc_ontime * 1000 + 8000);
+					nrf8001_connect(cc_ontime, 32);
 				}
 				/* Keep cloudcomm on until all operations are done */
 				else {
 					send_rf_debug_msg("CC_BLE_CONNECT_PROC: perpetual connect\n ");
-					schedule_cc_failsafe_vtimer(90);
+					schedule_cc_failsafe_vtimer(90000);
 					nrf8001_connect(60,32);
 				}
 			}
@@ -493,7 +493,7 @@ static void send_cc_data_packet(uint16_t *current_data_index, uint16_t final_dat
 /* Transmits the URL set in metainfo to the phone */
 static void transmit_url() {
 	send_rf_debug_msg("CC_TRANSMIT_URL: transmit url\n");
-	schedule_cc_failsafe_vtimer(15);
+	schedule_cc_failsafe_vtimer(8000);
 	send_ble_packet(&urlIndex, metainfo.dest_len-1, (uint8_t *)metainfo.dest); // fill BLE packet with data fragment
 }
 
@@ -505,7 +505,7 @@ static void get_metadata() {
 			send_rf_debug_msg("CC_GET_META: get metadata\n");
 			ble_acked = false; // lets us know when
 			ble_credited = false; // lets us know when the nrf8001 can service more transmissions.
-			schedule_cc_failsafe_vtimer(15);
+			schedule_cc_failsafe_vtimer(10000);
 			nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMREQUESTS_TX_ACK,1,&i); // send metainfo requests to phone
 			break;
 		}
@@ -562,10 +562,12 @@ static void upload_data() {
 	if(sending_data_store_empty) {
 		if(data_store_index > 0) {
 			send_rf_debug_msg("CC_UPLOAD_DATA: load from ram\n");
+			sent_data_from_flash = false;
 			load_ble_buffer_from_ram();
 		}
 		else if(flash_pages_stored > 0) {
 			send_rf_debug_msg("CC_UPLOAD_DATA: load from flash\n");
+			sent_data_from_flash = true;
 			load_ble_buffer_from_flash();
 		}
 	}
@@ -573,7 +575,7 @@ static void upload_data() {
 	/* If our BLE buffer has data, send it out */
 	if(!sending_data_store_empty) {
 		send_rf_debug_msg("CC_UPLOAD_DATA: upload data\n");
-		schedule_cc_failsafe_vtimer(15);
+		schedule_cc_failsafe_vtimer(10000);
 		send_cc_data_packet(&sending_data_store_index, next_packet_index, sending_data_store);
 	}
 	/* No data left, Cloudcomm is done */
@@ -607,8 +609,11 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 			if(!urlSet && have_tasks()) { transmit_url(); }
 			/* Get any needed metainfo such as time */
 			else if(req_count > 0) { get_metadata(); }
-			/* Upload data to phone */
-			else if(data_store_index > 0 || flash_pages_stored > 0) { upload_data(); }
+			/* Upload data to phone, and mark last page done if the last set of data sent was from flash */
+			else if(data_store_index > 0 || flash_pages_stored > 0) { 
+				if(sent_data_from_flash) { simplestore_mark_last_page_done(); }
+				upload_data(); 
+			}
 			/* Done all data upload/download */
 			else {
 				on = false;
@@ -633,6 +638,7 @@ static void cc_failsafe_vtimer_callback() {
 			send_rf_debug_msg("CC_FAILSAFE: reset\n");
 			bad_state = false;
 			reset_state();
+			if(cc_ontime == 0) { on = true; }	
 			nrf8001_reset();
 			return;
 		}
@@ -689,7 +695,7 @@ void cloudcomm_init() {
   * Control is returned to user once data upload/download is finished or if ontime expires
   * If ontime is 0, Cloudcomm runs perpetually until it is done uploading/downloading data.
 */
-void cloudcomm_on(void *callback, uint16_t ontime) {
+uint8_t cloudcomm_on(void *callback, uint16_t ontime) {
 	cc_done_callback = callback;
 	user_control_returned = false;
 	/* Make sure we have data to upload or metadata to aquire, then connect */
@@ -698,10 +704,13 @@ void cloudcomm_on(void *callback, uint16_t ontime) {
 		cc_ontime = ontime;
 		send_rf_debug_msg("CLOUDCOMM_ON(): connect\n");
 		process_poll(&ble_connect_process);
+		return 1; // CC has shit to do
 	}
 	else {
 		send_rf_debug_msg("CLOUDCOMM_ON(): return control\n");
-		return_control_to_user();
+		//return_control_to_user();
+		user_control_returned = true;
+		return 0; // CC HAS NOTHING TO DO
 	}
 }
 
@@ -715,25 +724,30 @@ void cloudcomm_set_packet_length(uint8_t len) {
 	max_data_store_length = len * (256/len);
 }
 
-/**
-   Users pass data to Cloudcomm through this function. Cloudcomm buffers this
-	 data in DATA_STORE. When the buffer fills up based on CC_PACKET_LENGTH,
-	 Cloducomm flushes the data to flash.
+/*
+ * Users pass data to Cloudcomm through this function. Cloudcomm buffers this
+ * data in DATA_STORE. When the buffer fills up based on CC_PACKET_LENGTH,
+ * Cloducomm flushes the data to flash.
 */
 uint8_t cloudcomm_store(void *data) {
 	uint8_t *data_ptr = (uint8_t *)data;
+	
+	/* Add the user provided data to our RAM buffer */
 	uint8_t i = 0;
-
 	for(i=0;i < cc_packet_length;i++) { data_store[data_store_index+i] = data_ptr[i]; }
+	
+	/* Update data_store_index to point to the next free byte in our RAM buffer */
 	data_store_index += cc_packet_length;
-
-	if( (uint32_t)data_store_index + (uint32_t)cc_packet_length > 256) {
+	
+	/* If the buffer is full, write it to flash. Leave the last byte in the flash page free as a status byte. */
+	/* We consider the buffer full when adding more data to it would overflow a flash page.                   */
+	if( (uint32_t)data_store_index + (uint32_t)cc_packet_length > 255) { 
 		uint16_t data_size = data_store_index;
 		flash_pages_stored += 1; // Update cloudcomm's knowledge of how much data is in flash
-		data_store_index = 0; // Reset DATA_STORE
+		data_store_index = 0; // Reset our ram buffer
 		if(simplestore_write_next_page((void *)data_store, data_size) != SIMPLESTORE_SUCCESS) {
 			//send_rf_debug_msg("Cloudcomm Store Fail");
-			return 0;
+			return 0; // something went wrong
 		}
 	}
 

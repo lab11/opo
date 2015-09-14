@@ -37,7 +37,7 @@ typedef struct cloudcomm_metainfo {
 
 void cloudcomm_init();
 
-void cloudcomm_on(void *callback, uint16_t ontime); // ontime in ms
+uint8_t cloudcomm_on(void *callback, uint16_t ontime); // ontime in s
 
 void register_cloudcomm_callback(cloudcomm_callback_t callback, uint8_t req);
 
