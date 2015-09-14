@@ -99,7 +99,6 @@ static void disable_all_ioc_override() {
  * \brief Main routine for the opo 4 platform
  */
 int main(void) {
-  uint8_t i = 0;
   gpio_init();
 
   // Set up GPIO pins. Gotta stop that current leakage yo
@@ -153,6 +152,7 @@ int main(void) {
   set_rf_params();
   netstack_init();
 
+  rv4162_enable_clkout();
   nrf8001_init();
   cloudcomm_init();
 
