@@ -35,6 +35,7 @@ void   rv4162_set_unixtime(time_t time);
 void rv4162_set_time(uint8_t *full_time); // Set the time
 
 void rv4162_disable_clkout();
+void rv4162_enable_clkout();
 
 void rv4162_init();
 
