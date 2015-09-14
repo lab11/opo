@@ -5,9 +5,6 @@
 #ifndef OPO_H
 #define OPO_H
 
-#ifndef OPO_ID
-	#define OPO_ID 0
-#endif
 
 typedef struct __attribute__((packed)) opo_ranging_message {
 	uint16_t preamble; // equal to the bitwise NOT of the id

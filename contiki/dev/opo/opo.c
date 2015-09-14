@@ -25,6 +25,8 @@
 	Current version uses comp1 or everything rx
 */
 
+#define OPO_ID 3
+
 PROCESS(opo_rx, "OpoRx");
 PROCESS(opo_tx, "OpoTx");
 PROCESS(opo_restart, "OpoRestart");
@@ -86,13 +88,13 @@ static void rf_rx_callback() {
 		if(packet_length == sizeof(opo_rmsg_t)) {
 			packetbuf_copyto((void *) &rxmsg_storage);
 			packetbuf_clear();
+			NETSTACK_MAC.off(0);
 			if(rxmsg_storage.preamble == (uint16_t) ~(rxmsg_storage.id)) { // need cast because C
 				rf_packet_received = true;
 				process_poll(&opo_rx);
 			}
 		}
 	}
-
 }
 
 static void tx_rf_rx_done_callback() {}
@@ -118,17 +120,15 @@ PROCESS_THREAD(opo_rx, ev, data) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 		if(opo_state == OPO_RX) {
 				if(!transmission_noise) {
-					leds_on(LEDS_RED);
 					cc2538_ant_enable();
 					packetbuf_clear();
 					NETSTACK_MAC.on();
 				}
-				schedule_vtimer(&rx_vt, VTIMER_SECOND/1000 * 20); // fallback timer
+				schedule_vtimer_ms(&rx_vt, 20); // fallback timer
 			PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 				packetbuf_clear();
 				NETSTACK_MAC.off(0);
 				opo_state = OPO_IDLE;
-				leds_off(LEDS_RED);
 				if(rf_packet_received == true) {
 					uint32_t diff = (uint32_t) (sfd_time - ul_wakeup_time);
 					if(diff < rxmsg_storage.ul_rf_dt) {
@@ -197,7 +197,7 @@ PROCESS_THREAD(opo_tx, ev, data) {
 				clock_delay_usec(700);
 				gpt_disable_event(OPO_PWM_GPTIMER, OPO_PWM_GPSUBTIMER);
 				opo_tx_stage = 1;
-				schedule_vtimer(&tx_vt, (VTIMER_SECOND/1000 * 7));
+				schedule_vtimer_ms(&tx_vt, 7);
 			}
 			else {
 				goto opo_tx_cleanup;
@@ -283,7 +283,7 @@ uint8_t enable_opo_rx() {
 			transmission_noise = false;
 			dl += 70;
 		}
-		schedule_vtimer(&rx_restart_vt, VTIMER_SECOND/1000 * dl);
+		schedule_vtimer_ms(&rx_restart_vt, dl);
 		INTERRUPTS_ENABLE();
 		return 1;
 	}
@@ -323,12 +323,13 @@ static void setup_opo_rx_pins() {
 	GPIO_DETECT_EDGE(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
 	GPIO_TRIGGER_SINGLE_EDGE(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
 	GPIO_DETECT_RISING(OPO_COMP1_PORT_BASE, OPO_COMP1_PIN_MASK);
+	GPIO_POWER_UP_ON_RISING(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
 }
 
 void opo_init() {
 	meta.id = OPO_ID;
 	meta.time_confidence = 0;
-	rxmsg.version_num = 0xaabb;
+	rxmsg.version_num = 0x01;
 	rxmsg.rx_id = OPO_ID;
 	setup_40kh_pwm();
 	setup_opo_rx_pins();
@@ -342,9 +343,8 @@ void opo_init() {
 	process_start(&opo_rx_noise, NULL);
 	rx_vt = get_vtimer(rx_vt_callback);
 	tx_vt = get_vtimer(tx_vt_callback);
-	tx_vt.debug_counter = 2;
 	rx_restart_vt = get_vtimer(restart_vt_callback);
-	GPIO_POWER_UP_ON_RISING(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
+	opo_state = OPO_IDLE;
 }
 
 void register_opo_rx_callback(opo_rx_callback_t mcallback) {
