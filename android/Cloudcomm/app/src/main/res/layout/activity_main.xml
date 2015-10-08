@@ -25,7 +25,7 @@
             <TableRow>
                 <TextView
                     android:id="@+id/text_cc_status"
-                    android:text="Cloudcomm Servie Controller\n"
+                    android:text="Cloudcomm Service Controller\n"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </TableRow>
