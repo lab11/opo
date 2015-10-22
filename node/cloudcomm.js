@@ -64,6 +64,7 @@ function explore(peripheral) {
   peripheral.on('disconnect', function() {
       urlSet = false
       dataBuilder = null
+      urlNode = ""
       console.log("disconnect")
       noble.startScanning();
   });
