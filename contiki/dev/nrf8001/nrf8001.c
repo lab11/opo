@@ -121,21 +121,42 @@ PROCESS_THREAD(nrf8001_event_process, ev, data) {
 			nrf8001_ep.length = 0;
 			nrf8001_ep.event = 0;
 			spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
-			SPI_FLUSH();
+			//SPI_FLUSH();
 			REQN_CLR();
-			SPI_READ(debug);
-			SPI_READ(nrf8001_ep.length);
-			SPI_READ(nrf8001_ep.event);
+			//SPI_READ(debug);
+			//SPI_READ(nrf8001_ep.length);
+			//SPI_READ(nrf8001_ep.event);
+
+			if(!spi_flush_buffer()) {
+				send_rf_debug_msg("nrf8001 event fail 1");
+			}
+			if(!spi_read_byte(&debug)) {
+				send_rf_debug_msg("nrf8001 event fail 2");
+			}
+			if(!spi_read_byte(&nrf8001_ep.length)) {
+				send_rf_debug_msg("nrf8001 event fail 3");
+			}
+			if(!spi_read_byte(&nrf8001_ep.event)) {
+				send_rf_debug_msg("nrf8001 event fail 4");
+			}
 
 			nrf8001_ep.length = reverse_table[nrf8001_ep.length];
 			if(nrf8001_ep.length > 0 && nrf8001_ep.length < 30) {
-				for(i=0; i < nrf8001_ep.length-1; i++) { SPI_READ(nrf8001_ep.packet[i]); }
+				//for(i=0; i < nrf8001_ep.length-1; i++) { SPI_READ(nrf8001_ep.packet[i]); }
+				for(i=0; i < nrf8001_ep.length-1; i++) {
+					if(!spi_read_byte(&(nrf8001_ep.packet[i]))) {
+						send_rf_debug_msg("nrf8001 event fail 5");
+					}
+				}
 				nrf8001_ep.event = reverse_table[nrf8001_ep.event];
 				for(i=0; i < nrf8001_ep.length-1;i++) { nrf8001_ep.packet[i] = reverse_table[nrf8001_ep.packet[i]]; }
 			}
 			else if(nrf8001_ep.length > 30) {rdyn_state = 1;}
 			REQN_SET();
-			while(REG(SSI0_BASE + SSI_SR) & SSI_SR_BSY) {}
+			//while(REG(SSI0_BASE + SSI_SR) & SSI_SR_BSY) {}
+			if(!spi_wait_done()) {
+				send_rf_debug_msg("nrf8001 event fail 6");
+			}
 
 		}
 		INTERRUPTS_ENABLE();
@@ -184,10 +205,16 @@ PROCESS_THREAD(nrf8001_cmd_process, ev, data) {
 
 			uint8_t plength = reverse_table[nrf8001_cmd.length] - 1;
 			spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
-			SPI_FLUSH();
-			SPI_WRITE(nrf8001_cmd.length);
-			SPI_WRITE(nrf8001_cmd.command);
-			for(i=0;i < plength;i++) { SPI_WRITE(nrf8001_cmd.packet[i]); }
+			if(!spi_flush_buffer()) {send_rf_debug_msg("nrf8001 cmd fail 1");}
+			if(!spi_write_byte(nrf8001_cmd.length)) {send_rf_debug_msg("nrf8001 cmd fail 2");}
+			if(!spi_write_byte(nrf8001_cmd.command)) {send_rf_debug_msg("nrf8001 cmd fail 3");}
+			for(i=0;i < plength;i++) {
+				if(!spi_write_byte(nrf8001_cmd.packet[i])) {send_rf_debug_msg("nrf8001 cmd fail 4");}
+			}
+			//SPI_FLUSH();
+			//SPI_WRITE(nrf8001_cmd.length);
+			//SPI_WRITE(nrf8001_cmd.command);
+			//for(i=0;i < plength;i++) { SPI_WRITE(nrf8001_cmd.packet[i]); }
 			REQN_SET();
 			current_cmd = reverse_table[nrf8001_cmd.command];
 			nrf8001_cmd.command = 0;
