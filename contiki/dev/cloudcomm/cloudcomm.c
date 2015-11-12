@@ -14,7 +14,7 @@ static bool    req_queue[CLOUDCOMM_REQ_QUEUE_LENGTH] = {0};
 
 // Data storage shit
 static uint16_t  cc_packet_length = 0;
-static uint8_t   data_store[300] = {0};
+static uint8_t   data_store[270] = {0};
 static uint16_t  data_store_index = 0;
 static uint32_t  flash_pages_stored = 0;
 
@@ -22,8 +22,8 @@ static uint32_t  flash_pages_stored = 0;
 
 static uint8_t  sequence_num = 1;                // 1 starts a new packet to be sent to the cloud. 255 ends the packet.
 static uint8_t  last_sequence_num = 0;           // Used for data ACKS from the phone
-static uint8_t  sending_packet[20] = {0};        // Transmit buffer 
-static uint8_t  sending_data_store[300] = {0};   // Buffer where data is stored while being sent to the phone
+static uint8_t  sending_packet[20] = {0};        // Transmit buffer
+static uint8_t  sending_data_store[270] = {0};   // Buffer where data is stored while being sent to the phone
 static uint16_t sending_data_store_index = 0;    // How much data is in our sending buffer
 static uint16_t next_packet_index = 0;           // Demarcates next data packet
 static uint16_t last_packet_index = 0;           // Rollback index to handle unexpected disconnect
@@ -31,15 +31,16 @@ static uint16_t sending_data_store_end = 0;      // Demarcates end of valid data
 static uint16_t max_data_store_length = 0;       // Bytes of valid data per flash page
 static bool     sending_data_store_empty = true;
 static bool     sent_data_from_flash = false;    // Checks if the data sent was from flash. If so, mark that page done to prevent retransmissions
-
+static bool     use_acks = true;
+static uint8_t  node_ready = 1;
 // Stuff for sending over the url
-static bool     urlSet = false;                  
+static bool     urlSet = false;
 static uint16_t urlIndex = 0;
 
 //Cloudcomm operation/shutdown parameters
 static void     (*cc_done_callback)();
 static vtimer    cc_failsafe_vtimer;
-static uint16_t  cc_ontime = 0;
+static uint32_t  cc_ontime = 0;
 
 //Cloudcomm ble state
 static bool on = false;                // should we be scanning on ble
@@ -104,7 +105,8 @@ static void reset_state() {
 	sending = false;
 	device_started = false;
 
-	if(sequence_num != 1) { sending_data_store_index = last_packet_index; } // if we were in the middle of a packet, go back to the start of the packet
+	if(sequence_num != 1) { sending_data_store_index = last_packet_index + 1; } // if we were in the middle of a packet, go back to the start of the packet
+	if(sending_data_store_index == 1) { sending_data_store_index = 0; }
 	sequence_num = 1;
 	last_sequence_num = 0;
 }
@@ -120,6 +122,9 @@ static bool have_tasks() {
    * data to upload/download, and that CC is done seting up the nrf8001
 */
 static bool should_connect() {
+	char buffer[100];
+	snprintf(buffer, 100, "CC_SHOULD_CONN: %d %d %d %u %u %lu %d", connecting, connected, on, req_count, data_store_index, flash_pages_stored, device_setup_done);
+	send_rf_debug_msg(buffer);
 	if(!connecting && !connected && on && (req_count > 0 || data_store_index > 0 || flash_pages_stored > 0) && device_setup_done) {
 		return true;
 	}
@@ -144,8 +149,12 @@ static void schedule_cc_failsafe_vtimer(uint32_t t) {
 static void return_control_to_user() {
 	if(!user_control_returned) {
 		user_control_returned = true;
-		(*cc_done_callback)();
+		char buffer[100];
+		snprintf(buffer, 100, "CC USER CONTROL: flash_pages_store: %lu", flash_pages_stored);
+		send_rf_debug_msg(buffer);
+		void (*temp)() = cc_done_callback;
 		cc_done_callback = default_cc_callback;
+		(*temp)();
 	}
 }
 
@@ -187,6 +196,7 @@ static void device_started_callback(uint8_t event, uint8_t payload_length, uint8
 */
 static void connected_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	send_rf_debug_msg("NRF8001_CONNECTED\n");
+	leds_toggle(LEDS_RED);
 	connected = true;
 	connecting = false;
 }
@@ -202,7 +212,9 @@ static void disconnected_handler(uint8_t event, uint8_t payload_length, uint8_t 
 	}
 	else {
 		/* Normal disconnect case. Returns control to user */
-		send_rf_debug_msg("NRF8001_DISCONNECTED: sleep\n");
+		char buffer[100];
+		snprintf(buffer, 100, "NRF8001_DISCONNECTED: sleep, cc_ontime: %lu, should_connect: %d", cc_ontime, should_connect());
+		send_rf_debug_msg(buffer);
 		on = false;
 		process_poll(&ble_sleep_process);
 	}
@@ -219,14 +231,41 @@ static void disconnected_handler(uint8_t event, uint8_t payload_length, uint8_t 
 static void pipe_status_handler(uint8_t event, uint8_t payload_length, uint8_t payload[30]) {
 	//send_rf_debug_msg("CC Pipe Status Handler");
 	if(connected) {
-		pipes_ready = true;
-			if(phone_ready) {
-				send_rf_debug_msg("NRF8001_PIPES: pipes and phoen ready\n");
-				process_poll(&cloudcomm_manager);
+		if(payload[0] == 0xab) {
+			pipes_ready = true;
+			use_acks = true;
+		}
+		else if(payload[0] == 0x57) {
+			pipes_ready = true;
+			use_acks = false;
+		}
+		uint8_t i = 0;
+		if(phone_ready && pipes_ready) {
+			send_rf_debug_msg("NRF8001_PIPES: pipes and phone ready\n");
+			for(i = 0; i < 8; i++) {
+				char buffer[50];
+				snprintf(buffer, 50, "Pipe block %u, %x", i, payload[i]);
+				send_rf_debug_msg(buffer);
 			}
-			else {
-				send_rf_debug_msg("NRF8001_PIPES: pipes ready, phone not ready\n");
+			process_poll(&cloudcomm_manager);
+		}
+		else if(pipes_ready) {
+			send_rf_debug_msg("NRF8001_PIPES: pipes ready, phone not ready");
+			//if(use_acks) {nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMMETADATA_TX_ACK, 1, &node_ready);}
+			//else {nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMMETADATA_TX, 1, &node_ready);}
+
+		}
+		else if(phone_ready) {
+			send_rf_debug_msg("NRF8001_PIPES: phone ready, pipes not ready");
+		}
+		else {
+			send_rf_debug_msg("NRF8001_PIPES: pipes and phone not ready");
+			for(i = 0; i < 8; i++) {
+				char buffer[50];
+				snprintf(buffer, 50, "Pipe block %u, %x", i, payload[i]);
+				send_rf_debug_msg(buffer);
 			}
+		}
 	}
 }
 
@@ -271,7 +310,7 @@ static void data_received_handler(uint8_t event, uint8_t payload_length, uint8_t
 				}
 				rtc_set_unixtime(new_unixtime);
 			} else {
-				send_rf_debug_msg("NRF8001_RX: Other metadata\n");
+				send_rf_debug_msg("NRF8001_RX: data\n");
 				for(i=0;i<packet_len;i++) { packet[i] = payload[i+2]; }
 				callbacks[service_num](packet, packet_len);
 			}
@@ -481,7 +520,14 @@ static void send_ble_packet(uint16_t *current_data_index, uint16_t final_data_in
 	sending = true;
 	ble_acked = false;
 	ble_credited = false;
-	nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMDATA_TX_ACK, payload_length + 1, &sending_packet[0]);
+	if(use_acks) {nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMDATA_TX_ACK, payload_length + 1, &sending_packet[0]);}
+	else {
+		nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMDATA_TX, payload_length + 1, &sending_packet[0]);
+		char buffer[50];
+		snprintf(buffer, 50, "Sending CC Data: Length: %u", payload_length);
+		send_rf_debug_msg(buffer);
+	}
+
 }
 
 /* Wrapper function for send_ble_apcket() used to make sure current_data_index doesn't exceed sending_data_store_end */
@@ -506,7 +552,9 @@ static void get_metadata() {
 			ble_acked = false; // lets us know when
 			ble_credited = false; // lets us know when the nrf8001 can service more transmissions.
 			schedule_cc_failsafe_vtimer(10000);
-			nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMREQUESTS_TX_ACK,1,&i); // send metainfo requests to phone
+			if(use_acks) { nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMREQUESTS_TX_ACK,1,&i); } // send metainfo requests to phone
+			else {nrf8001_send_data(PIPE_CLOUDCOMM_CLOUDCOMMREQUESTS_TX,1,&i); } // send metainfo requests to phone}
+
 			break;
 		}
 	}
@@ -574,7 +622,9 @@ static void upload_data() {
 
 	/* If our BLE buffer has data, send it out */
 	if(!sending_data_store_empty) {
-		send_rf_debug_msg("CC_UPLOAD_DATA: upload data\n");
+		char buffer[100];
+		snprintf(buffer, 100, "CC_UPLOAD_DATA: upload data %u %u", sending_data_store_index, next_packet_index);
+		send_rf_debug_msg(buffer);
 		schedule_cc_failsafe_vtimer(10000);
 		send_cc_data_packet(&sending_data_store_index, next_packet_index, sending_data_store);
 	}
@@ -605,14 +655,18 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 		}
 
 		if(on && connected && !sending && phone_ready && ble_credited && ble_acked) {
+			leds_toggle(LEDS_RED);
 			/* Transmit upload URL to the phone. */
 			if(!urlSet && have_tasks()) { transmit_url(); }
 			/* Get any needed metainfo such as time */
 			else if(req_count > 0) { get_metadata(); }
 			/* Upload data to phone, and mark last page done if the last set of data sent was from flash */
-			else if(data_store_index > 0 || flash_pages_stored > 0) { 
-				if(sent_data_from_flash) { simplestore_mark_last_page_done(); }
-				upload_data(); 
+			else if(data_store_index > 0 || flash_pages_stored > 0) {
+				if(sent_data_from_flash) {
+					send_rf_debug_msg("CC_MANAGER: Mark last page done");
+					simplestore_mark_last_page_done();
+				}
+				upload_data();
 			}
 			/* Done all data upload/download */
 			else {
@@ -638,7 +692,7 @@ static void cc_failsafe_vtimer_callback() {
 			send_rf_debug_msg("CC_FAILSAFE: reset\n");
 			bad_state = false;
 			reset_state();
-			if(cc_ontime == 0) { on = true; }	
+			if(cc_ontime == 0) { on = true; }
 			nrf8001_reset();
 			return;
 		}
@@ -666,9 +720,11 @@ void cloudcomm_init() {
 
 	ccida_byte_pos = get_byte_pos(PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX_ACK_AUTO);
 	ccida_bit_pos = get_bit_pos(PIPE_CLOUDCOMM_CLOUDCOMMINCOMINGDATA_RX_ACK_AUTO);
-
 	simplestore_config();
 	flash_pages_stored = simplestore_pages_stored();
+	char buffer[100];
+	snprintf(buffer, 100, "Cloudcomm init pages stored: %lu", flash_pages_stored);
+	send_rf_debug_msg(buffer);
 	cc_failsafe_vtimer = get_vtimer(cc_failsafe_vtimer_callback);
 	cc_done_callback = default_cc_callback;
 
@@ -721,7 +777,7 @@ void cloudcomm_set_metainfo(cloudcomm_meta_t *new_metainfo) {
 
 void cloudcomm_set_packet_length(uint8_t len) {
 	cc_packet_length = len;
-	max_data_store_length = len * (256/len);
+	max_data_store_length = len * (255/len);
 }
 
 /*
@@ -731,24 +787,24 @@ void cloudcomm_set_packet_length(uint8_t len) {
 */
 uint8_t cloudcomm_store(void *data) {
 	uint8_t *data_ptr = (uint8_t *)data;
-	
+
 	/* Add the user provided data to our RAM buffer */
 	uint8_t i = 0;
 	for(i=0;i < cc_packet_length;i++) { data_store[data_store_index+i] = data_ptr[i]; }
-	
+
 	/* Update data_store_index to point to the next free byte in our RAM buffer */
 	data_store_index += cc_packet_length;
-	
+
 	/* If the buffer is full, write it to flash. Leave the last byte in the flash page free as a status byte. */
 	/* We consider the buffer full when adding more data to it would overflow a flash page.                   */
-	if( (uint32_t)data_store_index + (uint32_t)cc_packet_length > 255) { 
+	if( (uint32_t)data_store_index + (uint32_t)cc_packet_length > 255) {
 		uint16_t data_size = data_store_index;
-		flash_pages_stored += 1; // Update cloudcomm's knowledge of how much data is in flash
 		data_store_index = 0; // Reset our ram buffer
 		if(simplestore_write_next_page((void *)data_store, data_size) != SIMPLESTORE_SUCCESS) {
-			//send_rf_debug_msg("Cloudcomm Store Fail");
+			send_rf_debug_msg("Cloudcomm Store Fail");
 			return 0; // something went wrong
 		}
+		else { flash_pages_stored += 1; } // update cloudcomm's knowledge of how much data is in flash
 	}
 
 	return 1; // everything went smoothly
