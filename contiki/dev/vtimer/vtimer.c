@@ -3,6 +3,7 @@
 #include "cpu.h"
 #include <stdbool.h>
 #include "dev/leds.h"
+#include "cc2538-rf-debug.h"
 
 /**
    Priority queue based timers which are multiplexed off one hardware timer provided by VTIMER_ARCH
@@ -25,42 +26,40 @@ static void insert_vtimer(vtimer *v) {
 	if(head == NULL) {
 		head = v;
 		head->is_set = true;
-		vtimer_arch_schedule(head->scheduled_time);
-		INTERRUPTS_ENABLE();
-		return;
+		vtimer_arch_schedule(head->scheduled_time, head->ticks);
 	}
-
-	/* The queue already exists, so iterate through and insert v */
-	vtimer *iterator = head;
-	while(1) {
-		/* We have found where v belongs in the queue */
-		if(v->scheduled_time < iterator->scheduled_time) {
-			vtimer *p = iterator->prev;
-			iterator->prev = v;
-			v->next = iterator;
-			/* We are inserting v into the middle of the queue somewhere */
-			if(p != NULL) {
-				v->prev = p;
-				p->next = v;
+	/* There are other vtimers in the queue, so iterate through and insert v */
+	else {
+		vtimer *iterator = head;
+		while(1) {
+			/* We have found where v belongs in the queue */
+			if(v->scheduled_time < iterator->scheduled_time) {
+				vtimer *p = iterator->prev;
+				iterator->prev = v;
+				v->next = iterator;
+				/* We are inserting v into the middle of the queue somewhere */
+				if(p != NULL) {
+					v->prev = p;
+					p->next = v;
+				}
+				/* v is the new head of the queue */
+				else {
+					head->is_set = false; // current head is no longer the head
+					head = v; // update head
+					head->is_set = true; // Update state of new head.
+					vtimer_arch_schedule(head->scheduled_time, head->ticks); // schedule new head
+				}
+				break;
 			}
-			/* v is the new head of the queue */
-			else {
-				head->is_set = false; // current head is no longer the head
-				head = v; // update head
-				head->is_set = true; // Update state of new head.
-		 		vtimer_arch_schedule(head->scheduled_time); // schedule new head
+			/* We have reached the end of the queue */
+			if(iterator->next == NULL) {
+				iterator->next = v;
+				v->prev = iterator;
+				break;
 			}
-			break;
+			iterator = iterator->next;
 		}
-		/* We have reached the end of the queue */
-		if(iterator->next == NULL) {
-			iterator->next = v;
-			v->prev = iterator;
-			break;
-		}
-		iterator = iterator->next;
 	}
-
 	INTERRUPTS_ENABLE();
 }
 
@@ -73,6 +72,7 @@ vtimer get_vtimer(void *c) {
 	temp.in_queue = false;
 	temp.next = NULL;
 	temp.prev = NULL;
+	temp.ticks = 0;
 	return temp;
 }
 
@@ -90,6 +90,7 @@ void schedule_vtimer_ms(vtimer *v, uint32_t ms) {
 	/* Determine when the vtimer should be run in clock ticks */
 	v->scheduled_time = vtimer_arch_now() + (VTIMER_SECOND/1000 * ms);
 	v->in_queue = true;
+	v->ticks = (VTIMER_SECOND/1000 * ms);
 
 	/* Insert the vtimer into the queue */
 	insert_vtimer(v);
@@ -108,6 +109,7 @@ void schedule_vtimer(vtimer *v, uint32_t ticks) {
 
 	/* Determine when the vtimer should be run in clock ticks */
 	v->scheduled_time = vtimer_arch_now() + ticks;
+	v->ticks = ticks;
 	v->in_queue = true;
 
 	/* Insert the vtimer into the queue */
@@ -125,7 +127,7 @@ void cancel_vtimer(vtimer *v) {
 		head = v->next;
 		if(head != NULL) {
 			head->is_set = true;
-			vtimer_arch_schedule(head->scheduled_time);
+			vtimer_arch_schedule(head->scheduled_time, head->ticks);
 		}
 		else { vtimer_arch_cancel(); }
 	}
@@ -142,6 +144,7 @@ void cancel_vtimer(vtimer *v) {
 	v->scheduled_time = 0;
 	v->next = NULL;
 	v->prev = NULL;
+	v->ticks = 0;
 
 	INTERRUPTS_ENABLE();
 }
@@ -164,12 +167,16 @@ void vtimer_run_next() {
 		current->scheduled_time = 0;
 		current->prev = NULL;
 		current->next = NULL;
+		current->ticks = 0;
 		(*(current->callback))();
 		if(head != NULL && !head->is_set) {
 			head->is_set = true;
 			head->prev = NULL;
-			vtimer_arch_schedule(head->scheduled_time);
+			vtimer_arch_schedule(head->scheduled_time, head->ticks);
 		}
+	}
+	else {
+		send_rf_debug_msg("VTIMER_RUN_NEXT FAILURE\n");
 	}
 	INTERRUPTS_ENABLE();
 }

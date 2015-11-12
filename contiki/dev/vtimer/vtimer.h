@@ -14,6 +14,7 @@ typedef uint32_t vtimer_clock_t;
 typedef struct vtimer {
 	void (*callback)(); // callback function called on vtimer trigger
 	uint32_t scheduled_time; // hardware time the vtimer should execute at. 0 if vtimer is not in the queue
+	uint32_t ticks; // used to guard against the edge case where the vtimer gets scheduled AFTER scheduled time.
 	bool is_set; // Checks that this vt is the next to run. Guards against vtimer_cancel edge cases
 	bool in_queue; // Checks if this vt is already in the queue when scheduling.
 	struct vtimer *next;
