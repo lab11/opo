@@ -42,7 +42,7 @@ void sst25vf_turn_off();
 
 uint8_t sst25vf_read_status_register();
 
-uint8_t sst25vf_read_page(uint32_t addr, void *rxBuffer, uint32_t rx_len);
+uint8_t sst25vf_read_page(uint32_t addr, uint8_t *rxBuffer, uint32_t rx_len);
 
 void sst25vf_read_sid(uint8_t addr, void *rxBuffer, uint8_t rx_len);
 
@@ -53,7 +53,7 @@ void sst25vf_write_enable();
 void sst25vf_write_disable();
 
 uint8_t sst25vf_program(uint32_t addr,
-				        void *txBuffer,
+				        uint8_t *txBuffer,
 					    uint32_t tx_len);
 
 uint8_t sst25vf_chip_erase();
