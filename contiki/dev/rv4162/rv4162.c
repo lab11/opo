@@ -1,5 +1,8 @@
 #include "rv4162.h"
 #include "dev/leds.h"
+#include "sys/clock.h"
+#include "cc2538-rf-debug.h"
+#include <stdbool.h>
 
 uint8_t rv4162_slave_addr = RV4162_ADDR;
 uint8_t rv4162_start_reg = 0;
@@ -77,22 +80,39 @@ static inline void reset_i2c_lines() {
 void rv4162_read_full_time(uint8_t *full_time) {
 	uint8_t i = 0;
 	i2c_init(I2C_SDA_PORT_NUM, I2C_SDA_PIN_NUM, I2C_SCL_PORT_NUM, I2C_SCL_PIN_NUM, I2C_SCL_NORMAL_BUS_SPEED);
-	i2c_single_send(rv4162_slave_addr, rv4162_start_reg);
+	if(i2c_single_send(rv4162_slave_addr, rv4162_start_reg) == I2CM_STAT_FROZEN) {
+		send_rf_debug_msg("rv4162_read_full_time fail 1");
+		reset_i2c_lines();
+		return;
+	}
 	i2c_master_set_slave_address(rv4162_slave_addr, I2C_RECEIVE);
 	i2c_master_command(I2C_MASTER_CMD_BURST_RECEIVE_START);
-	while(i2c_master_busy()) {}
+	if(!wait_i2c_free()) {
+		send_rf_debug_msg("rv4162_read_full_time fail 2");
+		reset_i2c_lines();
+		return;
+	}
 	for(i=0;i<7;i++) {
 		full_time[i] = i2c_master_data_get();
 		i2c_master_command(I2C_MASTER_CMD_BURST_RECEIVE_CONT);
-		while(i2c_master_busy()) {}
+		if(!wait_i2c_free()) {
+			send_rf_debug_msg("rv4162_read_full_time fail 3");
+			reset_i2c_lines();
+			return;
+		}
 	}
 	full_time[7] = i2c_master_data_get();
 	i2c_master_command(I2C_MASTER_CMD_BURST_RECEIVE_FINISH);
-	while(i2c_master_busy()) {}
-    for(i=0;i<8;i++) {
-    	full_time[i] &= set_time_masks[i];
-    	full_time[i] = RV4162_BCD_TO_BINARY(full_time[i]);
-    }
+	if(!wait_i2c_free()) {
+		send_rf_debug_msg("rv4162_read_full_time fail 4");
+		reset_i2c_lines();
+		return;
+	}
+	for(i=0;i<8;i++) {
+	   	full_time[i] &= set_time_masks[i];
+	    full_time[i] = RV4162_BCD_TO_BINARY(full_time[i]);
+	}
+
     reset_i2c_lines();
 }
 
@@ -133,15 +153,27 @@ void rv4162_set_time(uint8_t *full_time) {
 	i2c_master_set_slave_address(rv4162_slave_addr, I2C_SEND);
 	i2c_master_data_put(write_buffer[0]);
 	i2c_master_command(I2C_MASTER_CMD_BURST_SEND_START);
-	while(i2c_master_busy()) {}
+
+	if(!wait_i2c_free()) {
+		send_rf_debug_msg("rv4162_set_time fail 1");
+		reset_i2c_lines();
+		return;
+	}
+
 	for(i=1;i<8;i++) {
 		i2c_master_data_put(write_buffer[i]);
 		i2c_master_command(I2C_MASTER_CMD_BURST_SEND_CONT);
-		while(i2c_master_busy()) {}
+		if(!wait_i2c_free()) {
+			send_rf_debug_msg("rv4162_set_time fail 2");
+			reset_i2c_lines();
+			return;
+		}
 	}
 	i2c_master_data_put(write_buffer[8]);
 	i2c_master_command(I2C_MASTER_CMD_BURST_SEND_FINISH);
-	while(i2c_master_busy()) {}
+
+	if(!wait_i2c_free()) {send_rf_debug_msg("rv4162_set_time fail 3");}
+
 	reset_i2c_lines();
 }
 
