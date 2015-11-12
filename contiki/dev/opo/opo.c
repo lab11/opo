@@ -25,55 +25,81 @@
 	Current version uses comp1 or everything rx
 */
 
-#define OPO_ID 3
+#define OPO_ID 0
 
 PROCESS(opo_rx, "OpoRx");
 PROCESS(opo_tx, "OpoTx");
 PROCESS(opo_restart, "OpoRestart");
-PROCESS(opo_rx_noise, "OpoRxNoise");
 
-static enum {OPO_RX, OPO_RX_SETUP, OPO_TX, OPO_IDLE} opo_state = OPO_IDLE; // Higher level opo state
+static enum {OPO_RX, OPO_RX_RF, OPO_TX, OPO_IDLE} opo_state = OPO_IDLE; // Higher level opo state
 static uint8_t opo_tx_stage = 0;
 
 static uint32_t ul_wakeup_time = 0; // Ultrasonic pulse receive time
 static uint32_t sfd_time = 0; // SFD receive time
+static uint32_t ul_count = 0; // number of ul pulses received
 static uint32_t tx_start_time = 0; // UL pulse transmit time, based on sleep timer
 static bool rf_packet_received = false;
-static bool transmission_noise = true; // switching from tx to rx causes a voltage shift, leading to a false wakeup
+static bool transmission_noise = false; // switching from tx to rx causes a voltage shift, leading to a false wakeup
 uint32_t failed_rx_count = 0;
 
 static opo_rx_callback_t opo_rx_callback;
 static void (*opo_tx_callback)();
 
 volatile static opo_rmsg_t  txmsg;
-static          opo_rmsg_t  rxmsg_storage;
 volatile static opo_data_t  rxmsg;
-static opo_meta_t  meta;
+static opo_rmsg_t           rxmsg_storage;
+static opo_meta_t           meta;
 
 static struct vtimer rx_vt; // used during an opo reception
+static struct vtimer rx_ul_counter_vt;
 static struct vtimer rx_restart_vt;
 static struct vtimer tx_vt;
+static struct vtimer tx_failsafe_vt;
 
 static void enable_opo_ul_rx();
 static void enable_opo_ul_tx();
 
+uint8_t get_opo_state() {
+	return opo_state;
+}
 
 /* ************************************************************************** */
 // Opo RX shit
 static void default_opo_rx_callback(opo_data_t odata) {}
 
-// Callback for when we receive an ultrasonic wake up
-static void wakeup_callback(uint8_t port, uint8_t pin) {
+/*
+ * Callback used to check how many ultrasonic pules we received. Based on our transmission time,
+ * we expect to receive at least 40 pulses on our comparator pin. If we don't, we assume this is
+ * just some noise from multipath
+ */
+static void opo_rx_ul_count_checker() {
 	GPIO_DISABLE_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
 	GPIO_DISABLE_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
 	GPIO_CLEAR_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
 	GPIO_CLEAR_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
-	ul_wakeup_time = VTIMER_NOW();
-	sfd_time = 0;
+	if(ul_count < 40) {
+		transmission_noise = true;
+	}
+	ul_count = 0;
+	process_poll(&opo_rx);
+}
 
+// Callback for when we receive an ultrasonic wake up
+static void wakeup_callback(uint8_t port, uint8_t pin) {
+	//GPIO_DISABLE_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
+	//GPIO_DISABLE_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
+	GPIO_CLEAR_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
+	GPIO_CLEAR_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
 	if(opo_state == OPO_IDLE) {
+		ul_wakeup_time = VTIMER_NOW();
+		sfd_time = 0;
 		opo_state = OPO_RX;
-		process_poll(&opo_rx);
+		ul_count++;
+		schedule_vtimer_ms(&rx_ul_counter_vt, 2);
+		//process_poll(&opo_rx);
+	}
+	else if(opo_state == OPO_RX) {
+		ul_count++;
 	}
 }
 
@@ -82,56 +108,73 @@ static void rx_sfd_callback() {
 	if(opo_state == OPO_RX && sfd_time == 0) { sfd_time = VTIMER_NOW(); }
 }
 
+/*
+ * Callback for when Opo receives an rf packet as part of a ranging event.
+ * This callback is NOT in an interrupt context, so we must call INTERRUPT_DISABLE for atomic operations.
+ * We do a basic check to see if this packet is a valid Opo packet, and then further process it in the opo_rx process
+ * along with the ultrasonic and SFD time of arrivals for a complete opo ranging event.
+*/
 static void rf_rx_callback() {
+	INTERRUPTS_DISABLE();
+	/* Check to make sure we are in expected Opo state */
 	if(opo_state == OPO_RX) {
+		/* If packet length and preamble check out, process packet for Opo ranging event */
 		uint16_t packet_length = packetbuf_datalen();
 		if(packet_length == sizeof(opo_rmsg_t)) {
+			/* We have to copy data out of the packetbuf before checking the preamble */
 			packetbuf_copyto((void *) &rxmsg_storage);
 			packetbuf_clear();
-			NETSTACK_MAC.off(0);
-			if(rxmsg_storage.preamble == (uint16_t) ~(rxmsg_storage.id)) { // need cast because C
+			if(rxmsg_storage.preamble == (uint16_t) ~(rxmsg_storage.id)) { // need cast because C or shitty compiler
+				NETSTACK_MAC.off(0);
+				cancel_vtimer(&rx_vt);
+				opo_state = OPO_RX_RF;
 				rf_packet_received = true;
 				process_poll(&opo_rx);
 			}
 		}
 	}
+	INTERRUPTS_ENABLE();
 }
 
 static void tx_rf_rx_done_callback() {}
 
 static void rx_vt_callback() {
 	if(opo_state == OPO_RX) {
+		//send_rf_debug_msg("opo.c: opo rx vt failsafe");
+		opo_state = OPO_RX_RF;
+		NETSTACK_MAC.off(0);
 		process_poll(&opo_rx);
 	}
-}
-
-PROCESS_THREAD(opo_rx_noise, ev, data) {
-	PROCESS_BEGIN();
-	while(1) {
-		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		enable_opo_rx();
+	else {
+		//send_rf_debug_msg("opo.c: rx vt failsafe fail");
 	}
-	PROCESS_END();
 }
 
 PROCESS_THREAD(opo_rx, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+
 		if(opo_state == OPO_RX) {
-				if(!transmission_noise) {
-					cc2538_ant_enable();
-					packetbuf_clear();
-					NETSTACK_MAC.on();
-				}
-				schedule_vtimer_ms(&rx_vt, 20); // fallback timer
+			if(!transmission_noise) {
+				//send_rf_debug_msg("opo.c: opo rx first stage\n");
+				cc2538_ant_enable();
+				packetbuf_clear();
+				NETSTACK_MAC.on();
+			}
+			schedule_vtimer_ms(&rx_vt, 20); // fallback timer
 			PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 				packetbuf_clear();
 				NETSTACK_MAC.off(0);
-				opo_state = OPO_IDLE;
-				if(rf_packet_received == true) {
+				if(transmission_noise) {
+					transmission_noise = false;
+					opo_state = OPO_IDLE;
+					enable_opo_rx();
+				}
+				else if(rf_packet_received == true) {
 					uint32_t diff = (uint32_t) (sfd_time - ul_wakeup_time);
 					if(diff < rxmsg_storage.ul_rf_dt) {
+						//send_rf_debug_msg("opo.c: Opo rx got rf packet");
 						rxmsg.tx_id = rxmsg_storage.id;
 						rxmsg.tx_unixtime = rxmsg_storage.unixtime;
 						rxmsg.tx_time_confidence = rxmsg_storage.time_confidence;
@@ -143,19 +186,34 @@ PROCESS_THREAD(opo_rx, ev, data) {
 						txmsg.last_interaction_partner_id = rxmsg.tx_id;
 						txmsg.last_unixtime = rxmsg.m_unixtime;
 						txmsg.last_range_dt = rxmsg.range_dt;
+						txmsg.failed_rx_count = failed_rx_count;
 						rf_packet_received = false;
+						opo_state = OPO_IDLE;
 						(opo_rx_callback)(rxmsg);
 					}
 					else {
+						//send_rf_debug_msg("opo.c: Opo rx got rf packet, but invalid time\n");
 						failed_rx_count++;
 						rf_packet_received = false;
+						txmsg.failed_rx_count = failed_rx_count;
+						opo_state = OPO_IDLE;
 						enable_opo_rx();
 					}
 				}
 				else {
+					//send_rf_debug_msg("opo.c: Opo rx did not get rf packet\n");
 					failed_rx_count++;
+					txmsg.failed_rx_count = failed_rx_count;
+					opo_state = OPO_IDLE;
 					enable_opo_rx();
 				}
+		}
+		/* Add a failsafe here to deal with opo bug / contiki process issue */
+		else {
+			send_rf_debug_msg("opo_rx process failsafe");
+			failed_rx_count++;
+			rf_packet_received = false;
+			opo_state = OPO_IDLE;
 		}
 	}
 	PROCESS_END();
@@ -168,17 +226,36 @@ static void default_opo_tx_callback() {}
 // Callback for the hardware interrupt indicating that the packet was sent
 static void rf_txdone_callback() {
 	if(opo_state == OPO_TX && opo_tx_stage == 1) {
+		NETSTACK_MAC.off(0);
+		cancel_vtimer(&tx_failsafe_vt);
 		opo_tx_stage = 2;
 		process_poll(&opo_tx);
+	}
+	else {
+
 	}
 }
 
 // Callback for SFD trigger.
 static void tx_sfd_callback() {}
 
+/* Timer callback that triggers Opo to transmit a ranging rf packet */
 static void tx_vt_callback() {
-	if(opo_tx_stage == 1) {
+	if(opo_state == OPO_TX && opo_tx_stage == 1) {
 		process_poll(&opo_tx);
+	}
+}
+
+/* Timer callback that's used in case Opo fails to transmit a ranging rf packet */
+static void tx_failsafe_vt_callback() {
+	if(opo_state == OPO_TX && opo_tx_stage == 1) {
+		//send_rf_debug_msg("opo.c: tx failsafe vt\n");
+		NETSTACK_MAC.off(0);
+		opo_tx_stage = 2;
+		process_poll(&opo_tx);
+	}
+	else {
+		//send_rf_debug_msg("opo.c: tx_failsafe_vt fail?\n");
 	}
 }
 
@@ -186,7 +263,8 @@ PROCESS_THREAD(opo_tx, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-			if(opo_tx_stage == 0) {
+			if(opo_state == OPO_TX && opo_tx_stage == 0) {
+				//send_rf_debug_msg("Opo tx stage 0\n");
 				txmsg.id = (uint16_t) meta.id;
 				txmsg.preamble = (uint16_t) ~(txmsg.id);
 				txmsg.time_confidence = meta.time_confidence;
@@ -200,29 +278,38 @@ PROCESS_THREAD(opo_tx, ev, data) {
 				schedule_vtimer_ms(&tx_vt, 7);
 			}
 			else {
+				//send_rf_debug_msg("Opo tx stage 0 fail\n");
 				goto opo_tx_cleanup;
 			}
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		if(opo_tx_stage == 1) {
-			cc2538_ant_enable();
-			packetbuf_clear();
-			packetbuf_copyfrom((void *) &txmsg, sizeof(opo_rmsg_t));
-			cc2538_on_and_transmit(tx_start_time);
-			PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-				if(opo_tx_stage == 2) {
-					opo_tx_cleanup:
-						NETSTACK_MAC.off(0);
-						opo_tx_stage = 0;
-						opo_state = OPO_IDLE;
-						transmission_noise = true;
-						(*opo_tx_callback)();
-				} else {
-					goto opo_tx_cleanup;
-				}
-		}
-		else {
-			goto opo_tx_cleanup;
-		}
+			if(opo_state == OPO_TX && opo_tx_stage == 1) {
+				//send_rf_debug_msg("Opo tx stage 1\n");
+				SFD_HANDLER.set_callback(tx_sfd_callback);
+			  	RF_TXDONE_HANDLER.set_callback(rf_txdone_callback);
+			  	simple_network_set_callback(tx_rf_rx_done_callback);
+				cc2538_ant_enable();
+				packetbuf_clear();
+				packetbuf_copyfrom((void *) &txmsg, sizeof(opo_rmsg_t));
+				schedule_vtimer_ms(&tx_failsafe_vt, 20);
+				cc2538_on_and_transmit(tx_start_time);
+				PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
+					if(opo_state == OPO_TX && opo_tx_stage == 2) {
+						//send_rf_debug_msg("Opo tx stage 2\n");
+						opo_tx_cleanup:
+							NETSTACK_MAC.off(0);
+							opo_tx_stage = 0;
+							opo_state = OPO_IDLE;
+							//transmission_noise = true;
+							(*opo_tx_callback)();
+					} else {
+						//send_rf_debug_msg("Opo tx stage 2 fail\n");
+						goto opo_tx_cleanup;
+					}
+			}
+			else {
+				//send_rf_debug_msg("Opo tx stage 1 fail\n");
+				goto opo_tx_cleanup;
+			}
 	}
 	PROCESS_END();
 }
@@ -231,6 +318,7 @@ PROCESS_THREAD(opo_tx, ev, data) {
 /* ************************************************************************** */
 
 static void restart_vt_callback() {
+	//send_rf_debug_msg("opo.c: restart_vt_callback\n");
 	process_poll(&opo_restart);
 }
 
@@ -239,13 +327,20 @@ PROCESS_THREAD(opo_restart, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		if(opo_state == OPO_RX_SETUP) {
-			opo_state = OPO_IDLE;
+		INTERRUPTS_DISABLE();
+		if(opo_state == OPO_IDLE) {
+			//send_rf_debug_msg("opo.c: Opo rx restart process success\n");
 			GPIO_CLEAR_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
 			GPIO_CLEAR_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
 			GPIO_ENABLE_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
 			GPIO_ENABLE_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
+			GPIO_CLEAR_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
+			GPIO_CLEAR_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
 		}
+		else {
+			//send_rf_debug_msg("opo.c: Opo rx restart process fail\n");
+		}
+		INTERRUPTS_ENABLE();
 	}
 	PROCESS_END();
 }
@@ -273,27 +368,43 @@ static void enable_opo_ul_tx() {
   	GPIO_CLR_PIN(OPO_TX_RX_SEL_PORT_BASE, OPO_TX_RX_SEL_PIN_MASK);
 }
 
-uint8_t enable_opo_rx() {
+bool enable_opo_rx() {
 	INTERRUPTS_DISABLE();
+	bool status = false;
 	if(opo_state == OPO_IDLE) {
-		opo_state = OPO_RX_SETUP;
 		setup_opo_rx();
-		uint8_t dl = 20;
-		if(transmission_noise) {
-			transmission_noise = false;
-			dl += 70;
-		}
+		uint32_t dl = 40;
+
 		schedule_vtimer_ms(&rx_restart_vt, dl);
-		INTERRUPTS_ENABLE();
-		return 1;
+		status = true;
 	}
+	if(!status) {
+		if(opo_state == OPO_RX) {
+			//send_rf_debug_msg("opo.c: enable_opo_rx fail OPO_RX\n");
+		}
+		else if(opo_state == OPO_RX_RF) {
+			//send_rf_debug_msg("opo.c: enable_opo_rx fail OPO_RX_RF\n");
+		}
+		else if(opo_state == OPO_TX) {
+			//send_rf_debug_msg("opo.c: enable_opo_rx fail OPO_TX\n");
+		}
+		else if(opo_state == OPO_IDLE) {
+			//send_rf_debug_msg("opo.c: enable_opo_rx fail OPO_IDLE\n");
+		}
+		else {
+			//send_rf_debug_msg("opo.c: enable_opo_rx fail wtf\n");
+		}
+	}
+
 	INTERRUPTS_ENABLE();
-	return 0;
+	return status;
 }
 
 inline void disable_opo_rx() {
 	GPIO_DISABLE_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
 	GPIO_DISABLE_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
+	GPIO_CLEAR_INTERRUPT(OPO_RX_PORT_BASE, OPO_RX_PIN_MASK);
+	GPIO_CLEAR_POWER_UP_INTERRUPT(OPO_RX_PORT_NUM, OPO_RX_PIN_MASK);
 }
 
 void setup_40kh_pwm() {
@@ -340,10 +451,11 @@ void opo_init() {
 	process_start(&opo_rx, NULL);
 	process_start(&opo_tx, NULL);
 	process_start(&opo_restart, NULL);
-	process_start(&opo_rx_noise, NULL);
 	rx_vt = get_vtimer(rx_vt_callback);
-	tx_vt = get_vtimer(tx_vt_callback);
+	rx_ul_counter_vt = get_vtimer(opo_rx_ul_count_checker);
 	rx_restart_vt = get_vtimer(restart_vt_callback);
+	tx_vt = get_vtimer(tx_vt_callback);
+	tx_failsafe_vt = get_vtimer(tx_failsafe_vt_callback);
 	opo_state = OPO_IDLE;
 }
 
@@ -355,16 +467,35 @@ void register_opo_tx_callback(void *mcallback) {
 	opo_tx_callback = mcallback;
 }
 
-uint8_t perform_opo_tx() {
+bool perform_opo_tx() {
 	INTERRUPTS_DISABLE();
+	bool status = false;
 	if(opo_state == OPO_IDLE) {
+		//send_rf_debug_msg("opo.c: Perform opo tx success\n");
 		opo_state = OPO_TX;
+		opo_tx_stage = 0;
 		disable_opo_rx();
 		setup_opo_tx();
 		process_poll(&opo_tx);
-		INTERRUPTS_ENABLE();
-		return 1;
+		status = true;
+	}
+	if(!status) {
+		if(opo_state == OPO_RX) {
+			send_rf_debug_msg("opo.c: perform_opo_tx fail OPO_RX\n");
+		}
+		else if(opo_state == OPO_RX_RF) {
+			send_rf_debug_msg("opo.c: perform_opo_tx fail OPO_RX_RF\n");
+		}
+		else if(opo_state == OPO_TX) {
+			send_rf_debug_msg("opo.c: perform_opo_tx fail OPO_TX\n");
+		}
+		else if(opo_state == OPO_IDLE) {
+			send_rf_debug_msg("opo.c: perform_opo_tx fail OPO_IDLE\n");
+		}
+		else {
+			send_rf_debug_msg("opo.c: perform_opo_tx fail wtf\n");
+		}
 	}
 	INTERRUPTS_ENABLE();
-	return 0;
+	return status;
 }

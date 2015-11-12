@@ -5,7 +5,6 @@
 #ifndef OPO_H
 #define OPO_H
 
-
 typedef struct __attribute__((packed)) opo_ranging_message {
 	uint16_t preamble; // equal to the bitwise NOT of the id
 	uint16_t id;       // Opo specific ID
@@ -15,6 +14,7 @@ typedef struct __attribute__((packed)) opo_ranging_message {
     uint16_t last_interaction_partner_id;
     time_t   last_unixtime;
     uint32_t last_range_dt;
+    uint32_t failed_rx_count;
     uint32_t ul_rf_dt;  // Time between when node sends UL pulse and TX SFD
 } opo_rmsg_t;
 
@@ -45,11 +45,13 @@ void setup_40kh_pwm(); // sets up pwm for transmit
 void setup_comp1_timer();
 void setup_comp2_timer(); // synced with comp1 timer
 void setup_integrator_timer();
-uint8_t enable_opo_rx();
-uint8_t perform_opo_tx();
+bool enable_opo_rx();
+bool perform_opo_tx();
 void disable_opo_rx();
 void register_opo_rx_callback(opo_rx_callback_t mcallback);
 void register_opo_tx_callback(void *mcallback);
 void opo_init();
 
+uint8_t get_opo_state();
+uint8_t get_opo_txstage();
 #endif
