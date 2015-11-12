@@ -130,8 +130,8 @@
 #define PLUG_DETECT_PIN_NUM	    5
 
 // Initial input/output masks
-#define GPIO_A_OUTPUT_MASK 0xda
-#define GPIO_A_INPUT_MASK  0x25
+#define GPIO_A_OUTPUT_MASK 0xdf
+#define GPIO_A_INPUT_MASK  0x20
 #define GPIO_A_CLR_MASK    0xff
 #define GPIO_A_SET_MASK    0x00 // I think UART line should be clear..?
 

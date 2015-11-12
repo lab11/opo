@@ -43,6 +43,7 @@
 #include "uart.h"
 #include "gptimer.h"
 #include "vtimer-arch.h"
+#include "dev/leds.h"
 
 
 #include <stdint.h>
@@ -77,6 +78,10 @@ void gpt_2_a_isr(void);
 void gpt_2_b_isr(void);
 void gpt_3_a_isr(void);
 void gpt_3_b_isr(void);
+
+void fault_handler(void) {
+    //leds_on(LEDS_RED);
+}
 
 /* Boot Loader Backdoor selection */
 #if FLASH_CCA_CONF_BOOTLDR_BACKDOOR
@@ -139,10 +144,10 @@ void(*const vectors[])(void) =
   (void (*)(void))((unsigned long)stack + sizeof(stack)),   /* Stack pointer */
   reset_handler,              /* Reset handler */
   nmi_handler,                /* The NMI handler */
-  default_handler,            /* The hard fault handler */
-  default_handler,            /* 4 The MPU fault handler */
-  default_handler,            /* 5 The bus fault handler */
-  default_handler,            /* 6 The usage fault handler */
+  fault_handler,            /* The hard fault handler */
+  fault_handler,            /* 4 The MPU fault handler */
+  fault_handler,            /* 5 The bus fault handler */
+  fault_handler,            /* 6 The usage fault handler */
   0,                          /* 7 Reserved */
   0,                          /* 8 Reserved */
   0,                          /* 9 Reserved */

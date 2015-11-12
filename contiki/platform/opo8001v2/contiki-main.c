@@ -89,9 +89,14 @@ static void disable_all_ioc_override() {
           ioc_set_over(portnum, pinnum, IOC_OVERRIDE_DIS);
       }
   }
+  /*
   ioc_set_over(GPIO_A_NUM, 0, IOC_OVERRIDE_PDE);
   ioc_set_over(GPIO_A_NUM, 1, IOC_OVERRIDE_PDE);
   ioc_set_over(GPIO_A_NUM, 2, IOC_OVERRIDE_PUE);
+  */
+  ioc_set_over(GPIO_A_NUM, 0, IOC_OVERRIDE_DIS);
+  ioc_set_over(GPIO_A_NUM, 1, IOC_OVERRIDE_DIS);
+  ioc_set_over(GPIO_A_NUM, 2, IOC_OVERRIDE_DIS);
   for(pinnum = 3; pinnum < 8; pinnum++) {ioc_set_over(GPIO_A_NUM, pinnum, IOC_OVERRIDE_DIS);}
 }
 /*---------------------------------------------------------------------------*/
@@ -123,7 +128,6 @@ int main(void) {
   GPIO_SET_PIN(GPIO_D_BASE, GPIO_D_SET_MASK);
 
   leds_init();
-
   clock_init();
   nvic_init();
 
@@ -140,7 +144,6 @@ int main(void) {
 
   watchdog_init();
   spi_init();
-
   sst25vf_init();
 
   INTERRUPTS_ENABLE();
@@ -158,6 +161,7 @@ int main(void) {
 
   opo_init();
   NETSTACK_MAC.off(0);
+
   autostart_start(autostart_processes);
 
   while(1) {

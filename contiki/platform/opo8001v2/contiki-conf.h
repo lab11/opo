@@ -335,7 +335,7 @@ typedef uint32_t rtimer_clock_t;
 #define LPM_CONF_ENABLE       1 /**< Set to 0 to disable LPM entirely */
 #endif
 
-#define LPM_CONF_ALLOW_INTERRUPT_ONLY_WAKEUP  1
+#define LPM_CONF_ALLOW_INTERRUPT_ONLY_WAKEUP  0
 
 /**
  * \brief Maximum PM
