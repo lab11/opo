@@ -11,6 +11,10 @@ static bool debug_clear = true;
 
 static void rf_debug_callback() { debug_clear = true; }
 
+#ifndef RF_DEBUG_ID
+#define RF_DEBUG_ID 0
+#endif
+
 void send_rf_debug_msg(char msg[]) {
     #if CC2538_RF_PRINT
     if(debug_clear) {
@@ -30,6 +34,7 @@ void send_rf_debug_msg(char msg[]) {
         packetbuf_copyfrom((void *) sender, s + 10);
         cc2538_on_and_transmit(0);
         NETSTACK_MAC.off(0);
+        debug_clear = true;
     } else {}
     #endif
 }
