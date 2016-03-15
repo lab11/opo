@@ -125,7 +125,7 @@ static bool should_connect() {
 	char buffer[100];
 	snprintf(buffer, 100, "CC_SHOULD_CONN: %d %d %d %u %u %lu %d", connecting, connected, on, req_count, data_store_index, flash_pages_stored, device_setup_done);
 	send_rf_debug_msg(buffer);
-	if(!connecting && !connected && on && (req_count > 0 || data_store_index > 0 || flash_pages_stored > 0) && device_setup_done) {
+	if(!connecting && !connected && on && (req_count > 0 || data_store_index > 0 || flash_pages_stored > 0 || !sending_data_store_empty) && device_setup_done) {
 		return true;
 	}
 	return false;
