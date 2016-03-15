@@ -10,6 +10,7 @@
 #include "sys/clock.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include <string.h>
 #include "cpu.h"
 #include "cc2538-rf.h"
 #include "cc2538-rf-debug.h"
@@ -268,7 +269,7 @@ uint8_t sst25vf_program(uint32_t addr, uint8_t *txBuffer, uint32_t tx_len) {
 		uint32_t counter = 0;
 		while(sst25vf_read_status_register() != STATUS_WEL) {
 			clock_delay_usec(500);
-			if(++counter == 121) {
+			if(++counter == 121) {  
 				is_success = false;
 				break;
 			}

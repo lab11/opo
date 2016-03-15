@@ -1,4 +1,7 @@
 #include "simplestore.h"
+#include "cc2538-rf-debug.h"
+#include <string.h>
+#include <stdio.h>
 
 const static uint16_t max_page = 4095; // last page on chip. this is for the sst25vf064c.
 
@@ -20,12 +23,16 @@ void simplestore_turn_off_flash() {
 uint8_t simplestore_write_next_page(void *txBuffer, uint16_t tx_len) {
 	if(write_head < max_page) {
 		if(!sst25vf_program(write_head * 256, txBuffer, (uint32_t) tx_len)) {
+			send_rf_debug_msg("SIMPLESTORE_WRITE_FAIL");
 			return SIMPLESTORE_FAIL;
 		}
 		write_head++;
 		return SIMPLESTORE_SUCCESS;
 	}
 	else {
+		char buffer[100];
+		snprintf(buffer, 100, "SIMPLESTORE_WRITE_FULL %lu", write_head);
+		send_rf_debug_msg(buffer);
 		return SIMPLESTORE_FULL; // chip full
 	}
 }
@@ -33,7 +40,7 @@ uint8_t simplestore_write_next_page(void *txBuffer, uint16_t tx_len) {
 uint8_t simplestore_read_next_page(void *rxBuffer, uint16_t rx_len) {
 	if(read_head == write_head || read_head >= max_page) {
 		return SIMPLESTORE_READ_FULL; // Nothing more to be read.
-	}
+	} 
 
 	if(!sst25vf_read_page(read_head * 256, rxBuffer, (uint32_t) rx_len)) {
 		return SIMPLESTORE_FAIL; // Something went wrong with the SPI operation.
