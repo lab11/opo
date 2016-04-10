@@ -1,3 +1,0 @@
-Removed Pin From Net: NetName=FLASH_HOLD Pin=U3-26
-Removed Pin From Net: NetName=SPI_MOSI Pin=U3-50
-Added Pin To Net: NetName=SPI_MOSI Pin=U3-26

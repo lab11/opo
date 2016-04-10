@@ -1,5 +1,0 @@
-Removed Pin From Net: NetName=COMP1_OUT Pin=U3-13
-Removed Pin From Net: NetName=INTEGRATOR_OUT Pin=U3-14
-Removed Pin From Net: NetName=I2C_SCL Pin=U3-29
-Added Pin To Net: NetName=I2C_SDA Pin=U3-13
-Added Pin To Net: NetName=I2C_SCL Pin=U3-14

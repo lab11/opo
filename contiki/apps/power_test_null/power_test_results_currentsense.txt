@@ -1,3 +1,0 @@
-No systick, explicit drop to LPM2 = 7 mA
-No systick, no explicit drop LPM2 = 25 mA
-No systick, sleep nrf8001, explicit drop to LPM2 = 192 uA

@@ -1,3 +1,0 @@
-Removed Pin From Net: NetName=FLASH_HOLD Pin=U3-29
-Removed Pin From Net: NetName=BLE_RESET Pin=U3-44
-Added Pin To Net: NetName=BLE_RESET Pin=U3-29
