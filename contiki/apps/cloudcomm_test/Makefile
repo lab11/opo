@@ -1,0 +1,14 @@
+DEFINES+=PROJECT_CONF_H=\"project-conf.h\"
+CONTIKI_PROJECT = cloudcomm-test
+
+TARGETDIRS += ../../platform/
+
+all: $(CONTIKI_PROJECT)
+
+CONTIKI = ../../../../contiki
+include $(CONTIKI)/Makefile.include
+CFLAGS += -DINIT_UNIXTIME=1424460031
+CFLAGS += -DOPO_ID=1
+CFLAGS += -DCC2538_RF_PRINT=1
+CFLAGS += -DRF_DEBUG_ID=3
+CFLAGS += -DCC2538_RF_CONF_CHANNEL=21

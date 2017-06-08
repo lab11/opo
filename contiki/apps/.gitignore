@@ -1,0 +1,14 @@
+*.map
+*.bin
+*.elf
+*.hex
+*.opo3
+*.a
+obj_*
+opo3_fake_tx/
+*.opo4
+*.opo3dk
+blink/blink.opo8001v2
+opo8001v2rxtx/opo8001rxtx.opo8001v2
+opo8001v2txtest/randtest.opo8001v2
+randtest/randtest.opo8001v2

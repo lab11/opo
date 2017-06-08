@@ -1,0 +1,28 @@
+Without systick interrupts: 41 uA @ 3.7 V = 151.7 uW sleep power draw
+Without systick interrupts, without rv4162 clkout = 32 uA @ 3.7 V
+With systick interrupts:  96 uA @ 3.7 V = 355.2 uW sleep power draw
+
+40 mAh 3.7 V battery = 532,800 mJ
+
+1 week desired lifetime:
+Without systick interrupts: 91,748.16 mJ
+With systick interrupts: 214,824.96 mJ
+
+Measurements taken with a Fluke 189
+
+
+Expected sleep current draw:
+2 uA  -  cc2538 @ LPM2
+4.2 uA - mic861
+7 uA -   mic863
+10 uA -  rv4162 w/ clkout
+2 uA -   NC7WZ14L6x (comparator)
+4 uA -   uPG2214TB (rf switch)
+1 uA -   NC7S14P5x (inverter for rf switch)
+
+.5 uA -  nrf8001
+.35 uA - ISL6002
+.41 uA - TS881 x 2
+.01 uA - ADXL362
+
+~33 uA - Sleep current
