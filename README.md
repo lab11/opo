@@ -34,17 +34,46 @@ Installation
 
 7) If making your own boards, we recommend these batteries: https://www.sparkfun.com/products/13112
 
+8) Go to /contiki/apps/opo8001v2opo_plugin in the Opo repo.
+
+9) Modify line 9 (CONTIKI = /home/wwhuang/Dropbox/git/contiki) to point to whever you checked out my Contiki repo to (step 1). 
+
+10) Connect the Opo to the programmer using a tag connect cable <http://www.tag-connect.com/TC2030-IDC-NL>. 
+
+11) Install the opo89001v2opo_plugin app by typing python2 idmake ID in a terminal, where ID is a 16 bit unsigned integer 
+that will be used as the targeted Opo's ID during ranging operations.
+
 Usage
 ---
 
-The main Opo sensor application is in contiki/apps/opo8001_plugin. You will need to modify the makefile the Makefile to point 
-to your checked out contiki folder. After this, use the tag connect (pogo) pins on the programmer and idmake.py to program 
-the Opo sensors. Idmake takes in a 16 bit ID as a command line argument. IDs should be unique within an experiment so that 
-Opo wearers can be identified. On boot, Opo sensors look for a Cloudcomm enabled Android device to get the time from.
-Once an Opo obtains the time, it will begin ranging operations if it is not plugged in. While Opos are plugged in they will 
-upload any data they have stored in flash through Cloudcomm. Data will be uploaded to whatever URL is set using 
-cloudcomm_set_metainfo(url, length) in opo8001rxtx.c. Data is uploaded by Cloudcomm as JSON strings using HTTP POST requests. 
+![Opo sensor](https://github.com/lab11/opo/blob/master/images/opo-photo.png)
 
-To use Cloudcomm, install the Android app on a phone or tablet with Bluetooth Low Energy in opo/android/Cloudcomm2 using Android studio. 
+### Attaching Opos to people
+
+We are currently working on a 3d printed case. In the meantime, obtain a lanyward, such as this one 
+<https://www.amazon.com/MIFFLIN-Vertical-Badge-Holder-Lanyard/dp/B01G7VTE98/ref=sr_1_2?ie=UTF8&qid=1499377440&sr=8-2-spons&keywords=lanyard&psc=1&smid=A29P802DGSGI7W>.
+Carve a hole in the plastic such that the transducer (large silver part with mesh) pokes out of the sheathe, and use 
+electric tape to secure the Opo inside the sheathe if neccessary. 
+
+The Opo must be worn such that they are unobstructed (e.g, NOT behind a shirt), and so that the transducer is facing 
+forward. Ideally, the Opo should be worn near the neck, such that they are facing forward while not pointing upwards, 
+as can happen on the chest.
+
+### Charging the Opos and downloading the data
+
+Opos can be charged from standard microUSB chargers, such as the ones used to charge smartphones. They can also 
+be charged from laptops, or really anything that provides USB power. 
+
+To download the data, one must plug in the Opo and then run the nodejs application, cloudcomm.js, found in the 
+/node folder of the Opo repository. The data gets downloaded as JSON in a file titled opo_cc_data.dat. The key 
+pieces of data are: 
+
+* RX_ID: This Opo's ID 
+* TX_ID: The other Opo's ID
+* RANGE: distance between the two Opos in meters 
+* M_UNIXTIME: This Opo's sense of what time the interaction occurred, expressed as a unix timestamp. 
+* TX_UNIXTIME: The other Opo's sense of what time the interaction occurred, expressed as a unix timestamp. 
+
+
 
 
