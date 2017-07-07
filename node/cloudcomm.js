@@ -204,7 +204,7 @@ function on_cc_data_data(data, isNotification) {
                         }
                     })*/
 
-                fs.appendFileSync('opo_cc_data.csv', JSON.stringify(opo_data) + "\n")
+                fs.appendFileSync('opo_cc_data.dat', JSON.stringify(opo_data) + "\n")
             }
             else {
                 console.log("Other DB: " + dataBuilder.length + " " + dataBuilder.toString('hex'))
