@@ -40,6 +40,7 @@ static uint32_t ul_count = 0; // number of ul pulses received
 static uint32_t tx_start_time = 0; // UL pulse transmit time, based on sleep timer
 static bool rf_packet_received = false;
 static bool transmission_noise = false; // switching from tx to rx causes a voltage shift, leading to a false wakeup
+static bool self_reset_rx = false; // if it was not a successful ranging operation, we self-reset opo rx
 uint32_t failed_rx_count = 0;
 
 static opo_rx_callback_t opo_rx_callback;
@@ -66,7 +67,7 @@ uint8_t get_opo_state() {
 /* ************************************************************************** */
 // Opo RX shit
 static void default_opo_rx_callback(opo_data_t odata) {}
-
+static void opo_rx_rf_default_callback() {}
 /*
  * Callback used to check how many ultrasonic pules we received. Based on our transmission time,
  * we expect to receive at least 40 pulses on our comparator pin. If we don't, we assume this is
@@ -154,7 +155,6 @@ PROCESS_THREAD(opo_rx, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-
 		if(opo_state == OPO_RX) {
 			if(!transmission_noise) {
 				//send_rf_debug_msg("opo.c: opo rx first stage\n");
@@ -167,12 +167,15 @@ PROCESS_THREAD(opo_rx, ev, data) {
 				packetbuf_clear();
 				NETSTACK_MAC.off(0);
 				if(transmission_noise) {
+					// Ultrasonic noise, probably from an opo transmission
 					transmission_noise = false;
-					opo_state = OPO_IDLE;
-					enable_opo_rx();
+					self_reset_rx = true;
 				}
 				else if(rf_packet_received == true) {
 					uint32_t diff = (uint32_t) (sfd_time - ul_wakeup_time);
+					char buffer[100];
+					snprintf(buffer, 100, "OPO: RX DIFF %lu %lu", diff, rxmsg_storage.ul_rf_dt);
+					send_rf_debug_msg(buffer);
 					if(diff < rxmsg_storage.ul_rf_dt) {
 						//send_rf_debug_msg("opo.c: Opo rx got rf packet");
 						rxmsg.tx_id = rxmsg_storage.id;
@@ -188,29 +191,40 @@ PROCESS_THREAD(opo_rx, ev, data) {
 						txmsg.last_range_dt = rxmsg.range_dt;
 						txmsg.failed_rx_count = failed_rx_count;
 						rf_packet_received = false;
-						opo_state = OPO_IDLE;
-						(opo_rx_callback)(rxmsg);
+						self_reset_rx = false;
 					}
 					else {
 						//send_rf_debug_msg("opo.c: Opo rx got rf packet, but invalid time\n");
 						failed_rx_count++;
 						rf_packet_received = false;
 						txmsg.failed_rx_count = failed_rx_count;
-						opo_state = OPO_IDLE;
-						enable_opo_rx();
+						self_reset_rx = true;
 					}
 				}
 				else {
 					//send_rf_debug_msg("opo.c: Opo rx did not get rf packet\n");
 					failed_rx_count++;
 					txmsg.failed_rx_count = failed_rx_count;
-					opo_state = OPO_IDLE;
+					self_reset_rx = true;
+				}
+
+				opo_state = OPO_IDLE;
+				if(self_reset_rx) {
+					// Ranging was incomplete. Re-enable opo rx
+					self_reset_rx = false;
 					enable_opo_rx();
+				}
+				else {
+					// Ranging complete. Return control.
+					SFD_HANDLER.set_callback(opo_rx_rf_default_callback);
+				  	RF_TXDONE_HANDLER.set_callback(opo_rx_rf_default_callback);
+				  	simple_network_set_callback(opo_rx_rf_default_callback);
+					(opo_rx_callback)(rxmsg);
 				}
 		}
 		/* Add a failsafe here to deal with opo bug / contiki process issue */
 		else {
-			send_rf_debug_msg("opo_rx process failsafe");
+			//send_rf_debug_msg("opo_rx process failsafe");
 			failed_rx_count++;
 			rf_packet_received = false;
 			opo_state = OPO_IDLE;
@@ -299,6 +313,9 @@ PROCESS_THREAD(opo_tx, ev, data) {
 							NETSTACK_MAC.off(0);
 							opo_tx_stage = 0;
 							opo_state = OPO_IDLE;
+							SFD_HANDLER.set_callback(default_opo_tx_callback);
+						  	RF_TXDONE_HANDLER.set_callback(default_opo_tx_callback);
+						  	simple_network_set_callback(default_opo_tx_callback);
 							//transmission_noise = true;
 							(*opo_tx_callback)();
 					} else {
