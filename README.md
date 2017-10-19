@@ -65,8 +65,7 @@ Opos can be charged from standard microUSB chargers, such as the ones used to ch
 be charged from laptops, or really anything that provides USB power. 
 
 To download the data, one must plug in the Opo and then run the nodejs application, cloudcomm.js, found in the 
-/node folder of the Opo repository. The data gets downloaded as JSON in a file titled opo_cc_data.dat. The key 
-pieces of data are: 
+/node folder of the Opo repository. When the Opo is plugged in, the LED should turn blue, and when the Opo is uploading data the blue and red LEDs will blink. Keep in mind the LEDs are provided by one RGB LED, so if both the red and blue LEDs are on, the light will look purple. The data gets downloaded as JSON in a file titled opo_cc_data.dat. The key pieces of data are: 
 
 * RX_ID: This Opo's ID 
 * TX_ID: The other Opo's ID
