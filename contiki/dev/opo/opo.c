@@ -457,7 +457,7 @@ static void setup_opo_rx_pins() {
 void opo_init() {
 	meta.id = OPO_ID;
 	meta.time_confidence = 0;
-	rxmsg.version_num = 0x01;
+	rxmsg.version_num = 0x02;
 	rxmsg.rx_id = OPO_ID;
 	setup_40kh_pwm();
 	setup_opo_rx_pins();
