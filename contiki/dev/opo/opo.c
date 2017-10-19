@@ -25,7 +25,7 @@
 	Current version uses comp1 or everything rx
 */
 
-#define OPO_ID 0
+#define OPO_ID 4
 
 PROCESS(opo_rx, "OpoRx");
 PROCESS(opo_tx, "OpoTx");
@@ -180,9 +180,9 @@ PROCESS_THREAD(opo_rx, ev, data) {
 						//send_rf_debug_msg("opo.c: Opo rx got rf packet");
 						rxmsg.tx_id = rxmsg_storage.id;
 						rxmsg.tx_unixtime = rxmsg_storage.unixtime;
-						rxmsg.tx_time_confidence = rxmsg_storage.time_confidence;
+						//rxmsg.tx_time_confidence = rxmsg_storage.time_confidence;
 						rxmsg.m_unixtime = rtc_get_unixtime();
-						rxmsg.m_time_confidence = meta.time_confidence;
+						//rxmsg.m_time_confidence = meta.time_confidence;
 						rxmsg.range_dt = (uint32_t)(rxmsg_storage.ul_rf_dt - diff);
 						rxmsg.failed_rx_count = failed_rx_count;
 						// Put extra info in transmit package
