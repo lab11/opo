@@ -1,0 +1,35 @@
+1) Set up accelerometer, plugin detection, opo, cc,  then start CC to get the time. 
+
+2) Activate accelerometer 
+	- Records of an opo interaciton of ID 327 and range 327 with the time when triggered
+	- Sets up an Opo TX when triggered
+
+	- On Opo TX
+		- If failed, set up to try again quickly. 
+		- If not failed, woo
+
+2) Set up Opo RX
+	- When an RX is complete, store shit to CC
+
+4) On Plugin 
+	- Check to see if we are really plugged in 
+		- If so, call opo8001ccon which is responsible for disabling opo and accel and 
+		  starting cc.
+		- if Opo or accelerometer is in use, set up a timer to check again.
+		- once everything is disabled, run cloudcomm.
+	- When Opo is idle, disable it. 
+	- offload data + update time. 
+
+5) On unplug
+	- Tell CC to turn off when it's done it's current thing. 
+	- setup plug deteciton.
+	- Call unplug resume. 
+		- If CC is still going, next time it stops it'll also call unplug resume. ]
+
+
+LEDS: 
+Opo RX; blink blue
+Opo TX: blink green
+
+Plugged in: Stay blue 
+Cloudcomm: Stay red

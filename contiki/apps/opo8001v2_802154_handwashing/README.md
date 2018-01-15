@@ -1,0 +1,1 @@
+App which detects when a soap dispenser or purell dispenser is used, and when it is sends out an Opo TX. By default in Opo RX
