@@ -60,8 +60,13 @@
 
 uint8_t accel_get_status();
 void accel_set_activity_threshold(uint16_t thresh);
-void accel_enable_wakeup_mode();
-void accel_disable_wakeup_mode();
-void accel_write_register(uint8_t reg, uint8_t data);
+void accel_set_inactivity_threshold(uint16_t thresh);
+void accel_set_inactivity_timer(uint16_t t); 
+void accel_setup_int_two_awake(void (*u_int_two_callback) ());
+void accel_enable_int_two_awake(); 
+void accel_disable_int_two();
+void accel_enable_loop_mode();
+void accel_init();
 void accel_soft_reset();
+void accel_write_register(uint8_t reg, uint8_t data);
 uint8_t accel_read_register(uint8_t reg);
