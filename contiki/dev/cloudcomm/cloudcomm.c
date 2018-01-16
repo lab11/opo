@@ -804,7 +804,10 @@ uint8_t cloudcomm_store(void *data) {
 			send_rf_debug_msg("Cloudcomm Store Fail");
 			return 0; // something went wrong
 		}
-		else { flash_pages_stored += 1; } // update cloudcomm's knowledge of how much data is in flash
+		else { 
+			send_rf_debug_msg("CC flash store success");
+			flash_pages_stored += 1; 
+		} // update cloudcomm's knowledge of how much data is in flash
 	}
 
 	return 1; // everything went smoothly

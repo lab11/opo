@@ -36,7 +36,7 @@ static uint8_t  sending_data_store[270] = {0};   // Buffer where data is stored 
 static uint16_t sending_data_store_index = 0;    // How much data is in our sending buffer
 static uint16_t next_packet_index = 0;           // Demarcates next data packet. Only used for debug?
 static uint16_t last_packet_index = 0;           // Rollback index to handle unexpected disconnect
-static uint16_t sending_data_store_end = 0;      // Demarcates end of valid data in our data buffer
+static uint16_t sending_data_store_end = 0;      // Index of end of valid data in our data buffer
 static uint16_t max_data_store_length = 0;       // Bytes of valid data per flash page
 static bool     sending_data_store_empty = true;
 static bool     sent_data_from_flash = false;    // Checks if the data sent was from flash.
@@ -147,18 +147,18 @@ static void send_rf_packet(uint16_t *current_data_index, uint16_t final_data_ind
 	snprintf(buffer, 100, "CC_SEND: CURRENT_DATA_INDEX: %u", *current_data_index);
 	send_rf_debug_msg(buffer);
 
-	uint8_t rf_packet_size = max_rf_data_length / cc_packet_length * cc_packet_length; 
-	uint16_t remaining_data = final_data_index - *current_data_index;
+	uint8_t rf_data_size = max_rf_data_length / cc_packet_length * cc_packet_length; 
+	uint16_t remaining_data = (1 + final_data_index) - *current_data_index; // gotta add the +1 to accoutn for the fact that current data index represents the first UNSENT piece of data.
 	if(remaining_data < max_rf_data_length) {
-		rf_packet_size = remaining_data;
+		rf_data_size = remaining_data;
 	}
 
-	if(rf_packet_size % cc_packet_length != 0) { send_rf_debug_msg("RF_PACKET_SIZE ERROR"); }
+	if(rf_data_size % cc_packet_length != 0) { send_rf_debug_msg("RF_PACKET_SIZE ERROR"); }
 	
-	rf_packet_size += 1 + 2 + 4; // sequence, preamble, 4 extra for opo rf function.
+	uint8_t rf_packet_size = 1 + 2 + rf_data_size + 4; // sequence, preamble, 4 extra for opo rf function.
 	uint8_t rf_buf[rf_packet_size]; 
 	rf_buf[0] = sequence_num;
-	for(i=0;i<cc_packet_length;i++) {rf_buf[i+3] = sending_data_store[*current_data_index + i]; } // Load URL into ble packet
+	for(i=0;i<rf_data_size;i++) {rf_buf[i+3] = sending_data_store[*current_data_index + i]; } // Load URL into ble packet
 	rf_buf[1] = ~rf_buf[5]; // put in the preamble
 	rf_buf[2] = ~rf_buf[6];
 
@@ -166,7 +166,7 @@ static void send_rf_packet(uint16_t *current_data_index, uint16_t final_data_ind
 	last_sequence_num = rf_buf[0]; // keep track of sequence num for acks.
 	last_rx_id[0] = rf_buf[5]; // Keep track of the rx_id in the opo packet for acks
 	last_rx_id[1] = rf_buf[6];
-	*current_data_index += (rf_packet_size - 1 - 2 - 4); // update current_data_index to the next UNREAD opo packet
+	*current_data_index += (rf_data_size); // update current_data_index to the next UNREAD opo packet
 	packetbuf_clear();
 	packetbuf_copyfrom((void *) rf_buf, rf_packet_size);
 	packet_data_store_len = rf_packet_size;
