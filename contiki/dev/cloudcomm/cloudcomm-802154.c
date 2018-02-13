@@ -148,7 +148,7 @@ static void send_rf_packet(uint16_t *current_data_index, uint16_t final_data_ind
 	send_rf_debug_msg(buffer);
 
 	uint8_t rf_data_size = max_rf_data_length / cc_packet_length * cc_packet_length; 
-	uint16_t remaining_data = (1 + final_data_index) - *current_data_index; // gotta add the +1 to accoutn for the fact that current data index represents the first UNSENT piece of data.
+	uint16_t remaining_data = (1 + final_data_index) - *current_data_index; // gotta add the +1 to account for the fact that current data index represents the first UNSENT piece of data.
 	if(remaining_data < max_rf_data_length) {
 		rf_data_size = remaining_data;
 	}
@@ -293,7 +293,7 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 				packetbuf_copyfrom(time_buf, 6);
 				time_req = true;
 				cc2538_on_and_transmit(0);
-				schedule_vtimer_ms(&cc_rf_retransmit_vtimer, 100 + generate_retransmit_rand());
+				schedule_vtimer_ms(&cc_rf_retransmit_vtimer, 200 + generate_retransmit_rand());
 			}
 			/* Upload data if there is data in our cc rf storage, cc ram storage, or in flash */
 			else if(data_store_index > 0 || flash_pages_stored > 0 || !sending_data_store_empty) {
@@ -310,11 +310,12 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 					upload_data();
 				}
 				else{ // Last piece of data not acked by gateway.
+					send_rf_debug_msg("Retransmit previous data");
 					packetbuf_clear();
 					packetbuf_copyfrom(packet_data_store, packet_data_store_len);
 					cc2538_on_and_transmit(0);
 				}
-				schedule_vtimer_ms(&cc_rf_retransmit_vtimer, 100 + generate_retransmit_rand());
+				schedule_vtimer_ms(&cc_rf_retransmit_vtimer, 200 + generate_retransmit_rand());
 			}
 			/* Done all data upload/download */
 			else {
