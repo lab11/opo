@@ -1,0 +1,5 @@
+Okay, so the flash storage has to be on for spi to work properly since everything shares one spi bus. Fuck. Apparently the old model was high impedance when off, this one is not. 
+Flash consumes 15 uA when on, so it'd be nice to only keep it on when neccessary. There's only a 150 uS delay with turning flash on, so not too bad. 
+
+accel works in spi 0 and spi 3. weee 
+
