@@ -13,6 +13,7 @@
 #include "blink.h"
 #include "adxl362.h"
 #include "rtc.h"
+#include "sst25vf.h"
 
 PROCESS(opo8001rxtx, "opo8001rxtx");
 PROCESS(opo8001rx, "opo8001rx");
@@ -110,7 +111,7 @@ static void plugin_checker_callback() {
 	else {
 		send_rf_debug_msg("Plugin checker chugging along");
 		char buffer[100];
-		snprintf(buffer, 100, "Opo_state: %u", get_opo_state());
+		snprintf(buffer, 80, "Opo_state: %i", get_opo_state());
 		send_rf_debug_msg(buffer);
 		if(opo8001rx.needspoll) {send_rf_debug_msg("Opo8001rx needspoll");}
 		if(opo8001tx.needspoll) {send_rf_debug_msg("Opo8001tx needspoll");}
@@ -158,9 +159,13 @@ PROCESS_THREAD(unplugResume, ev, data) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 		/* Resume opo activities if cloudcomm is done and we are unplugged */
 		if(cc_done && !plugged_in) {
+			send_rf_debug_msg("Unplugged: resume operation");
 			leds_off(LEDS_RED);
 			leds_off(LEDS_BLUE);
-			accel_enable_int_two_awake();
+			//sst25vf_turn_on();
+			//accel_enable_int_two_awake();
+			//accel_enable_loop_mode();
+			//sst25vf_turn_off();
 			enable_opo_rx();
 		}
 	}
@@ -183,7 +188,9 @@ PROCESS_THREAD(pluginManager, ev, data) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 		send_rf_debug_msg("Cloudcomm On");
 		if(plugged_in) {
-			accel_disable_int_two();
+			//sst25vf_turn_on();
+			//accel_disable_int_two();
+			//sst25vf_turn_off();
 			// Check to make sure Opo is idle before starting cloudcomm.
 			INTERRUPTS_DISABLE();
 			if(get_opo_state() == 3 && !pending_opo_tx) {
@@ -195,7 +202,7 @@ PROCESS_THREAD(pluginManager, ev, data) {
 				continue;
 			}
 			INTERRUPTS_ENABLE();
-
+			cloudcomm_request_data(CLOUDCOMM_REQ_TIME);
 			// Call cloudcomm. If it returns 0, it means we are done, so hand over control to the unplugResume.
 			if(cloudcomm_on(cloudcomm_callback) == 0) {
 				cc_done = true;
@@ -217,16 +224,33 @@ PROCESS_THREAD(pluginManager, ev, data) {
 
 /* ACCEL STUFF */ 
 
-void accel_activity_callback() { process_poll(&accelActivity); }
+void accel_activity_callback() { process_poll(&accelActivity); blink_red(); }
 
 // Get the time of the callback, record it, setup opo tx.
 PROCESS_THREAD(accelActivity, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		accelData.m_unixtime = rtc_get_unixtime();
-		cloudcomm_store(&accelData);
-		process_poll(&opo8001tx);
+		send_rf_debug_msg("Motion Detected");
+		if(!plugged_in) {
+			accelData.m_unixtime = rtc_get_unixtime();
+			cloudcomm_store(&accelData);
+			send_rf_debug_msg("Motin detected");
+			sst25vf_turn_on();
+			accel_get_status(); // Clear the interrupt
+			sst25vf_turn_off();
+			process_poll(&opo8001tx);
+		}
+		else {
+			if(!sst25vf_is_on()) {
+				sst25vf_turn_on();
+				accel_get_status();
+				sst25vf_turn_off();
+			}
+			else {
+				accel_get_status();
+			}
+		}
 	}
 	PROCESS_END();
 }
@@ -236,8 +260,7 @@ PROCESS_THREAD(accelActivity, ev, data) {
 // Copy Opo ranging data to global variable so that the process can copy it in.
 void opo_rx_callback(opo_data_t odata) {
 	memcpy(&mdata, &odata, sizeof(opo_data_t));
-	if(mdata.range_dt >= 105) { blink_blue(); }
-	else { blink_red(); }
+	blink_blue();
 	process_poll(&opo8001rx);
 }
 
@@ -247,7 +270,9 @@ PROCESS_THREAD(opo8001rx, ev, data) {
 	PROCESS_BEGIN();
 	while(1) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
-		//send_rf_debug_msg("Opo rx process reenable\n");
+		char buffer[100]; 
+		snprintf(buffer, 100, "Opo rx: %lu", mdata.range_dt);
+		send_rf_debug_msg(buffer);
 		cloudcomm_store(&mdata); 
 		// If there is a pending opo transmission, let it go before re-enabling opo rx.
 		if(!pending_opo_tx && !plugged_in) {
@@ -267,8 +292,8 @@ void tx_delay_callback() {
 // When we are done transmitting, re-enable Opo RX if we are not plugged in
 void opo_tx_callback() {
 	pending_opo_tx = false;
+	blink_green();
 	if(!plugged_in) {
-		blink_green();
 		enable_opo_rx();
 	}
 }
@@ -298,12 +323,15 @@ PROCESS_THREAD(opo8001rxtx, ev, data) {
 
 	// Setup acclerometer for activity detection
 	accelData.rx_id = 327; 
+	accelData.tx_id = 327;
 	accelData.range_dt = 327;
+	sst25vf_turn_on();
 	accel_soft_reset();
 	accel_set_activity_threshold(32);
 	accel_set_inactivity_threshold(150);
 	accel_set_inactivity_timer(5);
 	accel_setup_int_two_awake(accel_activity_callback);
+	sst25vf_turn_off();
 	process_start(&accelActivity, NULL);
 
 	// Setup opo shit
@@ -337,9 +365,15 @@ PROCESS_THREAD(opo8001rxtx, ev, data) {
 	PROCESS_YIELD_UNTIL(ev==PROCESS_EVENT_POLL);
 	leds_off(LEDS_RED);
 
+	// Turn on accelerometer.
+	sst25vf_turn_on();
+	accel_enable_loop_mode();
+	sst25vf_turn_off();
+
 	// Activate plugin detection
 	setup_plug_detect_pin();
 	nvic_interrupt_enable(NVIC_INT_GPIO_PORT_A);
+
 
 	// Check to see if we are already plugged in. If so, chill, if not, then activate the accelerometer and opo rx.
 	if(GPIO_READ_PIN(PLUG_DETECT_PORT_BASE, PLUG_DETECT_PIN_MASK) == PLUG_DETECT_PIN_MASK) {
@@ -347,9 +381,9 @@ PROCESS_THREAD(opo8001rxtx, ev, data) {
 		plug_detect(0,0); // Likely no interrupt, so manually trigger plug detection
 	}
 	else {
-		accel_enable_loop_mode();
 		enable_opo_rx();
-	}
+		sst25vf_turn_off();
+	} 
 
 	PROCESS_END();
 }

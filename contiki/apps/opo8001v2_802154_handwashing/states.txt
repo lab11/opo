@@ -27,9 +27,22 @@
 		- If CC is still going, next time it stops it'll also call unplug resume. ]
 
 
-LEDS: 
-Opo RX; blink blue
-Opo TX: blink green
+TIMING: 
 
-Plugged in: Stay blue 
-Cloudcomm: Stay red
+The transmit is 12 ticks too fast. 
+
+Experiment:
+
+
+Blink red: Accelerometer interrupt 
+
+Blink Blue: Opo RX 
+
+Blink Green: Opo TX
+
+I can use the cs line to the nrf8001 to figure out what the actual delay is 
+
+Inactivy time:
+
+Time = TIME_INACT / ODR 
+ODR is set in filter_tcl. By default is 100 hz
