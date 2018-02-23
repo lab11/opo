@@ -102,6 +102,7 @@ static void cc_rf_rx_handler() {
 			if(data_ptr[0] == TRIUMVI_RTC && data_ptr[1] == TRIUMVI_RTC_SET) {
 				time_req = false;
 				req_count = 0;
+				req_queue[CLOUDCOMM_REQ_TIME] = false;
 				uint8_t time_buf[8];
 				time_buf[0] = 0;
 				time_buf[1] = data_ptr[7];
@@ -112,8 +113,6 @@ static void cc_rf_rx_handler() {
 				time_buf[6] = data_ptr[3];
 				time_buf[7] = data_ptr[2];
 				rv4162_set_time(time_buf);
-				req_count = 0;
-				time_req = false;
 			}
 		}
 	}
@@ -293,7 +292,7 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 				packetbuf_copyfrom(time_buf, 6);
 				time_req = true;
 				cc2538_on_and_transmit(0);
-				schedule_vtimer_ms(&cc_rf_retransmit_vtimer, 200 + generate_retransmit_rand());
+				schedule_vtimer_ms(&cc_rf_retransmit_vtimer, 300 + generate_retransmit_rand());
 			}
 			/* Upload data if there is data in our cc rf storage, cc ram storage, or in flash */
 			else if(data_store_index > 0 || flash_pages_stored > 0 || !sending_data_store_empty) {
@@ -315,7 +314,7 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 					packetbuf_copyfrom(packet_data_store, packet_data_store_len);
 					cc2538_on_and_transmit(0);
 				}
-				schedule_vtimer_ms(&cc_rf_retransmit_vtimer, 200 + generate_retransmit_rand());
+				schedule_vtimer_ms(&cc_rf_retransmit_vtimer, 300 + generate_retransmit_rand());
 			}
 			/* Done all data upload/download */
 			else {
