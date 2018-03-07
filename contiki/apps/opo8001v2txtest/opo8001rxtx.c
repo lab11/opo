@@ -46,7 +46,7 @@ void tx_delay_callback() {
 void opo_tx_callback() {
 	leds_toggle(LEDS_RED);
 	unsigned short delaytime = generate_rand_tx();
-	schedule_vtimer(&tx_delay, 10*VTIMER_SECOND);
+	schedule_vtimer(&tx_delay, 2*VTIMER_SECOND);
 }
 
 PROCESS_THREAD(opo8001tx, ev, data) {
@@ -57,7 +57,7 @@ PROCESS_THREAD(opo8001tx, ev, data) {
 		if(!perform_opo_tx()) {
 			sending_fail = true;
 			unsigned short delaytime = generate_rand_tx();
-			schedule_vtimer(&tx_delay, 10*VTIMER_SECOND);
+			schedule_vtimer(&tx_delay, 2*VTIMER_SECOND);
 		}
 		else {
 			sending_fail = false;
@@ -74,7 +74,7 @@ PROCESS_THREAD(opo8001rxtx, ev, data) {
 
 	rtc_set_unixtime(test_time);
 	unsigned short randtime = generate_rand_tx();
-	schedule_vtimer(&tx_delay, 5*VTIMER_SECOND);
+	schedule_vtimer(&tx_delay, 2*VTIMER_SECOND);
 
 	PROCESS_END();
 }
