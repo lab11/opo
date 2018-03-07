@@ -94,6 +94,7 @@ static void cc_rf_retransmit_vtimer_callback() {
 	process_poll(&cloudcomm_manager);
 }
 
+/* This is an interrupt handler in name only. This actually occurs in a proccess context, so it's interrupt safe. */ 
 static void cc_rf_rx_handler() {
 	uint8_t data_length = packetbuf_datalen();
     uint8_t *data_ptr = packetbuf_dataptr();
