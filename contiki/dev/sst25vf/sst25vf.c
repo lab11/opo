@@ -15,6 +15,7 @@
 #include "cc2538-rf.h"
 #include "cc2538-rf-debug.h"
 //#include "cloudcomm.h"
+#include <stdio.h>
 
 static enum {CHIP_ERASE_DONE,
 	  		 SMALL_BLOCK_ERASE_DONE,
@@ -55,8 +56,8 @@ static inline void set_flash_reset_pin() {
 }
 
 static inline void enable_writes() {
-	sst25vf_ewsr();
-	sst25vf_write_status_register(0);
+	//sst25vf_ewsr();
+	//sst25vf_write_status_register(0);
 	sst25vf_write_enable();
 }
 
@@ -144,6 +145,11 @@ void sst25vf_turn_on() {
 	clock_delay_usec(150);
 	set_flash_reset_pin();
 	on = true;
+}
+
+bool sst25vf_is_on() {
+	if(on) {return true;}
+	else {return false;}
 }
 
 void sst25vf_turn_off() {
@@ -241,6 +247,106 @@ uint8_t sst25vf_read_status_register() {
 
 }
 
+/*bp_buf should be 18 bytes */ 
+uint8_t sst25vf_read_block_protection_register(uint8_t *bp_buff) {
+	bool auton = false;
+	INTERRUPTS_DISABLE();
+	if(!on) {
+		auton = true;
+		sst25vf_turn_on();
+	}
+	if(!check_sst25vf_busy()) {
+		send_rf_debug_msg("sst25vf_read_bp fail 1");
+		return 0;
+	}
+
+	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
+	//SPI_FLUSH();
+	if(!spi_flush_buffer()) {send_rf_debug_msg("runSpiByteRx flush 0 fail");}
+	clr_flash_cs();
+	uint32_t j;
+
+	if(!spi_write_byte(RBPR)) {send_rf_debug_msg("runSpiByteRx tx fail");}
+	for(j = 0; j < 18; j++) {
+		if(!spi_read_byte(&(bp_buff[j]))) {send_rf_debug_msg("runSpiByteRx rx fail");}
+		if(!spi_flush_buffer()) {send_rf_debug_msg("runSpiByteRx flush 2 fail");}
+		//SPI_READ(((uint8_t *)rxBuffer)[j]);
+		//SPI_FLUSH();
+	}
+	set_flash_cs();
+
+	if(!check_sst25vf_busy()) {
+		send_rf_debug_msg("sst25vf_read_bp fail 2");
+		return 0;
+	}
+
+	if(auton) { sst25vf_turn_off(); }
+	INTERRUPTS_ENABLE();
+
+	return 1;
+}
+
+uint8_t sst25vf_clear_all_block_protection() {
+	bool auton = false;
+	INTERRUPTS_DISABLE();
+	if(!on) {
+		auton = true;
+		sst25vf_turn_on();
+	}
+	if(!check_sst25vf_busy()) {
+		send_rf_debug_msg("sst25vf_write_bp fail 1");
+		return 0;
+	}
+
+	enable_writes();
+
+	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
+	if(!spi_flush_buffer()) {send_rf_debug_msg("runSpiByteTx flush 0 fail");}
+	//SPI_FLUSH();
+	clr_flash_cs();
+	uint32_t j;
+
+	if(!spi_write_byte(WBPR)) {send_rf_debug_msg("runSpiByteTx write 1 fail");}
+
+	for(j = 0; j < 18; j++) {
+		if(!spi_write_byte(0)) {send_rf_debug_msg("runSpiByteTx write 2 fail");}
+		if(!spi_flush_buffer()) {send_rf_debug_msg("runSpiByteTx flush 2 fail");}
+		//SPI_WRITE(((uint8_t *)txBuffer)[j]);
+		//SPI_FLUSH();
+	}
+	set_flash_cs();
+
+
+	if(!check_sst25vf_busy()) {
+		send_rf_debug_msg("sst25vf_write_bp fail 2");
+		return 0;
+	}
+
+	if(auton) { sst25vf_turn_off(); }
+	INTERRUPTS_ENABLE();
+
+	return 1;
+}
+
+uint8_t sst25vf_read_config_register() {
+	uint8_t config_buffer = 0;
+	spi_set_mode(SSI_CR0_FRF_MOTOROLA, 0, 0, 8);
+	//SPI_FLUSH();
+	spi_flush_buffer();
+	clr_flash_cs();
+	spi_write_byte(RDCR);
+	spi_flush_buffer();
+	spi_read_byte(&config_buffer);
+	spi_flush_buffer();
+	//SPI_WRITE(RDSR);
+	//SPI_FLUSH();
+	//SPI_READ(status_buffer);
+	//SPI_FLUSH();
+	set_flash_cs();
+	return config_buffer;
+
+}
+
 void sst25vf_write_enable() {
 	runSingleCommand(WREN);
 }
@@ -266,6 +372,10 @@ uint8_t sst25vf_program(uint32_t addr, uint8_t *txBuffer, uint32_t tx_len) {
 		cmdBuffer[3] = m_addr[2];
 
 		enable_writes();
+		uint8_t status = sst25vf_read_config_register();
+		char buffer[100]; 
+		snprintf(buffer, 100, "SST: PROGRAM STATUS %u", status); 
+		send_rf_debug_msg(buffer);
 		uint32_t counter = 0;
 		while(sst25vf_read_status_register() != STATUS_WEL) {
 			clock_delay_usec(500);
@@ -287,6 +397,7 @@ uint8_t sst25vf_program(uint32_t addr, uint8_t *txBuffer, uint32_t tx_len) {
 
 	if(auton) { sst25vf_turn_off(); }
 	if(!is_success) { send_rf_debug_msg("sst25vf_program fail"); }
+	else{ send_rf_debug_msg("sst25vf_program success"); }
 	INTERRUPTS_ENABLE();
 
 	return 1;

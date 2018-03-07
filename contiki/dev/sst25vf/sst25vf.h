@@ -1,23 +1,22 @@
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifndef SST25VF_H
 
 #define SST25VF_H
-#define READ                  0x03
+#define READ                  0x03 // read bytes
 #define FAST_READ_DUAL_IO     0xbb
 #define FAST_READ_DUAL_OUTPUT 0x3b
 #define HIGH_SPEED_READ       0x0b
 #define SECTOR_ERASE          0x20
 #define SMALL_BLOCK_ERASE     0x52
 #define LARGE_BLOCK_ERASE     0xD8
-#define CHIP_ERASE            0x60
-#define CHIP_ERASE_2          0xc7
+#define CHIP_ERASE            0xc7 // Chip Erase
 #define PAGE_PROGRAM          0x02
 #define DUAL_IN_PAGE_PROGRAM  0xa2
 #define RDSR                  0x05
 #define EWSR                  0x50
-#define WRSR                  0x01
-#define WREN                  0x06
+#define WREN                  0x06 // Write enable
 #define WRDI                  0x04
 #define RDID                  0x90
 #define RDID_2                0xab
@@ -26,11 +25,20 @@
 #define READ_SID              0x88
 #define PROGRAM_SID           0xa5
 #define LOCKOUT_SID           0x85
+#define WBPR				  0x42 // Write block protection register
+#define RBPR                  0x72 // Read block protection register
+#define RSTEN				  0x66 // Reset Enable 
+#define RST                   0x99 // Reset memory
+#define RDCR                  0x35 // Read config register
+#define WRSR                  0x01 // Write configuration register (status is now read only)
+
+
 #define T_PROGRAM_SID         2
 #define T_PAGE_PROGRAM        3
 #define T_CHIP_ERASE		  51
 #define T_BLOCK_ERASE         26
 #define T_SECTOR_ERASE		  26
+
 
 #define STATUS_BUSY           0x01
 #define STATUS_WEL            0x02
@@ -69,5 +77,12 @@ void sst25vf_ewsr();
 void sst25vf_write_status_register(uint8_t status_data);
 
 void sst25vf_init();
+
+uint8_t sst25vf_read_config_register();
+
+uint8_t sst25vf_read_block_protection_register(uint8_t *bp_buff);
+uint8_t sst25vf_clear_all_block_protection();
+
+bool sst25vf_is_on();
 
 #endif
