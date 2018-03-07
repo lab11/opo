@@ -1,0 +1,17 @@
+1) Manually turn on simplestore. That way there's no reset delay as the
+flash chip turns on and off.
+  - Done
+
+2) Make SPI faster
+  Bit rate = FSSICLK / (CPSDVR * (1+SCR))
+  CPSDVR is in SSI_CPSR
+  Most I can set rate to is 10 mhz, which is better than the 2 it was set at.
+  - Done
+
+3) Group packets together
+
+On the gateway side:
+
+12 bytes before first versipn number.
+3 of those bytes are sequence (1) + preamble (2)
+17 bytes total. 12 before first version number + 5 after (4 bytes of time + 1 byte crc or something)
