@@ -25,8 +25,10 @@ for line in fileinput.input("../../dev/cc2538-rf-debug/cc2538-rf-debug.c", inpla
 fileinput.close()
 
 m = sh.make("opo8001rxtx.upload")
+print m
 print m.stdout
 print m.stderr
+
 
 for line in fileinput.input("../../dev/opo/opo.c", inplace=1):
 	if "#define OPO_ID" in line:

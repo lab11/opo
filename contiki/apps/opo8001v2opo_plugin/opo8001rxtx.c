@@ -306,7 +306,8 @@ PROCESS_THREAD(opo8001rxtx, ev, data) {
 	cloudcomm_request_data(CLOUDCOMM_REQ_TIME);
 	cloudcomm_on(init_callback, 0);
 	leds_on(LEDS_RED);
-
+	leds_on(LEDS_BLUE); 
+	leds_on(LEDS_GREEN);
 	PROCESS_YIELD_UNTIL(ev==PROCESS_EVENT_POLL); // cloudcomm has obtained the time.
 	leds_off(LEDS_RED);
 	plug_debouncer = get_vtimer(plug_debouncer_callback);
