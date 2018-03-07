@@ -42,7 +42,7 @@ include $(CONTIKI_CPU)/Makefile.cc2538
 MODULES += core/net core/net/mac core/net/rime core/net/mac/contikimac
 
 #BSL = $(CONTIKI)/tools/cc2538-bsl/cc2538-bsl.py
-BSL = /home/wwhuang/Dropbox/git/cc2538-bsl/cc2538-bsl.py
+BSL = $(HOME)/Dropbox/git/cc2538-bsl/cc2538-bsl.py
 
 %.upload: %.bin
 ifeq ($(wildcard $(BSL)), )
