@@ -105,6 +105,7 @@ static inline void enable_rdyn() {
 void nrf8001_event_callback(uint8_t port, uint8_t pin) {
 	disable_and_clear_rdyn();
 	mstate = EVENT;
+	send_rf_debug_msg("NRF8001 EVENT CALLBACK");
 	process_poll(&nrf8001_event_process);
 }
 
