@@ -5,6 +5,7 @@
 #include "ssi.h"
 #include "dev/ssi.h"
 #include "clock.h"
+#include "sst25vf.h"
 
 static void (*user_int_two_callback) ();
 
@@ -20,10 +21,10 @@ static void int_two_callback(uint8_t port, uint8_t pin) {
 	GPIO_CLEAR_INTERRUPT(ADXL362_INTTWO_PORT_BASE, ADXL362_INTTWO_PIN_MASK);
 	GPIO_CLEAR_POWER_UP_INTERRUPT(ADXL362_INTTWO_PORT_NUM, ADXL362_INTTWO_PIN_NUM);
 	user_int_two_callback();
-	accel_get_status(); // Clear the interrupt
 }
 
 void accel_write_register(uint8_t reg, uint8_t data) {
+  accel_set_cs();
   accel_clear_cs();
   spi_write_byte(WRITE_ADXL362_REGISTER);
   spi_write_byte(reg);
@@ -34,6 +35,7 @@ void accel_write_register(uint8_t reg, uint8_t data) {
 
 uint8_t accel_read_register(uint8_t reg) {
   uint8_t mdata;
+  accel_set_cs();
   accel_clear_cs();
   spi_flush_buffer();
   spi_write_byte(READ_ADXL362_REGISTER);
@@ -90,7 +92,7 @@ void accel_set_inactivity_timer(uint16_t t) {
 
 void accel_enable_loop_mode() {
 	accel_write_register(ACT_INACT_CTL, 0x3F); // setup loop mode
-	accel_write_register(POWER_CTL, 0x0A); // Enable loop mode
+	accel_write_register(POWER_CTL, 0x0E); // Enable loop mode
 }
 
 // Set up all the pins neccessary
