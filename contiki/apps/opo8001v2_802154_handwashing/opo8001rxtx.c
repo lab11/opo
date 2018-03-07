@@ -33,6 +33,7 @@ static bool pending_opo_tx = false;
 static bool plugged_in = false;
 static bool cc_done = false;
 static bool plugged_in_on_start = false;
+static bool need_time = true;
 static struct vtimer plug_debouncer;
 static struct vtimer unplug_debouncer;
 static struct vtimer plugin_checker;
@@ -113,6 +114,9 @@ static void plugin_checker_callback() {
 		char buffer[100];
 		snprintf(buffer, 80, "Opo_state: %i", get_opo_state());
 		send_rf_debug_msg(buffer);
+		uint32_t my_time = rtc_get_unixtime(); 
+		snprintf(buffer, 100, "PLUGIN_TIME: %lu", my_time);
+		send_rf_debug_msg(buffer);
 		if(opo8001rx.needspoll) {send_rf_debug_msg("Opo8001rx needspoll");}
 		if(opo8001tx.needspoll) {send_rf_debug_msg("Opo8001tx needspoll");}
 		if(pluginManager.needspoll) {send_rf_debug_msg("pluginManager needspoll");}
@@ -159,6 +163,7 @@ PROCESS_THREAD(unplugResume, ev, data) {
 		PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_POLL);
 		/* Resume opo activities if cloudcomm is done and we are unplugged */
 		if(cc_done && !plugged_in) {
+			need_time = true;
 			send_rf_debug_msg("Unplugged: resume operation");
 			leds_off(LEDS_RED);
 			leds_off(LEDS_BLUE);
@@ -202,7 +207,10 @@ PROCESS_THREAD(pluginManager, ev, data) {
 				continue;
 			}
 			INTERRUPTS_ENABLE();
-			cloudcomm_request_data(CLOUDCOMM_REQ_TIME);
+			if(need_time) {
+				cloudcomm_request_data(CLOUDCOMM_REQ_TIME);
+				need_time = false;
+			}
 			// Call cloudcomm. If it returns 0, it means we are done, so hand over control to the unplugResume.
 			if(cloudcomm_on(cloudcomm_callback) == 0) {
 				cc_done = true;
