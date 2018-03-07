@@ -1,0 +1,52 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:layout_height="match_parent" android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:paddingBottom="@dimen/activity_vertical_margin" tools:context=".MainActivity"
+    android:id="@+id/name">
+
+
+    <ScrollView
+        android:id="@+id/layout"
+        android:layout_height="match_parent"
+        android:scrollbars="horizontal|vertical"
+        android:layout_width="match_parent"
+        android:layout_marginTop="5dip"
+        android:scrollbarStyle="outsideInset"
+        android:fillViewport="true">
+        <TableLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="@dimen/activity_vertical_margin"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin">
+
+            <TableRow>
+                <TextView
+                    android:id="@+id/text_cc_status"
+                    android:text="Cloudcomm Servie Controller\n"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </TableRow>
+            <TableRow>
+                <Button android:id="@+id/btnStartService"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="start service"
+                    android:onClick="startButtonCallback"/>
+            </TableRow>
+            <TableRow>
+                <Button android:id="@+id/btnStopService"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content"
+                    android:text="stop service"
+                    android:onClick="stopButtonCallback" />
+            </TableRow>
+            <TableRow></TableRow>
+            <TableRow></TableRow>
+
+        </TableLayout>
+    </ScrollView>
+</RelativeLayout>
