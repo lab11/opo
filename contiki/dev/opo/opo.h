@@ -6,11 +6,11 @@
 #define OPO_H
 
 typedef struct __attribute__((packed)) opo_ranging_message {
-	uint16_t preamble; // equal to the bitwise NOT of the id
-	uint16_t id;       // Opo specific ID
-	uint8_t  time_confidence; // 0 = false time. 1 = heard from smartphone, 2 = heard from node that heard from smartphone...
-	time_t   unixtime;        // My unixtime
-	// All the last_x stuff is data for listening infrastructure nodes
+  uint16_t preamble; // equal to the bitwise NOT of the id
+  uint16_t id;       // Opo specific ID
+  uint8_t  time_confidence; // 0 = false time. 1 = heard from smartphone, 2 = heard from node that heard from smartphone...
+  time_t   unixtime;        // My unixtime
+  // All the last_x stuff is data for listening infrastructure nodes
   uint16_t last_interaction_partner_id;
   time_t   last_unixtime;
   uint32_t last_range_dt;
@@ -41,6 +41,8 @@ typedef struct opo_metadata {
 } opo_meta_t; */
 
 /* took out debug data to speed up transmissions*/
+/* total data size is 22 bytes */
+/* time_t is 4 bytes */
 typedef struct __attribute__((packed)) opo_storage_unit {
 	uint16_t version_num; // In case we switch storage unit contents
 	uint16_t rx_id;    // Opo specific rx id
@@ -50,7 +52,6 @@ typedef struct __attribute__((packed)) opo_storage_unit {
 	uint32_t failed_rx_count;   // High failed_rx count == Lower battery life
 	// Stuff from transmitters
 	time_t   tx_unixtime;
-	uint32_t ul_rf_dt; // Buffer for opo transmit function since I don't feel like writing another one. 
 } opo_data_t;
 
 typedef struct opo_metadata {

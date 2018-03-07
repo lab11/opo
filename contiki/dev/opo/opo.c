@@ -25,7 +25,7 @@
 	Current version uses comp1 or everything rx
 */
 
-#define OPO_ID 4
+#define OPO_ID 0
 
 PROCESS(opo_rx, "OpoRx");
 PROCESS(opo_tx, "OpoTx");
@@ -173,9 +173,9 @@ PROCESS_THREAD(opo_rx, ev, data) {
 				}
 				else if(rf_packet_received == true) {
 					uint32_t diff = (uint32_t) (sfd_time - ul_wakeup_time);
-					char buffer[100];
-					snprintf(buffer, 100, "OPO: RX DIFF %lu %lu", diff, rxmsg_storage.ul_rf_dt);
-					send_rf_debug_msg(buffer);
+					//char buffer[100];
+					//snprintf(buffer, 100, "OPO: RX DIFF %lu %lu", diff, rxmsg_storage.ul_rf_dt);
+					//send_rf_debug_msg(buffer);
 					if(diff < rxmsg_storage.ul_rf_dt) {
 						//send_rf_debug_msg("opo.c: Opo rx got rf packet");
 						rxmsg.tx_id = rxmsg_storage.id;
