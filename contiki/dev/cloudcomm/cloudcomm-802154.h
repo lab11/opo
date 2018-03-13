@@ -54,3 +54,7 @@ uint8_t cloudcomm_store(void *data);
 uint8_t cloudcomm_request_data(uint8_t req);
 void cloudcomm_set_rx_callback();
 void cloudcomm_clear_data();
+bool cloudcomm_is_time_set();
+
+void cloudcomm_block_upload(); 
+void cloudcomm_unblock_upload();

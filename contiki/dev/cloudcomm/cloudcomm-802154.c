@@ -20,6 +20,7 @@ static cloudcomm_meta_t metainfo;
 // What things we want updated (time, location, stepcount, etc)
 static uint8_t req_count = 0;
 static bool    req_queue[CLOUDCOMM_REQ_QUEUE_LENGTH] = {0};
+static bool    time_set = false;
 
 // Data storage shit
 static uint16_t  cc_packet_length = 0;
@@ -45,6 +46,7 @@ static bool 	time_req = false;
 static uint8_t  packet_data_store[200] = {0};	 // Store our last sent packet in case we need it for retransmission
 static uint8_t  packet_data_store_len = 0;
 static uint8_t  last_rx_id[2] = {0}; // THe rx_id in the opo data packet we transmitted to the gateway
+static bool block_data = false;
 
 //Cloudcomm operation/shutdown parameters
 static void     (*cc_done_callback)();
@@ -114,6 +116,7 @@ static void cc_rf_rx_handler() {
 				time_buf[6] = data_ptr[3];
 				time_buf[7] = data_ptr[2];
 				rv4162_set_time(time_buf);
+				time_set = true;
 			}
 		}
 	}
@@ -435,4 +438,16 @@ uint8_t cloudcomm_request_data(uint8_t req) {
 void cloudcomm_clear_data() {
 	simplestore_clear_flash_chip();
 	flash_pages_stored = 0;
+}
+
+bool cloudcomm_is_time_set() {
+	return time_set;
+}
+
+void cloudcomm_block_data() {
+	block_data = true; 
+}
+
+void cloudcomm_unblock_data() {
+	block_data = false;
 }
