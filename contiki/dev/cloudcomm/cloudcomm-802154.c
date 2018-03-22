@@ -218,6 +218,9 @@ static void load_rfbuf_from_flash() {
 			send_rf_debug_msg("CC_UPLOAD_DATA: Error with flash_pages_stored");
 		}else {
 			flash_pages_stored -= 1;
+			char buffer[100]; 
+			snprintf(buffer, 100, "flash pages stored: %lu", flash_pages_stored); 
+			send_rf_debug_msg(buffer);
 		}
 	}
 	else if (status == SIMPLESTORE_READ_FULL) {
@@ -264,6 +267,9 @@ static void upload_data() {
 	}
 	/* No data left, Cloudcomm is done */
 	else {
+		if(flash_pages_stored == 0) {
+			cloudcomm_clear_data(); 
+		}
 		return_control_to_user();
 	}
 
@@ -299,7 +305,7 @@ PROCESS_THREAD(cloudcomm_manager, ev, data) {
 				schedule_vtimer_ms(&cc_rf_retransmit_vtimer, 300 + generate_retransmit_rand());
 			}
 			/* Upload data if there is data in our cc rf storage, cc ram storage, or in flash */
-			else if(data_store_index > 0 || flash_pages_stored > 0 || !sending_data_store_empty) {
+			else if((data_store_index > 0 || flash_pages_stored > 0 || !sending_data_store_empty) && !block_data ) {
 				simplestore_turn_on_flash(); // Make sure flash is manually turned on.
 				if(rf_packet_acked) { // Last piece of data acked by gateway, so send new data
 					leds_off(LEDS_BLUE);
@@ -438,16 +444,17 @@ uint8_t cloudcomm_request_data(uint8_t req) {
 void cloudcomm_clear_data() {
 	simplestore_clear_flash_chip();
 	flash_pages_stored = 0;
+	send_rf_debug_msg("CC CLEARED FLASH CHIP");
 }
 
 bool cloudcomm_is_time_set() {
 	return time_set;
 }
 
-void cloudcomm_block_data() {
+void cloudcomm_block_upload() {
 	block_data = true; 
 }
 
-void cloudcomm_unblock_data() {
+void cloudcomm_unblock_upload() {
 	block_data = false;
 }
