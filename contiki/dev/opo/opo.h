@@ -74,4 +74,5 @@ void opo_init();
 
 uint8_t get_opo_state();
 uint8_t get_opo_txstage();
+uint16_t get_opo_id(); 
 #endif

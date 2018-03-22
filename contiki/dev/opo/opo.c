@@ -198,6 +198,7 @@ PROCESS_THREAD(opo_rx, ev, data) {
 						failed_rx_count++;
 						rf_packet_received = false;
 						txmsg.failed_rx_count = failed_rx_count;
+						//blink_red();
 						self_reset_rx = true;
 					}
 				}
@@ -205,6 +206,7 @@ PROCESS_THREAD(opo_rx, ev, data) {
 					//send_rf_debug_msg("opo.c: Opo rx did not get rf packet\n");
 					failed_rx_count++;
 					txmsg.failed_rx_count = failed_rx_count;
+					//blink_red();
 					self_reset_rx = true;
 				}
 
@@ -226,6 +228,7 @@ PROCESS_THREAD(opo_rx, ev, data) {
 		else {
 			//send_rf_debug_msg("opo_rx process failsafe");
 			failed_rx_count++;
+			//blink_red();
 			rf_packet_received = false;
 			opo_state = OPO_IDLE;
 		}
@@ -515,4 +518,8 @@ bool perform_opo_tx() {
 	}
 	INTERRUPTS_ENABLE();
 	return status;
+}
+
+uint16_t get_opo_id() {
+	return OPO_ID;
 }
