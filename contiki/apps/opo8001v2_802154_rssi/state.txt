@@ -1,0 +1,9 @@
+
+
+Blink Blue: Opo RX
+Blink Green: Opo TX
+
+While plugged in: 
+Red means shit is not done.
+Blue blinks while doing shit
+Green stays on until done. 
